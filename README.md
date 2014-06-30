@@ -2,11 +2,20 @@
 
 Alonzo is the sassy (and helpful!) bot for CS10. He's our mascot. Alonzo has attitude, but that's OK, because he's pretty awesome in general! He's a big help to everyone on the team!
 
-This is a version of GitHub's Campfire bot, hubot. He's pretty cool.
+This CS10's version of GitHub's Campfire bot, hubot. He's pretty cool.
 
-This version is designed to be deployed on [Heroku][heroku]. This README was generated for you by Alonzo to help get you started. Definitely update and improve to talk about your own instance, how to use and deploy, what functionality he has, etc!
+This version is designed to be deployed on [Heroku][heroku].
 
 [heroku]: http://www.heroku.com
+
+## Cool Story, Bro
+
+## Setup Alonzo
+Some dependencies:
+* nodejs, coffee-script
+* heroku-toolbelt
+* icu4c
+* hubot-hipchat adapter
 
 ### Testing Alonzo Locally
 
