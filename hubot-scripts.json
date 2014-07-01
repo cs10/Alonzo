@@ -10,7 +10,6 @@
 "fibonacci.coffee",
 "github-commit-link.coffee",
 "github-issues.coffee",
-"github-pull-request-notifier.coffee",
 "gosling.coffee",
 "hackernews.coffee",
 "hashing.coffee",
