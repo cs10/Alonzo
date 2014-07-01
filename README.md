@@ -4,24 +4,37 @@ Alonzo is the sassy (and helpful!) bot for CS10. He's our mascot. Alonzo has att
 
 This CS10's version of GitHub's Campfire bot, hubot. He's pretty cool.
 
-This version is designed to be deployed on [Heroku][heroku].
+This version is designed to be deployed on Heroku.
 
-[heroku]: http://www.heroku.com
-
-## Cool Story, Bro
+## Cool Story, Bro But I want X
+Sure, make a pull request! Don't push directly to master even if you can...
 
 ## Setup Alonzo
-Some dependencies:
-* nodejs, coffee-script
-* heroku-toolbelt
-* icu4c
-* hubot-hipchat adapter
+Alonzo is designed to be deployed on Heroku and connected to HipChat. This will give the basics of getting up to speed with Alonzo. Alonzo has already gone through initial deployments, so it should be easy to update.
+
+1. Checkout out the main [Hubout Docs][hubot-docs]
+2. As well as the [hipchat-adapter][hc-adap] docs.
+3. These are the dependencies you should have:
+    `node` (with `npm`) and the `heroku-toolbelt`
+    On OS X systems, [`brew`](brew) is a good way to install these.
+4. If you have just cloned the repo, you should make sure to `npm install`.
+5. When you're adding scripts be sure to `npm install --save DEP` so others don't run into any issues!
+6. To update Herkou:
+    ```
+    git push heroku master
+    heroku restart
+    heroku logs # make sure nothing broke!
+    ```
+7. All of the CS10 dependencies can be found in the [config notes][config] file. The values are on Heroku or in in the usual place where we store such info. You should know where it is, if you have access. :)
+
+More detailed documentation can be found on the
+[deploying Alonzo onto Heroku][deploy-heroku] wiki page.
 
 ### Testing Alonzo Locally
 
 You can test Alonzo by running the following.
 
-    % bin/hubot
+    % bin/hubot -n Alonzo
 
 You'll see some start up output about where your scripts come from and a
 prompt.
@@ -40,66 +53,21 @@ Then you can interact with Alonzo by typing `Alonzo help`.
     help - Displays all of the help commands that Alonzo knows about.
     ...
 
+__Please at least run Alonzo locally before deploying!__
 
-### Scripting
+## Scripting
 
 Take a look at the scripts in the `./scripts` folder for examples.
 Delete any scripts you think are useless or boring.  Add whatever functionality you
-want Alonzo to have. Read up on what you can do with Alonzo in the [Scripting Guide](https://github.com/github/Alonzo/blob/master/docs/scripting.md).
+want Alonzo to have. Read up on what you can do with Alonzo in the [Scripting Guide][scripts].
 
-### Redis Persistence
+#### Alonzo-scripts
+Alonzo uses many scripts which originate from [hubot-scripts][Hubot-scripts]. Feel free to add and configure some more if they're interesting :)
 
-If you are going to use the `redis-brain.coffee` script from `Alonzo-scripts`
-(strongly suggested), you will need to add the Redis to Go addon on Heroku which requires a verified
-account or you can create an account at [Redis to Go][redistogo] and manually
-set the `REDISTOGO_URL` variable.
+To enable scripts from the hubot-scripts package, add the script name with
+extension as a double quoted string to the `hubot-scripts.json` file.
 
-    % heroku config:set REDISTOGO_URL="..."
-
-If you don't require any persistence feel free to remove the
-`redis-brain.coffee` from `Alonzo-scripts.json` and you don't need to worry
-about redis at all.
-
-[redistogo]: https://redistogo.com/
-
-## Adapters
-
-Adapters are the interface to the service you want your Alonzo to run on. This
-can be something like Campfire or IRC. There are a number of third party
-adapters that the community have contributed. Check
-[Hubot Adapters][Hubot-adapters] for the available ones.
-
-If you would like to run a non-Campfire or shell adapter you will need to add
-the adapter package as a dependency to the `package.json` file in the
-`dependencies` section.
-
-Once you've added the dependency and run `npm install` to install it you can
-then run Alonzo with the adapter.
-
-    % bin/Hubot -a <adapter>
-
-Where `<adapter>` is the name of your adapter without the `Hubot-` prefix.
-
-[Hubot-adapters]: https://github.com/github/Hubot/blob/master/docs/adapters.md
-
-## Alonzo-scripts
-
-There will inevitably be functionality that everyone will want. Instead
-of adding it to Alonzo itself, you can submit pull requests to
-[Hubot-scripts][Hubot-scripts].
-
-To enable scripts from the Hubot-scripts package, add the script name with
-extension as a double quoted string to the `Hubot-scripts.json` file in this
-repo.
-
-[Hubot-scripts]: https://github.com/github/Hubot-scripts
-
-## external-scripts
-
-Tired of waiting for your script to be merged into `Hubot-scripts`? Want to
-maintain the repository and package yourself? Then this added functionality
-maybe for you!
-
+#### external-scripts
 Alonzo is now able to load scripts from third-party `npm` packages! To enable
 this functionality you can follow the following steps.
 
@@ -109,29 +77,12 @@ this functionality you can follow the following steps.
 To enable third-party scripts that you've added you will need to add the package
 name as a double quoted string to the `external-scripts.json` file in this repo.
 
-## Deployment
+##### Redis Persistence
+Alonzo has been setup to use redis already. If it ever becomes not needed it can be turned off.
 
-    % heroku create --stack cedar
-    % git push heroku master
-    % heroku ps:scale app=1
-
-If your Heroku account has been verified you can run the following to enable
-and add the Redis to Go addon to your app.
-
-    % heroku addons:add redistogo:nano
-
-If you run into any problems, checkout Heroku's [docs][heroku-node-docs].
-
-You'll need to edit the `Procfile` to set the name of your Alonzo.
-
-More detailed documentation can be found on the
-[deploying Alonzo onto Heroku][deploy-heroku] wiki page.
-
-
+[config]: config_notes.md
+[Hubot-scripts]: https://github.com/github/Hubot-scripts
+[scripts]: https://github.com/github/Alonzo/blob/master/docs/scripting.md
 [heroku-node-docs]: http://devcenter.heroku.com/articles/node-js
 [deploy-heroku]: https://github.com/github/Hubot/blob/master/docs/deploying/heroku.md
-
-## Restart the bot
-
-You may want to get comfortable with `heroku logs` and `heroku restart`
-if you're having issues.
+[heroku]: http://www.heroku.com
