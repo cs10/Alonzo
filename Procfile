@@ -1,1 +1,1 @@
-web: bin/hubot --adapter hipchat -n Alonzo
+web: bin/hubot --adapter hipchat
