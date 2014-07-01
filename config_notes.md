@@ -47,6 +47,7 @@ Shipit:
 Wolfram:
 
     HUBOT_WOLFRAM_APPID
+**NOTE**: Wolfram is currently not working...
 
 Yelp:
 
@@ -62,15 +63,4 @@ Yelp:
 ---
 
 # Dependencies
-
-"githubot": "0.4.x"
-"underscore": "1.3.3"
-"underscore.string": "2.3.0"
-"nodepie": "0.5.0"
-"xml2js": "0.1.14"
-"handlebars": "1.0.5beta"
-"redis": "0.8.4"
-"htmlparser": "1.7.6"
-"soupselect": "0.2.0"
-"wolfram": "0.2.2"
-"yelp": "0.1.1"
+all node dependencies should live in package.json
