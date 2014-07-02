@@ -31,6 +31,7 @@
     "hubot-scripts": ">= 2.5.0 < 3.0.0",
     "nodepie": "0.5.0",
     "redis": "0.8.4",
+    "cheerio": "0.7.0",
     "soupselect": "0.2.0",
     "underscore": "1.3.3",
     "underscore.string": "2.3.0",
