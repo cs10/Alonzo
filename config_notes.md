@@ -3,10 +3,6 @@
 ##### Note: There are duplicates in some cases (GitHub usually)
 ##### Note: Not all of these are necessary, but are included here for tracking
 
-Announce:
-
-    HUBOT_ANNOUNCE_ROOMS
-
 Asana:
 
     HUBOT_ASANA_API_KEY
@@ -28,7 +24,6 @@ Shipit:
 Wolfram:
 
     HUBOT_WOLFRAM_APPID
-**NOTE**: Wolfram is currently not working...
 
 Yelp:
 
