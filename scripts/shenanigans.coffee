@@ -1,0 +1,1 @@
+process.env['HUBOT_TEST'] = 'IT WORKS'
