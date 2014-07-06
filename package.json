@@ -29,7 +29,7 @@
     "handlebars": "1.0.5beta",
     "htmlparser": "1.7.6",
     "hubot": ">= 2.6.0 < 3.0.0",
-    "hubot-hipchat": "negativetwelve/hubot-hipchat",
+    "hubot-hipchat": "^2.6.4",
     "hubot-scripts": ">= 2.5.0 < 3.0.0",
     "libxmljs": "^0.10.0",
     "nodepie": "0.5.0",
