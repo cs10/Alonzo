@@ -23,7 +23,8 @@
 module.exports = (robot) ->
   robot.hear /feedback/i, (msg) ->
     msg.send 'Getting Feedback'
-    getResults(36448, null, null, msg)
+    thing = getResults(36448, null, null, msg)
+    msg.send "Thing?? #{thing}"
     msg.send 'Results called'
   
   # FIXME -- development
@@ -71,6 +72,7 @@ module.exports = (robot) ->
         catch error
           console.log "Ran into an error parsing JSON :("
           return
+        return 'DAMN IT'
     # End getResults
     return
   
