@@ -22,21 +22,20 @@
 
 var https = require('https');
 
-module.exports = function(robot) {
-    // FIXME -- development
-    GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY || '52e5f268428245785c337cdc00be7541';
-    console.log('GF_KEY   ' + GF_KEY);
+// FIXME -- development
+var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY || '52e5f268428245785c337cdc00be7541';
+console.log('GF_KEY   ' + GF_KEY);
 
+module.exports = function(robot) {
     if (!GF_KEY) {
         console.log("Warning: Configuration HUBOT_GETFEEDBACK_KEY is not defined.");
         return;
     }
 
-    robot.hear( /feedback/i, function(msg) {
+    robot.hear( /f/i, function(msg) {
         msg.send('Getting Feedback');
-        thing = getResults(36448, null, null, msg);
-        msg.send("Thing?? " + thing);
-        msg.send('Results called');
+        getResults(36448, null, null, msg);
+        msg.send("Thing??");
     });
     // TODO -- verify the time works and fix this
     // survey_time = robot.brain.get('survey_time') or new Date()
@@ -54,29 +53,38 @@ var GF_OPT = {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer ' + GF_KEY,
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'Content-Type': 'application/json; charset=UTF-8'
   }
 };
 
 // TODO -- build the query string
 
 var getResults = function(sid, time, page, msg) {
-
-    var req = https.request(options, function(res) {
+    console.log('Results Called');
+    var req = https.get(GF_OPT, function(res) {
       console.log("statusCode: ", res.statusCode);
       console.log("headers: ", res.headers);
-
+      var data = '';
       res.on('data', function(d) {
+          console.log('data');
           // convert to object
           // check answers length
           // make new calls
           // send data to process
-          console.log(d);
-          console.log(typeof d);
+          console.log(data.length);
+          data += d.toString();
+          console.log(data.length);
       });
-    });
-    req.end();
 
+      res.on('end', function(e) {
+          console.log('end');
+          console.log(e);
+          console.log('data');
+          console.log(data);
+          console.log(gfResults(JSON.parse(data)).length);
+      })
+    }).end();
     req.on('error', function(e) {
       console.error(e);
     });
