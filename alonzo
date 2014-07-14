@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# For local dev, no need to install every time!
+# npm install
+# Source localconfigurations
+source ./.env # DONT COMMIT THIS FILE
+# export HUBOT_LOG_LEVEL="debug"
+export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
+
+exec node_modules/.bin/hubot "$@"
+

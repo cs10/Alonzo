@@ -32,9 +32,11 @@ module.exports = function(robot) {
         return;
     }
 
+    // TODO make this a schedule
     robot.hear( /f/i, function(msg) {
         msg.send('Getting Feedback');
-        getResults(36448, null, null, msg);
+        // survey ID, page number, time, msg
+        getResults(36448, 1, null, msg);
         msg.send("Thing??");
     });
     // TODO -- verify the time works and fix this
@@ -45,50 +47,87 @@ module.exports = function(robot) {
 };
 
 
-// Note this needs a survey ID, which will be provided.
-var GF_OPT = {
-  hostname: 'api.getfeedback.com',
-  port: 443,
-  path: '/surveys/36448/responses',
-  method: 'GET',
-  headers: {
-    'Authorization': 'Bearer ' + GF_KEY,
-    'Accept': 'application/json',
-    'Content-Type': 'application/json; charset=UTF-8'
-  }
-};
+var getResults = function(sid, page, time, msg) {
+    var GF_OPT = {
+      hostname: 'api.getfeedback.com',
+      port: 443,
+      path: '/surveys/'+ sid + '/responses?per_page=30&page=' + page + '&since=2014-07-12T04:22:46+08:00',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + GF_KEY,
+        //'Accept': 'application/json',
+      }
+    };
 
-// TODO -- build the query string
-
-var getResults = function(sid, time, page, msg) {
-    console.log('Results Called');
     var req = https.get(GF_OPT, function(res) {
-      console.log("statusCode: ", res.statusCode);
-      console.log("headers: ", res.headers);
-      var data = '';
-      res.on('data', function(d) {
-          console.log('data');
+      var allData = '';
+      res.on('data', function(chunk) {
+          allData += chunk;
+      });
+
+      res.on('end', function(e) {
           // convert to object
           // check answers length
           // make new calls
           // send data to process
-          console.log(data.length);
-          data += d.toString();
-          console.log(data.length);
-      });
-
-      res.on('end', function(e) {
           console.log('end');
-          console.log(e);
-          console.log('data');
-          console.log(data);
-          console.log(gfResults(JSON.parse(data)).length);
+          var results = JSON.parse(allData.toString());
+          var more = moreResponses(gfResults(results), 30);
+          processResponse(results);
+          // FIXME -- debugging!!
+          if (more & false) {
+\              console.log('Page: ' + (page + 1));
+              getResults(sid, page + 1, null, msg);
+          } else {
+              console.log('no more results!! PAGE:  ' + page);
+          }
+
       })
     }).end();
+
+/**
     req.on('error', function(e) {
       console.error(e);
-    });
+    }); */
 };
+
+/** Take in a GF response as a JS object and start checking responses
+ *  to post issues to GitHub */
+var processResponse = function(gf_data) {
+    // Strip out the wrapper to get a response list
+    var responses = gfResults(gf_data);
+    // Filter for finished submissions
+    responses = responses.filter(surveySubmitted);
+    // Filter for submissions worth of posting
+}
+
+/** Check the submission to see if it should be posted to github
+ * Returns true IFF
+ * Rating: <= 3 (of 5)
+ * Feedback: Exists and is > 10 characters
+ */
+var gitHubWorthy = function(gf_submission) {
+    var ratingMatches, contentMatches,
+        answers = responseAnswers(gf_submission);
+
+    // Iterate over answers -- check type and content
+    return ratingMatches & contentMatches
+}
+
+
+/***********************************************************************/
+/************* GITHUB ISSUES FUNCTIONS *********************************/
+/***********************************************************************/
+var createGHIssue;
+var createGHTags;
+var responsePage;
+var responseTopic;
+var reponseCourse;
+var createIssueBody;
+var createIssueTitle;
+/***********************************************************************/
+/************* GET FEEDBACK RESPONSE FUNCTIONS *************************/
+/***********************************************************************/
 
 /** Returns an array of survey response objects */
 var gfResults = function(gf_data) {
@@ -97,36 +136,22 @@ var gfResults = function(gf_data) {
 
 /** Given a response object from a single survey return the submitted status */
 var surveySubmitted = function(gf_response) {
-    return gf_response['submitted'] === 'completed';
+    return gf_response['status'] === 'completed';
 }
 
-/** */
-var moreReponses = function(gf_results, page_size) {
+/** Determine if there are more responses to be found */
+var moreResponses = function(gf_results, page_size) {
     return gf_results.length === page_size;
 }
 
-/** */
+/** Return true if the survey response is before the given time. */
 var validTime = function(gf_response, time) {
-
-}
-
-/** */
-var shouldBeSubmitted = function(gf_response) {
-
+    return gf_response['updated_at'] > time;
 }
 
 var responseAnswers = function(gf_response) {
-
+    return gf_response['answers'];
 }
-
-var createGHIssue;
-var createGHTags;
-var responsePage;
-var responseTopic;
-var reponseCourse;
-var filterCompletions;
-var createIssueBody;
-var createIssueTitle;
 
 /***********
  * schedule jobs to run
