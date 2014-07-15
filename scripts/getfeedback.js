@@ -48,6 +48,7 @@ module.exports = function(robot) {
 
 
 var getResults = function(sid, page, time, msg) {
+    // Note per_page must be 30 due to API bug
     var GF_OPT = {
       hostname: 'api.getfeedback.com',
       port: 443,
@@ -129,28 +130,31 @@ var createIssueTitle;
 /************* GET FEEDBACK RESPONSE FUNCTIONS *************************/
 /***********************************************************************/
 
+var isValidSubmission = function(gfResponse) {
+    
+}
 /** Returns an array of survey response objects */
-var gfResults = function(gf_data) {
-    return gf_data['active_models'];
+var gfResults = function(gfData) {
+    return gfData['active_models'];
 };
 
 /** Given a response object from a single survey return the submitted status */
-var surveySubmitted = function(gf_response) {
-    return gf_response['status'] === 'completed';
+var surveySubmitted = function(gfResponse) {
+    return gfResponse['status'] === 'completed';
 }
 
 /** Determine if there are more responses to be found */
-var moreResponses = function(gf_results, page_size) {
-    return gf_results.length === page_size;
+var moreResponses = function(gfResults, pageSize) {
+    return gfResults.length === pageSize;
 }
 
 /** Return true if the survey response is before the given time. */
-var validTime = function(gf_response, time) {
-    return gf_response['updated_at'] > time;
+var validTime = function(gfEesponse, time) {
+    return gfEesponse['updated_at'] > time;
 }
 
-var responseAnswers = function(gf_response) {
-    return gf_response['answers'];
+var responseAnswers = function(gfResponse) {
+    return gfResponse['answers'];
 }
 
 /***********
