@@ -77,7 +77,7 @@ var getResults = function(sid, page, time, msg) {
           processResponse(results);
           // FIXME -- debugging!!
           if (more & false) {
-\              console.log('Page: ' + (page + 1));
+              console.log('Page: ' + (page + 1));
               getResults(sid, page + 1, null, msg);
           } else {
               console.log('no more results!! PAGE:  ' + page);
