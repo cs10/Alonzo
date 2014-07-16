@@ -74,7 +74,7 @@ var getResults = function(sid, page, time, msg) {
           console.log('end');
           var results = JSON.parse(allData.toString());
           var more = moreResponses(gfResults(results), 30);
-          processResponse(results);
+          processResponse(results, new Date());
           // FIXME -- debugging!!
           if (more & false) {
               console.log('Page: ' + (page + 1));
@@ -83,7 +83,7 @@ var getResults = function(sid, page, time, msg) {
               console.log('no more results!! PAGE:  ' + page);
           }
 
-      })
+      });
     }).end();
 
 /**
@@ -94,28 +94,66 @@ var getResults = function(sid, page, time, msg) {
 
 /** Take in a GF response as a JS object and start checking responses
  *  to post issues to GitHub */
-var processResponse = function(gf_data) {
+var processResponse = function(gfData, dateObj) {
     // Strip out the wrapper to get a response list
-    var responses = gfResults(gf_data);
+    var responses = gfResults(gfData);
+    console.log('Responses Length: Prefilter: ' + responses.length);
     // Filter for finished submissions
-    responses = responses.filter(surveySubmitted);
+    responses = responses.filter(function(item) {
+        return isValidSubmission(item, dateObj);
+    });
+    console.log('Responses Length: Filter 1: ' + responses.length);
     // Filter for submissions worth of posting
-}
+    responses = responses.filter(isGitHubWorthy);
+    console.log('Responses Length: Filter 2: ' + responses.length);
+};
 
 /** Check the submission to see if it should be posted to github
  * Returns true IFF
  * Rating: <= 3 (of 5)
  * Feedback: Exists and is > 10 characters
  */
-var gitHubWorthy = function(gf_submission) {
-    var ratingMatches, contentMatches,
-        answers = responseAnswers(gf_submission);
-
+var isGitHubWorthy = function(gfItem) {
     // Iterate over answers -- check type and content
-    return ratingMatches & contentMatches
-}
+    var ratingMatches, contentMatches
+        answers = responseAnswers(gfItem);
+    answers.forEach(function(ans) {
+        if (answerType(ans) === 'ShortAnswer') {
+            contentMatches = ans['text'].length >= 10;
+        } else if (answerType(ans) === 'Rating') {
+            ratingMatches = ans['number'] <= 3;
+        }
+    });
+    return ratingMatches & contentMatches;
+};
+ 
+/** Check the rating on "Scale" questions and make sure it's lower than 3
+ *  3 works fine for now because the scale is out of 5.
+ *  TODO: Eventually, this should be a % threshold
+ */
+var contentMatches = function(gfSubmission) {
+    var answers = responseAnswers(gfSubmission);
+    answers.forEach(function(ans) {
+        if (answerType(ans) === 'ShortAnswer') {
+            return ans['text'].length >= 10;
+        }
+    });
+    console.log('no shortAnswer item found');
+    return false;
+};
 
-
+/** Check to make sure the text entered is at least 10 characters */
+var ratingMatches = function(gfSubmission) {
+    var answers = responseAnswers(gfSubmission);
+    answers.forEach(function(ans) {
+        console.log(answerType(ans));
+        if (answerType(ans) === 'Rating') {
+            return ans['number'] <= 3;
+        }
+    });
+    console.log('no rating answer found');
+    return false;
+};
 /***********************************************************************/
 /************* GITHUB ISSUES FUNCTIONS *********************************/
 /***********************************************************************/
@@ -130,33 +168,43 @@ var createIssueTitle;
 /************* GET FEEDBACK RESPONSE FUNCTIONS *************************/
 /***********************************************************************/
 
-var isValidSubmission = function(gfResponse) {
-    
-}
+/** Returns true if a submission is complete and the time is more recent 
+ *  than submissionTime */
+var isValidSubmission = function(gfItem, dateObj) {
+    return isSurveySubmitted(gfItem) & isValidTime(gfItem, dateObj);
+};
+
 /** Returns an array of survey response objects */
 var gfResults = function(gfData) {
     return gfData['active_models'];
 };
 
 /** Given a response object from a single survey return the submitted status */
-var surveySubmitted = function(gfResponse) {
+var isSurveySubmitted = function(gfResponse) {
     return gfResponse['status'] === 'completed';
-}
+};
 
 /** Determine if there are more responses to be found */
 var moreResponses = function(gfResults, pageSize) {
     return gfResults.length === pageSize;
-}
+};
 
 /** Return true if the survey response is before the given time. */
-var validTime = function(gfEesponse, time) {
-    return gfEesponse['updated_at'] > time;
-}
+var isValidTime = function(gfResponse, dateObj) {
+    return new Date(submissionTime(gfResponse)) <= dateObj;
+};
 
 var responseAnswers = function(gfResponse) {
     return gfResponse['answers'];
-}
+};
 
+var answerType = function(gfAnswer) {
+    return gfAnswer['type'];
+};
+
+var submissionTime = function(gfSubmission) {
+    return gfSubmission['updated_at'];
+};
 /***********
  * schedule jobs to run
  * report / log errors
