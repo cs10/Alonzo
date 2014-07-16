@@ -25,12 +25,21 @@ var https = require('https');
 var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY;
 console.log('GF_KEY   ' + GF_KEY);
 
+var GH_KEY = process.env.HUBOT_GITHUB_TOKEN;
+console.log('GH_KEY   ' + GH_KEY);
+
 module.exports = function(robot) {
     if (!GF_KEY) {
-        console.log("Warning: Configuration HUBOT_GETFEEDBACK_KEY is not defined.");
+        robot.logger.warning("Configuration HUBOT_GETFEEDBACK_KEY is not defined.");
+        // exit because we can't get any surveys
         return;
     }
 
+    if (!GH_KEY) {
+        robot.logger.warning("Configuration HUBOT_GITHUB_KEY is not defined.");
+        // don't exist because we can post to a chatroom
+    }
+    
     // TODO make this a schedule
     robot.hear( /f/i, function(msg) {
         msg.send('Getting Feedback');
