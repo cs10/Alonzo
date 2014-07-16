@@ -22,8 +22,7 @@
 
 var https = require('https');
 
-// FIXME -- development
-var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY || '52e5f268428245785c337cdc00be7541';
+var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY;
 console.log('GF_KEY   ' + GF_KEY);
 
 module.exports = function(robot) {
@@ -75,21 +74,22 @@ var getResults = function(sid, page, time, msg) {
           var results = JSON.parse(allData.toString());
           var more = moreResponses(gfResults(results), 30);
           processResponse(results, new Date());
-          // FIXME -- debugging!!
-          if (more & false) {
-              console.log('Page: ' + (page + 1));
+          if (more) {
               getResults(sid, page + 1, null, msg);
           } else {
               console.log('no more results!! PAGE:  ' + page);
           }
 
       });
-    }).end();
-
-/**
+    })
+    
     req.on('error', function(e) {
-      console.error(e);
-    }); */
+        console.log('GetFeedback Request Error');
+        console.error(e);
+    });
+    
+    req.end();
+    
 };
 
 /** Take in a GF response as a JS object and start checking responses
@@ -157,6 +157,18 @@ var ratingMatches = function(gfSubmission) {
 /***********************************************************************/
 /************* GITHUB ISSUES FUNCTIONS *********************************/
 /***********************************************************************/
+
+var GITHUB_OPT = {
+  hostname: 'api.github.com',
+  port: 443,
+  
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer ' + GF_KEY,
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'cycomachead',
+}
+  }
 var createGHIssue;
 var createGHTags;
 var responsePage;
