@@ -25,10 +25,7 @@ var https = require('https'),
     github = require('githubot');
     
 var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY;
-console.log('GF_KEY   ' + GF_KEY);
-
 var GH_KEY = process.env.HUBOT_GITHUB_TOKEN;
-console.log('GH_KEY   ' + GH_KEY);
 
 module.exports = function(robot) {
     if (!GF_KEY) {
@@ -85,7 +82,7 @@ var getResults = function(sid, page, time, msg) {
           var results = JSON.parse(allData.toString());
           var more = moreResponses(gfResults(results), 30);
           processResponse(results, new Date());
-          if (more) {
+          if (more & false) {
               getResults(sid, page + 1, null, msg);
           } else {
               console.log('no more results!! PAGE:  ' + page);
@@ -143,13 +140,17 @@ var isGitHubWorthy = function(gfItem) {
  *  3 works fine for now because the scale is out of 5.
  *  TODO: Eventually, this should be a % threshold
  */
-var answerCntent = function(gfSubmission) {
+var answerContent = function(gfSubmission) {
     var answers = responseAnswers(gfSubmission);
-    answers.forEach(function(ans) {
-        if (answerType(ans) === 'ShortAnswer') {
-            return ans['text'].length >= 10;
+    // forEach sucks and can't be broken out of
+    var i = 0;
+    for(; i < answers.length; i += 1) {
+        if (answerType(answers[i]) === 'ShortAnswer') {
+            console.log('ShortAnswer!');
+            console.log(answers[i]);
+            return answers[i]['text'];
         }
-    });
+    }
     console.log('no shortAnswer item found');
     return false;
 };
@@ -157,11 +158,14 @@ var answerCntent = function(gfSubmission) {
 /** Check to make sure the text entered is at least 10 characters */
 var answerRating = function(gfSubmission) {
     var answers = responseAnswers(gfSubmission);
-    answers.forEach(function(ans) {
-        if (answerType(ans) === 'Rating') {
-            return ans['number'];
+    var i = 0;
+    for(; i < answers.length; i += 1) {
+        if (answerType(answers[i]) === 'Rating') {
+            console.log('Rating!');
+            console.log(answers[i]);
+            return answers[i]['number'];
         }
-    });
+    }
     console.log('no rating answer found');
     return false;
 };
@@ -170,13 +174,14 @@ var answerRating = function(gfSubmission) {
 /***********************************************************************/
 
 // Create the JSON map to use as the POST data
-var createGHIssue = function(gfSubmission) {
+var createGitHubIssue = function(gfSubmission) {
     var issue = {
         title: createIssueTitle(gfSubmission),
         assignee: 'cycomachead', // FIXME -- for now
         body: createIssueBody(gfSubmission),
         labels: createIssueLabels(gfSubmission)
     };
+    console.log('issue');
     console.log(JSON.stringify(issue));
     return JSON.stringify(issue);
 };
@@ -192,7 +197,7 @@ var responsePage = function(gfSubmission) {
 var responseTopic = function(gfSubmission) {
     return gfSubmission['merge_map']['topic'];
 };
-var reponseCourse = function(gfSubmission) {
+var responseCourse = function(gfSubmission) {
     return gfSubmission['merge_map']['course'];
 };
 var createIssueBody = function(gfSubmission) {
@@ -207,12 +212,14 @@ var createIssueBody = function(gfSubmission) {
     body += answerContent(gfSubmission);
     return body
 };
+
 var createIssueTitle = function(gfSubmission) {
     var topic = responseTopic(gfSubmission),
         strip = topic.lastIndexOf('/');
         topic = topic.slice(strip + 1);
-    return 'Feedback: ' + responsePage(gfSubmission) + ' (' topic + ')';
+    return 'Feedback: ' + responsePage(gfSubmission) + ' (' + topic + ')';
 };
+
 /***********************************************************************/
 /************* GET FEEDBACK RESPONSE FUNCTIONS *************************/
 /***********************************************************************/
