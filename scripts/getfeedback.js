@@ -116,10 +116,10 @@ var processResponse = function(gfData, dateObj) {
     console.log('Responses Length: Filter 2: ' + responses.length);
     responses.forEach(function(response) {
         data = createGitHubIssue(response);
-        github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {
-            console.log('issue posted!');
-            console.log(issue);
-        });
+        // github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {
+           // console.log('issue posted!');
+           // console.log(issue);
+        // });
     });
 };
 
@@ -191,23 +191,27 @@ var createIssueLabels = function(gfSubmission) {
     // Currently a static list but we can eventually improve this!
     return ['GetFeedback', 'Needs Review'];
 };
+
 var responsePage = function(gfSubmission) {
     return gfSubmission['merge_map']['page'];
 };
+
 var responseTopic = function(gfSubmission) {
     return gfSubmission['merge_map']['topic'];
 };
+
 var responseCourse = function(gfSubmission) {
     return gfSubmission['merge_map']['course'];
 };
+
 var createIssueBody = function(gfSubmission) {
     var body;
-    body += '## GetFeedback Submission \n';
-    body += '## **RATING: ' + answerRating(gfSubmission) + '**\n';
-    body += '## Submission Time: ' + gfSubmission['updated_at'] + '\n';
-    body += '## Page: ' + responsePage(gfSubmission) + '\n';
-    body += '## Course: ' + responseCourse(gfSubmission) + '\n';
-    body += '## Topic: ' + responseTopic(gfSubmission) + '\n';
+    body  = '## GetFeedback Submission \n';
+    body += '#### **RATING: ' + answerRating(gfSubmission) + '**\n';
+    body += '#### Submission Time: ' + gfSubmission['updated_at'] + '\n';
+    body += '#### Page: ' + responsePage(gfSubmission) + '\n';
+    body += '#### Course: ' + responseCourse(gfSubmission) + '\n';
+    body += '#### Topic: ' + responseTopic(gfSubmission) + '\n';
     body += '\n---\n\n';
     body += answerContent(gfSubmission);
     return body
