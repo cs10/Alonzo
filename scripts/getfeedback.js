@@ -3,11 +3,12 @@
 //   TODO: Will eventually support queries for survey stats
 //
 // Dependencies:
-//
+//     githubot
 //
 // Configuration:
 //   HUBOT_GETFEEDBACK_KEY
-//   Github keys... TODO
+//   HUBOT_GITHUB_TOKEN
+//
 //
 // Commands:
 //   None
@@ -20,8 +21,9 @@
 
 // _ = require 'underscore'
 
-var https = require('https');
-
+var https = require('https'),
+    github = require('githubot');
+    
 var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY;
 console.log('GF_KEY   ' + GF_KEY);
 
@@ -115,6 +117,7 @@ var processResponse = function(gfData, dateObj) {
     // Filter for submissions worth of posting
     responses = responses.filter(isGitHubWorthy);
     console.log('Responses Length: Filter 2: ' + responses.length);
+    responses.forEach(createGitHubIssue);
 };
 
 /** Check the submission to see if it should be posted to github
@@ -140,7 +143,7 @@ var isGitHubWorthy = function(gfItem) {
  *  3 works fine for now because the scale is out of 5.
  *  TODO: Eventually, this should be a % threshold
  */
-var contentMatches = function(gfSubmission) {
+var answerCntent = function(gfSubmission) {
     var answers = responseAnswers(gfSubmission);
     answers.forEach(function(ans) {
         if (answerType(ans) === 'ShortAnswer') {
@@ -152,12 +155,11 @@ var contentMatches = function(gfSubmission) {
 };
 
 /** Check to make sure the text entered is at least 10 characters */
-var ratingMatches = function(gfSubmission) {
+var answerRating = function(gfSubmission) {
     var answers = responseAnswers(gfSubmission);
     answers.forEach(function(ans) {
-        console.log(answerType(ans));
         if (answerType(ans) === 'Rating') {
-            return ans['number'] <= 3;
+            return ans['number'];
         }
     });
     console.log('no rating answer found');
@@ -167,24 +169,50 @@ var ratingMatches = function(gfSubmission) {
 /************* GITHUB ISSUES FUNCTIONS *********************************/
 /***********************************************************************/
 
-var GITHUB_OPT = {
-  hostname: 'api.github.com',
-  port: 443,
-  
-  method: 'GET',
-  headers: {
-    'Authorization': 'Bearer ' + GF_KEY,
-    'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'cycomachead',
-}
-  }
-var createGHIssue;
-var createGHTags;
-var responsePage;
-var responseTopic;
-var reponseCourse;
-var createIssueBody;
-var createIssueTitle;
+// Create the JSON map to use as the POST data
+var createGHIssue = function(gfSubmission) {
+    var issue = {
+        title: createIssueTitle(gfSubmission),
+        assignee: 'cycomachead', // FIXME -- for now
+        body: createIssueBody(gfSubmission),
+        labels: createIssueLabels(gfSubmission)
+    };
+    console.log(JSON.stringify(issue));
+    return JSON.stringify(issue);
+};
+
+/** Create a list of tags to use on GitHub */
+var createIssueLabels = function(gfSubmission) {
+    // Currently a static list but we can eventually improve this!
+    return ['GetFeedback', 'Needs Review'];
+};
+var responsePage = function(gfSubmission) {
+    return gfSubmission['merge_map']['page'];
+};
+var responseTopic = function(gfSubmission) {
+    return gfSubmission['merge_map']['topic'];
+};
+var reponseCourse = function(gfSubmission) {
+    return gfSubmission['merge_map']['course'];
+};
+var createIssueBody = function(gfSubmission) {
+    var body;
+    body += '## GetFeedback Submission \n';
+    body += '## **RATING: ' + answerRating(gfSubmission) + '**\n';
+    body += '## Submission Time: ' + gfSubmission['updated_at'] + '\n';
+    body += '## Page: ' + responsePage(gfSubmission) + '\n';
+    body += '## Course: ' + responseCourse(gfSubmission) + '\n';
+    body += '## Topic: ' + responseTopic(gfSubmission) + '\n';
+    body += '\n---\n\n';
+    body += answerContent(gfSubmission);
+    return body
+};
+var createIssueTitle = function(gfSubmission) {
+    var topic = responseTopic(gfSubmission),
+        strip = topic.lastIndexOf('/');
+        topic = topic.slice(strip + 1);
+    return 'Feedback: ' + responsePage(gfSubmission) + ' (' topic + ')';
+};
 /***********************************************************************/
 /************* GET FEEDBACK RESPONSE FUNCTIONS *************************/
 /***********************************************************************/
