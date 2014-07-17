@@ -114,7 +114,13 @@ var processResponse = function(gfData, dateObj) {
     // Filter for submissions worth of posting
     responses = responses.filter(isGitHubWorthy);
     console.log('Responses Length: Filter 2: ' + responses.length);
-    responses.forEach(createGitHubIssue);
+    responses.forEach(function(response) {
+        data = createGitHubIssue(response);
+        github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {
+            console.log('issue posted!');
+            console.log(issue);
+        });
+    });
 };
 
 /** Check the submission to see if it should be posted to github
@@ -146,8 +152,6 @@ var answerContent = function(gfSubmission) {
     var i = 0;
     for(; i < answers.length; i += 1) {
         if (answerType(answers[i]) === 'ShortAnswer') {
-            console.log('ShortAnswer!');
-            console.log(answers[i]);
             return answers[i]['text'];
         }
     }
@@ -161,8 +165,6 @@ var answerRating = function(gfSubmission) {
     var i = 0;
     for(; i < answers.length; i += 1) {
         if (answerType(answers[i]) === 'Rating') {
-            console.log('Rating!');
-            console.log(answers[i]);
             return answers[i]['number'];
         }
     }
@@ -181,9 +183,7 @@ var createGitHubIssue = function(gfSubmission) {
         body: createIssueBody(gfSubmission),
         labels: createIssueLabels(gfSubmission)
     };
-    console.log('issue');
-    console.log(JSON.stringify(issue));
-    return JSON.stringify(issue);
+    return issue;
 };
 
 /** Create a list of tags to use on GitHub */
