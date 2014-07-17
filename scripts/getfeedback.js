@@ -78,7 +78,6 @@ var getResults = function(sid, page, time, msg) {
           // check answers length
           // make new calls
           // send data to process
-          console.log('end');
           var results = JSON.parse(allData.toString());
           var more = moreResponses(gfResults(results), 30);
           processResponse(results, new Date());
@@ -114,12 +113,13 @@ var processResponse = function(gfData, dateObj) {
     // Filter for submissions worth of posting
     responses = responses.filter(isGitHubWorthy);
     console.log('Responses Length: Filter 2: ' + responses.length);
+    var i = 353;
     responses.forEach(function(response) {
         data = createGitHubIssue(response);
-        // github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {
-           // console.log('issue posted!');
-           // console.log(issue);
-        // });
+        github.patch('/repos/beautyjoy/bjc-r/issues/' + i, data, function(issue) {
+           console.log('issue posted!');
+        });
+        i += 1;
     });
 };
 
@@ -189,7 +189,27 @@ var createGitHubIssue = function(gfSubmission) {
 /** Create a list of tags to use on GitHub */
 var createIssueLabels = function(gfSubmission) {
     // Currently a static list but we can eventually improve this!
-    return ['GetFeedback', 'Needs Review'];
+    var labels = ['GetFeedback', 'Needs Review'],
+        topic  = responseTopic(gfSubmission),
+        rating = answerRating(gfSubmission);
+    // add a rating label (the bjc-r scheme)
+    labels.push('Rating - ' + rating);
+    
+    // FIXME -- YAY for shitty list of conditionals.
+    // captures recur and recursion sub dirs.
+    if (topic.indexOf('recur') !== -1) {
+        labels.push('Lab - Recursion');
+    }
+    if (topic.indexOf('intro') !== -1) {
+        // TODO
+    }
+    if (topic.indexOf('python') !== -1) {
+        labels.push('Lab - Besides Blocks');
+    }
+    if (topic.indexOf('list') !== -1) {
+        labels.push('Lab - Lists');
+    }
+    return labels;
 };
 
 var responsePage = function(gfSubmission) {
@@ -207,11 +227,12 @@ var responseCourse = function(gfSubmission) {
 var createIssueBody = function(gfSubmission) {
     var body;
     body  = '## GetFeedback Submission \n';
-    body += '#### **RATING: ' + answerRating(gfSubmission) + '**\n';
-    body += '#### Submission Time: ' + gfSubmission['updated_at'] + '\n';
-    body += '#### Page: ' + responsePage(gfSubmission) + '\n';
-    body += '#### Course: ' + responseCourse(gfSubmission) + '\n';
-    body += '#### Topic: ' + responseTopic(gfSubmission) + '\n';
+    body += '##### RATING: ' + answerRating(gfSubmission) + '\n';
+    body += '##### Submission Time: ' + gfSubmission['updated_at'] + '\n';
+    body += '##### Page: ' + responsePage(gfSubmission) + '\n';
+    body += '##### Course: ' + responseCourse(gfSubmission) + '\n';
+    body += '##### Topic: ' + responseTopic(gfSubmission) + '\n';
+    //body += '#### [View the Page here](' + responseURL(url) + ')\n';
     body += '\n---\n\n';
     body += answerContent(gfSubmission);
     return body
@@ -220,7 +241,7 @@ var createIssueBody = function(gfSubmission) {
 var createIssueTitle = function(gfSubmission) {
     var topic = responseTopic(gfSubmission),
         strip = topic.lastIndexOf('/');
-        topic = topic.slice(strip + 1);
+        topic = topic.slice(strip + 1, topic.length - 6);
     return 'Feedback: ' + responsePage(gfSubmission) + ' (' + topic + ')';
 };
 
