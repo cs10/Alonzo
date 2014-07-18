@@ -111,12 +111,16 @@ var processResponse = function(gfData, dateStr, msg) {
     });
     // Filter for submissions worth of posting
     responses = responses.filter(isGitHubWorthy);
+    if (!responses.length) {
+        return;
+    }
     responses.forEach(function(response) {
         data = createGitHubIssue(response);
         github.post('/repos/beautyjoy/bjc-r/issues/', data, function(issue) {
         });
     });
-    msg.send('Posted ' + responses.length + ' issues to Github bjc-r.');
+    var s = responses.length === 1 ? '' : 's';
+    msg.send('Posted ' + responses.length + ' issue' + s + ' to Github bjc-r.');
 };
 
 /** Check the submission to see if it should be posted to github
