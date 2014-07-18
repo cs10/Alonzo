@@ -40,11 +40,14 @@ module.exports = function(robot) {
     }
     
     // TODO make this a schedule
-    robot.hear( /f/i, function(msg) {
-        msg.send('Getting Feedback');
+    robot.respond( /update feedback/i, function(msg) {
+        msg.send('Updating Feedback');        
         // survey ID, page number, time, msg
-        getResults(36448, 1, null, msg);
-        msg.send("Thing??");
+        getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg);
+        msg.send('Finished!');
+        // Update the time for the next call
+        SURVEY_TIME = (new Date()).toISOString();
+        robot.brain.set('SURVEY_TIME', SURVEY_TIME);
     });
     // TODO -- verify the time works and fix this
     // survey_time = robot.brain.get('survey_time') or new Date()
@@ -56,14 +59,15 @@ module.exports = function(robot) {
 
 var getResults = function(sid, page, time, msg) {
     // Note per_page must be 30 due to API bug
+    var query  = '?per_page=30&page=' + page + '&since=' + time;
     var GF_OPT = {
       hostname: 'api.getfeedback.com',
       port: 443,
-      path: '/surveys/'+ sid + '/responses?per_page=30&page=' + page + '&since=2014-07-12T04:22:46+08:00',
+      path: '/surveys/'+ sid + '/responses' + query,
       method: 'GET',
       headers: {
         'Authorization': 'Bearer ' + GF_KEY,
-        //'Accept': 'application/json',
+        'Accept': 'application/json',
       }
     };
 
@@ -79,48 +83,40 @@ var getResults = function(sid, page, time, msg) {
           // make new calls
           // send data to process
           var results = JSON.parse(allData.toString());
+          processResponse(results, time, msg);
           var more = moreResponses(gfResults(results), 30);
-          processResponse(results, new Date());
-          if (more & false) {
+          if (more) { // Handle pagination
               getResults(sid, page + 1, null, msg);
-          } else {
-              console.log('no more results!! PAGE:  ' + page);
           }
-
       });
-    })
+    });
     
     req.on('error', function(e) {
         console.log('GetFeedback Request Error');
         console.error(e);
+        msg.send('Oh Dear! An error has occurred. I am most sorry.');
     });
     
     req.end();
-    
 };
 
 /** Take in a GF response as a JS object and start checking responses
  *  to post issues to GitHub */
-var processResponse = function(gfData, dateObj) {
+var processResponse = function(gfData, dateStr, msg) {
     // Strip out the wrapper to get a response list
     var responses = gfResults(gfData);
-    console.log('Responses Length: Prefilter: ' + responses.length);
     // Filter for finished submissions
     responses = responses.filter(function(item) {
-        return isValidSubmission(item, dateObj);
+        return isValidSubmission(item, dateStr);
     });
-    console.log('Responses Length: Filter 1: ' + responses.length);
     // Filter for submissions worth of posting
     responses = responses.filter(isGitHubWorthy);
-    console.log('Responses Length: Filter 2: ' + responses.length);
-    var i = 353;
     responses.forEach(function(response) {
         data = createGitHubIssue(response);
-        github.patch('/repos/beautyjoy/bjc-r/issues/' + i, data, function(issue) {
-           console.log('issue posted!');
+        github.post('/repos/beautyjoy/bjc-r/issues/', data, function(issue) {
         });
-        i += 1;
     });
+    msg.send('Posted ' + responses.length + ' issues to Github bjc-r.');
 };
 
 /** Check the submission to see if it should be posted to github
@@ -130,7 +126,7 @@ var processResponse = function(gfData, dateObj) {
  */
 var isGitHubWorthy = function(gfItem) {
     // Iterate over answers -- check type and content
-    var ratingMatches, contentMatches
+    var ratingMatches, contentMatches,
         answers = responseAnswers(gfItem);
     answers.forEach(function(ans) {
         if (answerType(ans) === 'ShortAnswer') {
@@ -235,7 +231,7 @@ var createIssueBody = function(gfSubmission) {
     //body += '#### [View the Page here](' + responseURL(url) + ')\n';
     body += '\n---\n\n';
     body += answerContent(gfSubmission);
-    return body
+    return body;
 };
 
 var createIssueTitle = function(gfSubmission) {
@@ -271,8 +267,8 @@ var moreResponses = function(gfResults, pageSize) {
 };
 
 /** Return true if the survey response is before the given time. */
-var isValidTime = function(gfResponse, dateObj) {
-    return new Date(submissionTime(gfResponse)) <= dateObj;
+var isValidTime = function(gfResponse, dateStr) {
+    return new Date(submissionTime(gfResponse)) <= new Date(dateStr);
 };
 
 var responseAnswers = function(gfResponse) {
