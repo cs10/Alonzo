@@ -1,1 +1,4 @@
-["hubot-group-alias"]
+[
+"hubot-group-alias",
+"hubot-cron"
+]
