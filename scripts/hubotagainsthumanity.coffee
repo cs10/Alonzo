@@ -795,6 +795,7 @@ answers = [
 
 module.exports = (robot) ->
   robot.respond /card(?: me)?(?: )(\d+)?/i, (msg) ->
+    msg.send msg.message.room
     count = if msg.match[1]? then parseInt(msg.match[1], 10) else 1
     msg.send msg.random answers for i in [1..count]
 
