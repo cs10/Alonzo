@@ -1,9 +1,13 @@
+# Description:
+#   Random fun stuff for TAs
 #
-#
-#
-#
-#
+# Commands:
+#   None
 #
 
 module.exports = (robot) ->
-  return
+
+  robot.respond /this room/i, (msg) ->
+    msg.send 'Room Info:'
+    console.log msg
+    msg.send msg.toString()
