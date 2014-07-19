@@ -12,9 +12,8 @@ module.exports = (robot) ->
     msg.send msg.message.room
     msg.send msg.user.room
     console.log msg
-    
-  robot.respond /testing!/, (msg) ->
+
+  robot.respond /fuck you/i, (msg) ->
     if msg.message.room != process.env.HUBOT_SECRET_ROOM
-      msg.send 'Denied...'
-    else
-      msg.send 'Approved'
+      return
+    msg.send "I'm here to serve you, #{msg.user.name}."
