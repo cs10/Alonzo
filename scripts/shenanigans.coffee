@@ -1,8 +1,11 @@
 # Description:
-#   Random fun stuff for TAs
+#    Random fun stuff for TAs
 #
 # Commands:
-#   None
+#    None
+#
+# Dependencies:
+#    None
 #
 
 module.exports = (robot) ->

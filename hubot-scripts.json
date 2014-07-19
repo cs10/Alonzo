@@ -4,14 +4,13 @@
 "bluebottle.coffee",
 "commitmessage.coffee",
 "directions.coffee",
+"emoji.coffee",
 "eval.coffee",
-"facepalm.coffee",
 "gosling.coffee",
 "hashing.coffee",
 "octocat.coffee",
 "redis-brain.coffee",
 "roll.coffee",
 "shipit.coffee",
-"sudo.coffee",
 "url.coffee"
 ]
