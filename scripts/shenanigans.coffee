@@ -8,6 +8,11 @@
 #    None
 #
 
+# TODO: Add some stuff....
+fuResponses = [
+
+]
+
 module.exports = (robot) ->
 
   robot.respond /this room/i, (msg) ->
