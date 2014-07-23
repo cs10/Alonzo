@@ -105,6 +105,7 @@ var getResults = function(sid, page, time, msg) {
 var processResponse = function(gfData, dateStr, msg) {
     // Strip out the wrapper to get a response list
     var responses = gfResults(gfData);
+    console.log('Processing Survey ' + responses.length + ' Responses');
     // Filter for finished submissions
     responses = responses.filter(function(item) {
         return isValidSubmission(item, dateStr);
@@ -120,6 +121,7 @@ var processResponse = function(gfData, dateStr, msg) {
         });
     });
     var s = responses.length === 1 ? '' : 's';
+    console.log('Posted ' + responses.length + ' issue' + s + ' to Github bjc-r.');
     msg.send('Posted ' + responses.length + ' issue' + s + ' to Github bjc-r.');
 };
 
