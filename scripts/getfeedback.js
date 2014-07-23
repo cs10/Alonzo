@@ -23,7 +23,7 @@
 
 var https = require('https'),
     github = require('githubot');
-    
+
 var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY;
 var GH_KEY = process.env.HUBOT_GITHUB_TOKEN;
 
@@ -38,26 +38,29 @@ module.exports = function(robot) {
         robot.logger.warning("Configuration HUBOT_GITHUB_KEY is not defined.");
         // don't exist because we can post to a chatroom
     }
-    
+
     // TODO make this a schedule
     robot.respond( /update feedback/i, function(msg) {
-        msg.send('Updating Feedback');        
-        // survey ID, page number, time, msg
-        getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg);
-        msg.send('Finished!');
+
+        msg.send('Updating Feedback');
+        msg.send('https://github.com/beautyjoy/bjc-r/issues?state=open');
+        // survey ID, page nu mber, time, msg
+        getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg, function(num) {
+            msg.send(num + ' issues posted.');
+            return;
+        });
+        // msg.send('Finished!');
         // Update the time for the next call
         SURVEY_TIME = (new Date()).toISOString();
         robot.brain.set('SURVEY_TIME', SURVEY_TIME);
     });
-    // TODO -- verify the time works and fix this
-    // survey_time = robot.brain.get('survey_time') or new Date()
 
     // End Robot
     return;
 };
 
 
-var getResults = function(sid, page, time, msg) {
+var getResults = function(sid, page, time, msg, callback) {
     // Note per_page must be 30 due to API bug
     var query  = '?per_page=30&page=' + page + '&since=' + time;
     var GF_OPT = {
@@ -83,26 +86,26 @@ var getResults = function(sid, page, time, msg) {
           // make new calls
           // send data to process
           var results = JSON.parse(allData.toString());
-          processResponse(results, time, msg);
+          processResponse(results, time, msg, callback);
           var more = moreResponses(gfResults(results), 30);
           if (more) { // Handle pagination
               getResults(sid, page + 1, null, msg);
           }
       });
     });
-    
+
     req.on('error', function(e) {
         console.log('GetFeedback Request Error');
         console.error(e);
         msg.send('Oh Dear! An error has occurred. I am most sorry.');
     });
-    
+
     req.end();
 };
 
 /** Take in a GF response as a JS object and start checking responses
  *  to post issues to GitHub */
-var processResponse = function(gfData, dateStr, msg) {
+var processResponse = function(gfData, dateStr, msg, callback) {
     // Strip out the wrapper to get a response list
     var responses = gfResults(gfData);
     console.log('Processing Survey ' + responses.length + ' Responses');
@@ -113,16 +116,18 @@ var processResponse = function(gfData, dateStr, msg) {
     // Filter for submissions worth of posting
     responses = responses.filter(isGitHubWorthy);
     if (!responses.length) {
+        console.log('No responses to post.');
         return;
     }
     responses.forEach(function(response) {
         data = createGitHubIssue(response);
-        github.post('/repos/beautyjoy/bjc-r/issues/', data, function(issue) {
-        });
+        github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {});
+        return;
     });
     var s = responses.length === 1 ? '' : 's';
-    console.log('Posted ' + responses.length + ' issue' + s + ' to Github bjc-r.');
     msg.send('Posted ' + responses.length + ' issue' + s + ' to Github bjc-r.');
+    callback(responses.length);
+    return;
 };
 
 /** Check the submission to see if it should be posted to github
@@ -143,7 +148,7 @@ var isGitHubWorthy = function(gfItem) {
     });
     return ratingMatches & contentMatches;
 };
- 
+
 /** Check the rating on "Scale" questions and make sure it's lower than 3
  *  3 works fine for now because the scale is out of 5.
  *  TODO: Eventually, this should be a % threshold
@@ -196,7 +201,7 @@ var createIssueLabels = function(gfSubmission) {
         rating = answerRating(gfSubmission);
     // add a rating label (the bjc-r scheme)
     labels.push('Rating - ' + rating);
-    
+
     // FIXME -- YAY for shitty list of conditionals.
     // captures recur and recursion sub dirs.
     if (topic.indexOf('recur') !== -1) {
@@ -226,6 +231,10 @@ var responseCourse = function(gfSubmission) {
     return gfSubmission['merge_map']['course'];
 };
 
+var responseURL = function(gfSubmission) {
+    return gfSubmission['merge_map']['url'];
+};
+
 var createIssueBody = function(gfSubmission) {
     var body;
     body  = '## GetFeedback Submission \n';
@@ -234,7 +243,9 @@ var createIssueBody = function(gfSubmission) {
     body += '##### Page: ' + responsePage(gfSubmission) + '\n';
     body += '##### Course: ' + responseCourse(gfSubmission) + '\n';
     body += '##### Topic: ' + responseTopic(gfSubmission) + '\n';
-    //body += '#### [View the Page here](' + responseURL(url) + ')\n';
+    if (responseURL(gfSubmission)) {
+        body += '#### [View the Page here](' + responseURL(gfSubmission) + ')\n';
+    }
     body += '\n---\n\n';
     body += answerContent(gfSubmission);
     return body;
@@ -251,10 +262,11 @@ var createIssueTitle = function(gfSubmission) {
 /************* GET FEEDBACK RESPONSE FUNCTIONS *************************/
 /***********************************************************************/
 
-/** Returns true if a submission is complete and the time is more recent 
+/** Returns true if a submission is complete and the time is more recent
  *  than submissionTime */
 var isValidSubmission = function(gfItem, dateObj) {
-    return isSurveySubmitted(gfItem) & isValidTime(gfItem, dateObj);
+    // TODO: If since parameter is working we don't need the second check...
+    return isSurveySubmitted(gfItem); // & isValidTime(gfItem, dateObj);
 };
 
 /** Returns an array of survey response objects */
@@ -274,7 +286,7 @@ var moreResponses = function(gfResults, pageSize) {
 
 /** Return true if the survey response is before the given time. */
 var isValidTime = function(gfResponse, dateStr) {
-    return new Date(submissionTime(gfResponse)) <= new Date(dateStr);
+    return new Date(submissionTime(gfResponse)) >= new Date(dateStr);
 };
 
 var responseAnswers = function(gfResponse) {
