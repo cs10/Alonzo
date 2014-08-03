@@ -86,6 +86,8 @@ var getResults = function(sid, page, time, msg, callback) {
           // make new calls
           // send data to process
           var results = JSON.parse(allData.toString());
+          var len = gfResults(results).length;
+          msg.send('Found ' + len + 'result' + len == 1 ? '.' : 's.');
           processResponse(results, time, msg, callback);
           var more = moreResponses(gfResults(results), 30);
           if (more) { // Handle pagination
@@ -184,13 +186,12 @@ var answerRating = function(gfSubmission) {
 
 // Create the JSON map to use as the POST data
 var createGitHubIssue = function(gfSubmission) {
-    var issue = {
+    return {
         title: createIssueTitle(gfSubmission),
         assignee: 'cycomachead', // FIXME -- for now
         body: createIssueBody(gfSubmission),
         labels: createIssueLabels(gfSubmission)
     };
-    return issue;
 };
 
 /** Create a list of tags to use on GitHub */
