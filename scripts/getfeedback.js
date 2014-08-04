@@ -87,7 +87,7 @@ var getResults = function(sid, page, time, msg, callback) {
           // send data to process
           var results = JSON.parse(allData.toString());
           var len = gfResults(results).length;
-          msg.send('Found ' + len + 'result' + len == 1 ? '.' : 's.');
+          msg.send('Found ' + len + ' result' + (len == 1 ? '.' : 's.'));
           processResponse(results, time, msg, callback);
           var more = moreResponses(gfResults(results), 30);
           if (more) { // Handle pagination
