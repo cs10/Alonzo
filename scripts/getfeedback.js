@@ -43,7 +43,7 @@ module.exports = function(robot) {
     robot.respond( /update feedback/i, function(msg) {
 
         msg.send('Updating Feedback');
-        msg.send('https://github.com/beautyjoy/bjc-r/issues?state=open');
+        msg.send('https://github.com/beautyjoy/bjc-r/labels/GetFeedback');
         // survey ID, page nu mber, time, msg
         getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg, function(num) {
             msg.send(num + ' issues posted.');
@@ -123,6 +123,7 @@ var processResponse = function(gfData, dateStr, msg, callback) {
     }
     responses.forEach(function(response) {
         data = createGitHubIssue(response);
+        // TODO -- logging of errors needed!!
         github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {});
         return;
     });
@@ -304,7 +305,5 @@ var submissionTime = function(gfSubmission) {
 /***********
  * schedule jobs to run
  * report / log errors
- * notify room of number of issues
- * notify of any pages with X many issues
  * handle multiple surveys
 ************/
