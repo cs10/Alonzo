@@ -11,7 +11,7 @@
 //
 //
 // Commands:
-//   None
+//   update feedback -- pull the most recent GetFeedback results for labs
 //
 // Notes:
 //
