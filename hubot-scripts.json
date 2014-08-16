@@ -1,5 +1,6 @@
 [
 "asana.coffee",
+"base64.coffee",
 "bluebottle.coffee",
 "commitmessage.coffee",
 "directions.coffee",
