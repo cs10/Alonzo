@@ -2,6 +2,7 @@
 "asana.coffee",
 "base64.coffee",
 "bluebottle.coffee",
+"cleverbot.coffee",
 "commitmessage.coffee",
 "directions.coffee",
 "eval.coffee",
