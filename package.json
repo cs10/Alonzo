@@ -25,6 +25,7 @@
   "dependencies": {
     "alias": "cycomachead/hubot-group-alias",
     "cheerio": "0.7.0",
+    "cleverbot-node": "^0.1.8",
     "githubot": "^1.0.0-beta2",
     "handlebars": "1.0.5beta",
     "htmlparser": "1.7.6",
