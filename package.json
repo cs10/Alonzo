@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "alias": "cycomachead/hubot-group-alias",
+    "canvas-lms-api": "0.0.3",
     "cheerio": "0.7.0",
     "cleverbot-node": "^0.1.8",
     "githubot": "^1.0.0-beta2",
