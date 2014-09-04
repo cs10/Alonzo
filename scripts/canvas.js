@@ -75,7 +75,8 @@ module.exports = function(robot) {
         return;
     }
 
-    robot.respond(checkOffRegExp, function(msg) {
+    robot.hear(checkOffRegExp, function(msg) {
+        robot.logger.log('CHECK OFF MATCHED');
         currentRoom = msg.message.room;
         // Prevent grading not done by TAs
         if (false) { return; }
@@ -120,7 +121,7 @@ module.exports = function(robot) {
                 if (!sid) {
                     continue;
                 }
-                
+
                 var scoreForm      = 'submission[posted_grade]=' + points;
                 var submissionPath = '/courses/' + cs10CourseID +
                                      '/assignments/' + assnID + '/submissions/sis_user_id:';
