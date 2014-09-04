@@ -76,10 +76,18 @@ module.exports = function(robot) {
     }
 
     robot.respond(checkOffRegExp, function(msg) {
+        currentRoom = msg.message.room;
+        // Prevent grading not done by TAs
+        if (false) { return; }
+
         var labNo  = msg.match[2];
         // match[3] is the late parameter.
         var points = msg.match[3] != undefined ? 1 : 2;
         var SIDs   = msg.match[4].split(' ');
+
+
+        msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
+        msg.send(currentRoom);
 
         var path = '/courses/' + cs10CourseID + '/assignment_groups/' +
                     labsAssnID;
@@ -108,6 +116,11 @@ module.exports = function(robot) {
                 successes = 0;
             for (; item < SIDs.length; item += 1) {
                 var sid            = SIDs[item];
+
+                if (!sid) {
+                    continue;
+                }
+                
                 var scoreForm      = 'submission[posted_grade]=' + points;
                 var submissionPath = '/courses/' + cs10CourseID +
                                      '/assignments/' + assnID + '/submissions/sis_user_id:';
@@ -136,7 +149,7 @@ module.exports = function(robot) {
             setTimeout(function() {
                 var score = successes + ' score' + (successes == 1 ? '' : 's');
                 msg.send(score + ' successfully updated for lab ' + labNo + '.');
-            }, 3000);
+            }, 5000);
         });
     });
 }
