@@ -24,15 +24,21 @@ var authToken = process.env.HUBOT_CANVAS_TOKEN;
 
 var bCoursesURL = 'https://bcourses.berkeley.edu/';
 // Update Each Semester
-var cs10CourseID = '1246916';
+// CS10 FA14: '1246916'
+// Michael Sandbox: '1268501'
+var cs10CourseID = '1268501';
 // Update Each Semester
-var labsAssnID = '1549984';
+// CS10 FA14 Labs 1549984
+var labsAssnID = '1593713';//
 // Make sure only a few people can assign grades
-var privelegedRooms = '';
+// TODO: Grab the actual strings from HipChat
+// We can also use the "secret" room...
+var privelegedRooms = [''] + [ process.env.HUBOT_SECRET_ROOM ];
 
+// @PNHilfinger, this is for you.
+// The most useful skill from 61B. ;)
 var checkOffRegExp = /(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)+)/i;
-// Match groups:
-/*
+/* Hubot msg.match groups:
 [ '@Alonzo check-off 12 late 1234 1234 1234',
   undefined,
   '12',
@@ -49,14 +55,15 @@ var cs10 = new Canvas(bCoursesURL, { token: authToken });
  * getAllLabs(assnGroupID)
  * MatchLabNumber(int-N)
  * Assign Grade(SID, grade)
+ * build Some URL paths
  */
 
 /* Take in a Canvas Assignment Group ID and return all the assignments in that
  * that group. */
 var getAllLabs = function(courseID, assnGroupID, callback) {
-    console.log('Call Made');
-    var path = '/courses/' + courseID + '/assignment_groups/' + assnGroupID;
-    cs10.get(path, '?include[]=assignments', function(body) {
+    var labGroups = '/courses/' + courseID + '/assignment_groups/' + assnGroupID;
+    var params = '?include[]=assignments';
+    cs10.get(labGroups + params, '', function(body) {
         console.log(body);
     });
 }
@@ -69,40 +76,67 @@ module.exports = function(robot) {
     }
 
     robot.respond(checkOffRegExp, function(msg) {
-        console.log('Check off matched');
-        console.log('\n\n');
+        var labNo  = msg.match[2];
+        // match[3] is the late parameter.
+        var points = msg.match[3] != undefined ? 1 : 2;
+        var SIDs   = msg.match[4].split(' ');
 
-        var path = '/courses/' + cs10CourseID + '/assignment_groups/' + labsAssnID;
+        var path = '/courses/' + cs10CourseID + '/assignment_groups/' +
+                    labsAssnID;
+
         cs10.get(path + '?include[]=assignments', '', function(body) {
-            var assnList = body.assignments;
-            // find assnID
-            var assnID;
-            var i = 0; l = assnList.length;
-            for (; i < l; i += 1) {
-                var assnName = assnList[i].name;
-                console.log(assnName);
-                var labNum = assnName.split('.');
-                if (labNum.length < 1) {
-                    msg.send('Oh shit, something is wrong');
-                    return
-                } else if (labNum[0] == msg.match[2]) {
-                    assnID = assnList[i].id;
-                    msg.send('Found it!');
-                    msg.send(assnID);
+            var assignments = body.assignments,
+                assnID, i = 0;
+            for (; i < assignments.length; i += 1) {
+                var assnName  = assignments[i].name;
+                // All labs are named "<#>. <Lab Title> <Date>"
+                var searchNum = assnName.split('.');
+
+                if (searchNum[0] == labNo) {
+                    assnID = assignments[i].id;
+                    break;
                 }
             }
             if (!assnID) {
-                // Highly appropriate error messages
                 msg.send('Well, crap...I can\'t find lab' + msg.match[2] + '.');
-                msg.send('Hey, @Michael, you stuff is broken. Jerk');
-                return
+                msg.send('Hey, @Michael, your stuff is broken. Jerk!');
+                return;
+            }
+            // now we have an assignment ID we should post scores.
+            // iterate over student IDs and then PUT
+            var item = 0,
+                successes = 0;
+            for (; item < SIDs.length; item += 1) {
+                var sid            = SIDs[item];
+                var scoreForm      = 'submission[posted_grade]=' + points;
+                var submissionPath = '/courses/' + cs10CourseID +
+                                     '/assignments/' + assnID + '/submissions/sis_user_id:';
+                submissionPath += sid;
+                // Access in SID and points in the callback
+                function callback(sid, points, msg) {
+                    return function(body) {
+                        var errorMsg = 'Problem encountered for SID: ' +
+                                        sid.toString();
+                        // TODO: Make an error function
+                        // Absence of a grade indicates an error.
+                        if (!body.grade || body.grade != points.toString()) {
+                            msg.send(errorMsg);
+                            robot.logger.log('ERROR POSTING SCORE:\n' +
+                                            body.toString());
+                        } else {
+                            successes += 1;
+                        }
+                    };
+                }
+
+                cs10.put(submissionPath , '', scoreForm, callback(sid, points, msg));
             }
 
+            // wait till all requests are complete...hopefully.
+            setTimeout(function() {
+                var score = successes + ' score' + (successes == 1 ? '' : 's');
+                msg.send(score + ' successfully updated for lab ' + labNo + '.');
+            }, 3000);
         });
-
-        getAllLabs(cs10CurseID, labsAssnID, function(body) {
-            msg.send('thingy')
-            msg.send(body.assignments.length);
-        })
     });
 }
