@@ -20,7 +20,7 @@
 //   Michael Ball @cycomachead
 
 var Canvas    = require('node-canvas-lms');
-var authToken = process.env.HUBOT_CANVAS_TOKEN;
+var authToken = process.env.HUBOT_CANVAS_KEY;
 
 var bCoursesURL = 'https://bcourses.berkeley.edu/';
 // Update Each Semester
@@ -71,7 +71,7 @@ var getAllLabs = function(courseID, assnGroupID, callback) {
 module.exports = function(robot) {
 
     if (!authToken) {
-        robot.logger.log('HUBOT_CANVAS_TOKEN token not found!');
+        robot.logger.log('HUBOT_CANVAS_KEY token not found!');
         return;
     }
 
