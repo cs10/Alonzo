@@ -88,9 +88,7 @@ module.exports = function(robot) {
         var points = msg.match[3] != undefined ? 1 : 2;
         var SIDs   = msg.match[4].split(' ');
 
-
         msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
-        msg.send(currentRoom);
 
         var path = '/courses/' + cs10CourseID + '/assignment_groups/' +
                     labsAssnID;
