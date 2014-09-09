@@ -37,7 +37,7 @@ var privelegedRooms = [''] + [ process.env.HUBOT_SECRET_ROOM ];
 
 // @PNHilfinger, this is for you.
 // The most useful skill from 61B. ;)
-var checkOffRegExp = /(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)+)\s*/i;
+var checkOffRegExp = /(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
 /* Hubot msg.match groups:
 [ '@Alonzo check-off 12 late 1234 1234 1234',
   undefined,
@@ -76,6 +76,9 @@ module.exports = function(robot) {
     }
 
     robot.hear(checkOffRegExp, function(msg) {
+        msg.send('CHECK OFF');
+        msg.send(cs10);
+        msg.send(msg.match);
         robot.logger.log('CHECK OFF MATCHED');
         currentRoom = msg.message.room;
         // Prevent grading not done by TAs
