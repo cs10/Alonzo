@@ -26,10 +26,11 @@ var bCoursesURL = 'https://bcourses.berkeley.edu/';
 // Update Each Semester
 // CS10 FA14: '1246916'
 // Michael Sandbox: '1268501'
-var cs10CourseID = '1268501';
+var cs10CourseID = '1246916';
 // Update Each Semester
 // CS10 FA14 Labs 1549984
-var labsAssnID = '1593713';//
+// Michael Sandbox: 1593713 
+var labsAssnID = '1549984';
 // Make sure only a few people can assign grades
 // TODO: Grab the actual strings from HipChat
 // We can also use the "secret" room...
@@ -79,7 +80,7 @@ module.exports = function(robot) {
         currentRoom = msg.message.room;
         // Prevent grading not done by TAs
         if (allowedRooms.indexOf(currentRoom) === -1) {
-            msg.send('You cannot post scores from this room')
+            msg.send('You cannot post scores from this room');
             return;
         }
 
