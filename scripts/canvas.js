@@ -33,7 +33,7 @@ var labsAssnID = '1593713';//
 // Make sure only a few people can assign grades
 // TODO: Grab the actual strings from HipChat
 // We can also use the "secret" room...
-var privelegedRooms = [''] + [ process.env.HUBOT_SECRET_ROOM ];
+var allowedRooms = ['lab_check-off_room', 'cs10_staff_room_(private)'] + [ process.env.HUBOT_SECRET_ROOM ];
 
 // @PNHilfinger, this is for you.
 // The most useful skill from 61B. ;)
@@ -76,13 +76,12 @@ module.exports = function(robot) {
     }
 
     robot.hear(checkOffRegExp, function(msg) {
-        msg.send('CHECK OFF');
-        msg.send(cs10);
-        msg.send(msg.match);
-        robot.logger.log('CHECK OFF MATCHED');
         currentRoom = msg.message.room;
         // Prevent grading not done by TAs
-        if (false) { return; }
+        if (allowedRooms.indexOf(currentRoom) === -1) {
+            msg.send('You cannot post scores from this room')
+            return;
+        }
 
         var labNo  = msg.match[2];
         // match[3] is the late parameter.
@@ -110,8 +109,8 @@ module.exports = function(robot) {
                 }
             }
             if (!assnID) {
-                msg.send('Well, crap...I can\'t find lab' + msg.match[2] + '.');
-                msg.send('Hey, @Michael, your stuff is broken. Jerk!');
+                msg.send('Well, crap...I can\'t find lab ' + msg.match[2] + '.');
+                msg.send('Hey, @Michael, your code is broken. Jerk!');
                 return;
             }
             // now we have an assignment ID we should post scores.
@@ -119,7 +118,7 @@ module.exports = function(robot) {
             var item = 0,
                 successes = 0;
             for (; item < SIDs.length; item += 1) {
-                var sid            = SIDs[item];
+                var sid = SIDs[item];
 
                 if (!sid) {
                     continue;
@@ -150,6 +149,7 @@ module.exports = function(robot) {
             }
 
             // wait till all requests are complete...hopefully.
+            // FIXME there has got to be a better way to do this..
             setTimeout(function() {
                 var score = successes + ' score' + (successes == 1 ? '' : 's');
                 msg.send(score + ' successfully updated for lab ' + labNo + '.');
