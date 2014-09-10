@@ -29,7 +29,7 @@ var bCoursesURL = 'https://bcourses.berkeley.edu/';
 var cs10CourseID = '1246916';
 // Update Each Semester
 // CS10 FA14 Labs 1549984
-// Michael Sandbox: 1593713 
+// Michael Sandbox: 1593713
 var labsAssnID = '1549984';
 // Make sure only a few people can assign grades
 // TODO: Grab the actual strings from HipChat
@@ -79,10 +79,11 @@ module.exports = function(robot) {
     robot.hear(checkOffRegExp, function(msg) {
         currentRoom = msg.message.room;
         // Prevent grading not done by TAs
-        if (allowedRooms.indexOf(currentRoom) === -1) {
-            msg.send('You cannot post scores from this room');
-            return;
-        }
+        // FIXME -- this is broken in the shell....
+        // if (allowedRooms.indexOf(currentRoom) === -1) {
+        //     msg.send('You cannot post scores from this room');
+        //     return;
+        // }
 
         var labNo  = msg.match[2];
         // match[3] is the late parameter.
@@ -123,28 +124,57 @@ module.exports = function(robot) {
                     continue;
                 }
 
-                var scoreForm      = 'submission[posted_grade]=' + points;
-                var submissionPath = '/courses/' + cs10CourseID +
-                                     '/assignments/' + assnID + '/submissions/sis_user_id:';
+                var scoreForm      = 'submission[posted_grade]=' + points,
+                    submissionBase = '/courses/' + cs10CourseID +
+                                     '/assignments/' + assnID + '/submissions/',
+                    submissionPath = submissionBase + 'sis_user_id:',
+                    submissionALT  = submissionBase + 'sis_login_id:';
+
+                // FIXME -- this is dumb.
                 submissionPath += sid;
+                submissionALT  += sid;
                 // Access in SID and points in the callback
                 function callback(sid, points, msg) {
                     return function(body) {
-                        var errorMsg = 'Problem encountered for SID: ' +
-                                        sid.toString();
                         // TODO: Make an error function
                         // Absence of a grade indicates an error.
-                        if (!body.grade || body.grade != points.toString()) {
-                            msg.send(errorMsg);
-                            robot.logger.log('ERROR POSTING SCORE:\n' +
-                                            body.toString());
+                        // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
+                        if (body.errors || !body.grade || body.grade != points.toString()) {
+                            // Attempt to switch to using sis_login_id instead of the sis_user_id
+                            cs10.put(submissionALT , '', scoreForm,
+                                loginCallback(sid, points, msg));
                         } else {
                             successes += 1;
                         }
                     };
                 }
 
-                cs10.put(submissionPath , '', scoreForm, callback(sid, points, msg));
+                // A modified call back for when sis_login_id is used
+                // THese should really be condenced but I didn't want to figure
+                // out a proper base case for a recursive callback...lazy....
+                function loginCallback(sid, points, msg) {
+                    return function(body) {
+                        var errorMsg = 'Problem encountered for SID: ' +
+                                        sid.toString();
+                        // TODO: Make an error function
+                        // Absence of a grade indicates an error.
+                        // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
+                        if (body.errors || !body.grade || body.grade != points.toString()) {
+                            // Attempt to switch to using sis_login_id instead of the sis_user_id
+                            if (body.errors && body.errors[0]) {
+                                errorMsg += '\nERROR:\t' + body.errors[0].message;
+                            }
+                            errorMsg += '\n' + 'Please enter the score directly in bCoureses.';
+                            errorMsg += '\n' + 'https://bcourses.berkeley.edu/courses/1246916/gradebook';
+                            msg.send(errorMsg);
+                        } else {
+                            successes += 1;
+                        }
+                    };
+                }
+
+                cs10.put(submissionPath , '', scoreForm,
+                        callback(sid, points, msg));
             }
 
             // wait till all requests are complete...hopefully.
