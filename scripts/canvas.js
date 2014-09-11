@@ -88,7 +88,13 @@ module.exports = function(robot) {
         var labNo  = msg.match[2];
         // match[3] is the late parameter.
         var points = msg.match[3] != undefined ? 1 : 2;
-        var SIDs   = msg.match[4].trim().split(/s+/);
+        var SIDs   = msg.match[4].trim().split(' ');
+        
+        // Trim spaces
+        var len = SIDs.length, i = 0;
+        for (; i < len; i += 1) {
+            SIDs[i] = SIDs[i].trim();
+        }
 
         msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
 
