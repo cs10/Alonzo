@@ -88,7 +88,7 @@ module.exports = function(robot) {
         var labNo  = msg.match[2];
         // match[3] is the late parameter.
         var points = msg.match[3] != undefined ? 1 : 2;
-        var SIDs   = msg.match[4].split(' ');
+        var SIDs   = msg.match[4].trim().split(/s+/);
 
         msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
 
@@ -141,6 +141,7 @@ module.exports = function(robot) {
                         // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
                         if (body.errors || !body.grade || body.grade != points.toString()) {
                             // Attempt to switch to using sis_login_id instead of the sis_user_id
+                            // TODO: Make note about not finding sis_user_id and trying sis_login_id
                             cs10.put(submissionALT , '', scoreForm,
                                 loginCallback(sid, points, msg));
                         } else {
@@ -154,7 +155,7 @@ module.exports = function(robot) {
                 // out a proper base case for a recursive callback...lazy....
                 function loginCallback(sid, points, msg) {
                     return function(body) {
-                        var errorMsg = 'Problem encountered for SID: ' +
+                        var errorMsg = 'Problem encountered for ID: ' +
                                         sid.toString();
                         // TODO: Make an error function
                         // Absence of a grade indicates an error.
