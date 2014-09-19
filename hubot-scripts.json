@@ -12,5 +12,6 @@
 "redis-brain.coffee",
 "roll.coffee",
 "shipit.coffee",
-"url.coffee"
+"url.coffee",
+"xkcd.coffee"
 ]
