@@ -33,3 +33,5 @@ function startKeepAlive() {
 }
 
 startKeepAlive();
+
+module.exports = startKeepAlive;
