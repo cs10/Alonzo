@@ -116,7 +116,7 @@ module.exports = function(robot) {
             }
             if (!assnID) {
                 msg.send('Well, crap...I can\'t find lab ' + msg.match[2] + '.');
-                msg.send('Hey, @Michael, your code is broken. Jerk!');
+                msg.send('Check to make sure you put in a correct lab number.');
                 return;
             }
             // now we have an assignment ID we should post scores.
