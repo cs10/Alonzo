@@ -84,11 +84,11 @@ module.exports = function(robot) {
         //     msg.send('You cannot post scores from this room');
         //     return;
         // }
-
-        var labNo  = msg.match[2];
+		
         // match[3] is the late parameter.
-        var points = msg.match[3] != undefined ? 1 : 2;
-        var SIDs   = msg.match[4].trim().split(' ');
+        var labNo  = msg.match[2],
+        	points = msg.match[3] != undefined ? 1 : 2,
+			SIDs   = msg.match[4].trim().split(/s*/);
 
         // Trim spaces
         var len = SIDs.length, i = 0;
