@@ -20,10 +20,11 @@ Wolfram = require('wolfram').createClient(process.env.HUBOT_WOLFRAM_APPID)
 
 module.exports = (robot) ->
   robot.respond /(question|wfa) (.*)$/i, (msg) ->
-    console.log msg.match
+    # console.log msg.match
     Wolfram.query msg.match[2], (e, result) ->
-      # console.log result
       if result and result.length > 0
-        msg.send result[1]['subpods'][0]['value']
+        msg.send result[0]['subpods'][0]['value']
+        if result[0]['subpods'][0]['image']
+          msg.send result[0]['subpods'][0]['image']
       else
         msg.send 'Hmm...not sure'
