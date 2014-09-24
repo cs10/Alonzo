@@ -117,9 +117,8 @@ module.exports = function(robot) {
                 }
             };
         }
-		
-		
-		
+
+
         currentRoom = msg.message.room;
         // Prevent grading not done by TAs
         // FIXME -- this is broken in the shell....
@@ -127,12 +126,15 @@ module.exports = function(robot) {
         //     msg.send('You cannot post scores from this room');
         //     return;
         // }
-		
+
         // match[3] is the late parameter.
         var labNo  = msg.match[2],
-        	points = msg.match[3] !== undefined ? 1 : 2,
-			SIDs   = msg.match[4].trim().split(/s*/);
+            points = msg.match[3] !== undefined ? 1 : 2,
+            // WTF is wrong with /s+/???
+            SIDs   = msg.match[4].trim().split(/[ \t\n]/g);
 
+        console.log('');
+        console.log(SIDs);
         // Trim spaces
         var len = SIDs.length, i = 0;
         for (; i < len; i += 1) {
