@@ -133,8 +133,6 @@ module.exports = function(robot) {
             // WTF is wrong with /s+/???
             SIDs   = msg.match[4].trim().split(/[ \t\n]/g);
 
-        console.log('');
-        console.log(SIDs);
         // Trim spaces
         var len = SIDs.length, i = 0;
         for (; i < len; i += 1) {
