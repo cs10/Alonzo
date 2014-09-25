@@ -77,47 +77,6 @@ module.exports = function(robot) {
     }
 
     robot.hear(checkOffRegExp, function(msg) {
-        // Access in SID and points in the callback
-        function callback(sid, points, msg) {
-            return function(body) {
-                // TODO: Make an error function
-                // Absence of a grade indicates an error.
-                // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
-                if (body.errors || !body.grade || body.grade != points.toString()) {
-                    // Attempt to switch to using sis_login_id instead of the sis_user_id
-                    // TODO: Make note about not finding sis_user_id and trying sis_login_id
-                    cs10.put(submissionALT , '', scoreForm,
-                        loginCallback(sid, points, msg));
-                } else {
-                    successes += 1;
-                }
-            };
-        }
-
-        // A modified call back for when sis_login_id is used
-        // THese should really be condenced but I didn't want to figure
-        // out a proper base case for a recursive callback...lazy....
-        function loginCallback(sid, points, msg) {
-            return function(body) {
-                var errorMsg = 'Problem encountered for ID: ' +
-                                sid.toString();
-                // TODO: Make an error function
-                // Absence of a grade indicates an error.
-                // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
-                if (body.errors || !body.grade || body.grade != points.toString()) {
-                    // Attempt to switch to using sis_login_id instead of the sis_user_id
-                    if (body.errors && body.errors[0]) {
-                        errorMsg += '\nERROR:\t' + body.errors[0].message;
-                    }
-                    errorMsg += '\n' + 'Please enter the score directly in bCoureses.';
-                    errorMsg += '\n' + 'https://bcourses.berkeley.edu/courses/1246916/gradebook';
-                    msg.send(errorMsg);
-                } else {
-                    successes += 1;
-                }
-            };
-        }
-
 
         currentRoom = msg.message.room;
         // Prevent grading not done by TAs
@@ -185,6 +144,47 @@ module.exports = function(robot) {
 
                 cs10.put(submissionPath , '', scoreForm,
                         callback(sid, points, msg));
+            }
+
+            // Access in SID and points in the callback
+            function callback(sid, points, msg) {
+                return function(body) {
+                    // TODO: Make an error function
+                    // Absence of a grade indicates an error.
+                    // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
+                    if (body.errors || !body.grade || body.grade != points.toString()) {
+                        // Attempt to switch to using sis_login_id instead of the sis_user_id
+                        // TODO: Make note about not finding sis_user_id and trying sis_login_id
+                        cs10.put(submissionALT , '', scoreForm,
+                            loginCallback(sid, points, msg));
+                    } else {
+                        successes += 1;
+                    }
+                };
+            }
+
+            // A modified call back for when sis_login_id is used
+            // THese should really be condenced but I didn't want to figure
+            // out a proper base case for a recursive callback...lazy....
+            function loginCallback(sid, points, msg) {
+                return function(body) {
+                    var errorMsg = 'Problem encountered for ID: ' +
+                                    sid.toString();
+                    // TODO: Make an error function
+                    // Absence of a grade indicates an error.
+                    // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
+                    if (body.errors || !body.grade || body.grade != points.toString()) {
+                        // Attempt to switch to using sis_login_id instead of the sis_user_id
+                        if (body.errors && body.errors[0]) {
+                            errorMsg += '\nERROR:\t' + body.errors[0].message;
+                        }
+                        errorMsg += '\n' + 'Please enter the score directly in bCoureses.';
+                        errorMsg += '\n' + 'https://bcourses.berkeley.edu/courses/1246916/gradebook';
+                        msg.send(errorMsg);
+                    } else {
+                        successes += 1;
+                    }
+                };
             }
 
             // wait till all requests are complete...hopefully.
