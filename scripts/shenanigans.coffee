@@ -26,8 +26,9 @@ module.exports = (robot) ->
     if msg.message.room != process.env.HUBOT_SECRET_ROOM
       return
     msg.send "I'm here to serve you, #{msg.user.name}."
-    
+
   robot.hear /(2|two)\s*(in)?\s*a\s*day/, (msg) ->
     if msg.message.room != process.env.HUBOT_SECRET_ROOM
       return
-    msg.send
+    DAN_VIDEO_URL = ''
+    msg.send DAN_VIDEO_URL
