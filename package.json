@@ -23,7 +23,7 @@
     "url": "https://github.com/github/hubot.git"
   },
   "dependencies": {
-    "alias": "cycomachead/hubot-group-alias",
+    "alias": "hubot-scripts/hubot-group-alias",
     "node-canvaslms": "cs10/node-canvaslms",
     "cheerio": "0.7.0",
     "cleverbot-node": "^0.1.8",

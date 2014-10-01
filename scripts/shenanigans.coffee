@@ -30,5 +30,4 @@ module.exports = (robot) ->
   robot.hear /(2|two)\s*(in)?\s*a\s*day/, (msg) ->
     if msg.message.room != process.env.HUBOT_SECRET_ROOM
       return
-    DAN_VIDEO_URL = ''
-    msg.send DAN_VIDEO_URL
+    msg.send 'https://www.youtube.com/watch?v=ElxHoUShy1c'
