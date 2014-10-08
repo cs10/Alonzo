@@ -15,16 +15,21 @@
 #
 # Author:
 #   dhorrigan
+#   cycomachead (answer improvements)
 
 Wolfram = require('wolfram').createClient(process.env.HUBOT_WOLFRAM_APPID)
 
 module.exports = (robot) ->
   robot.respond /(question|wfa) (.*)$/i, (msg) ->
-    # console.log msg.match
     Wolfram.query msg.match[2], (e, result) ->
       if result and result.length > 0
-        msg.send result[0]['subpods'][0]['value']
-        if result[0]['subpods'][0]['image']
-          msg.send result[0]['subpods'][0]['image']
+        primary = (item for item in result when item['primary'] == true)
+        if primary and primary.length > 0
+          obj = primary
+        else
+          obj = result
+        msg.send obj[0]['subpods'][0]['value']
+        # if obj[0]['subpods'][0]['image']
+        #   msg.send obj[0]['subpods'][0]['image']
       else
         msg.send 'Hmm...not sure'
