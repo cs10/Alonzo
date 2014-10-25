@@ -36,6 +36,20 @@ var labsAssnID = '1549984';
 // We can also use the "secret" room...
 var allowedRooms = ['lab_check-off_room', 'cs10_staff_room_(private)'] + [ process.env.HUBOT_SECRET_ROOM ];
 
+// Mapping of extenstion IDs to bCourses IDs
+var SWAP_IDS = {
+    539182
+    538761
+    538594
+    538652
+    539072
+    'X123456': 1234567,
+};
+// This is a stupid backwards compatibility thing because these IDs are printed
+// on checkoff sheets...it's the just the VALUES of the above map.
+var ID_VALS = [];
+
+
 // @PNHilfinger, this is for you.
 // The most useful skill from 61B. ;)
 var checkOffRegExp = /(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
