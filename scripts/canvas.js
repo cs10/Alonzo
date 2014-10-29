@@ -38,12 +38,11 @@ var allowedRooms = ['lab_check-off_room', 'cs10_staff_room_(private)'] + [ proce
 
 // Mapping of extenstion IDs to bCourses IDs
 var SWAP_IDS = {
-    539182
-    538761
-    538594
-    538652
-    539072
-    'X123456': 1234567,
+    '539182':1083827,
+    '538761':1074257,
+    '538594':1074141,
+    '538652':1007900,
+    '539072':1082812,
 };
 // This is a stupid backwards compatibility thing because these IDs are printed
 // on checkoff sheets...it's the just the VALUES of the above map.
@@ -110,6 +109,10 @@ module.exports = function(robot) {
         var len = SIDs.length, i = 0;
         for (; i < len; i += 1) {
             SIDs[i] = SIDs[i].trim();
+            if (SIDs[i].substring(0, 1) == 'X') {
+                msg.send('Please specify all extension ids without X.' +
+                '\nOr submit a bug fix on github...<3.');
+            }
         }
 
         msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
