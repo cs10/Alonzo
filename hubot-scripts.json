@@ -10,7 +10,6 @@
 "hashing.coffee",
 "octocat.coffee",
 "redis-brain.coffee",
-"roll.coffee",
 "shipit.coffee",
 "url.coffee",
 "xkcd.coffee"
