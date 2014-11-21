@@ -1,8 +1,8 @@
 {
-  "name": "hosted-hubot",
+  "name": "Alonzo",
   "version": "2.7.1",
   "private": true,
-  "author": "GitHub Inc",
+  "author": "Michael Ball",
   "keywords": [
     "github",
     "hubot",
