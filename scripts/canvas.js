@@ -51,9 +51,10 @@ var ID_VALS = [];
 
 // @PNHilfinger, this is for you.
 // The most useful skill from 61B. ;)
-var checkOffRegExp = /(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
+var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
 /* Hubot msg.match groups:
 [ '@Alonzo check-off 12 late 1234 1234 1234',
+  undefined,
   undefined,
   '12',
   'late',
@@ -98,12 +99,12 @@ module.exports = function(robot) {
         //     msg.send('You cannot post scores from this room');
         //     return;
         // }
-
+        console.log(msg.match);
         // match[3] is the late parameter.
-        var labNo  = msg.match[2],
-            points = msg.match[3] !== undefined ? 1 : 2,
+        var labNo  = msg.match[3],
+            points = (msg.match[1] !== undefined || msg.match[4] !== undefined) ? 1 : 2,
             // WTF is wrong with /s+/???
-            SIDs   = msg.match[4].trim().split(/[ \t\n]/g);
+            SIDs   = msg.match[5].trim().split(/[ \t\n]/g);
 
         // Trim spaces
         var len = SIDs.length, i = 0;
@@ -115,6 +116,13 @@ module.exports = function(robot) {
             }
         }
 
+        if (points !== 1) {
+            msg.send('Yo, this ain\'t Harvard. Check off students as late now!');
+            msg.send('Go to bCourses and enter the scores manually!!');
+            msg.send('https://bcourses.berkeley.edu/courses/1246916/gradebook');
+            return;
+        }
+
         msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
 
         var path = '/courses/' + cs10CourseID + '/assignment_groups/' +
@@ -123,6 +131,13 @@ module.exports = function(robot) {
         cs10.get(path + '?include[]=assignments', '', function(body) {
             var assignments = body.assignments,
                 assnID, i = 0;
+
+            if (!assignments) {
+                console.log(body);
+                msg.send('Oh crap, no assignments were found. Please check the lab number');
+                return;
+            }
+
             for (; i < assignments.length; i += 1) {
                 var assnName  = assignments[i].name;
                 // All labs are named "<#>. <Lab Title> <Date>"
@@ -212,4 +227,11 @@ module.exports = function(robot) {
             }, 5000);
         });
     });
+
+
+
+
+
+
+
 };
