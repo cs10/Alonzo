@@ -1,5 +1,5 @@
 // Description:
-//   A collection of CS10 scripts to automate grading with our Canvas LM
+//   A collection of CS10 scripts to automate grading with our Canvas LMS
 //   instance
 //
 // Dependencies:
@@ -7,11 +7,10 @@
 //
 // Configuration:
 //   HUBOT_CANVAS_TOKEN
-//   HUBOT_STAFF_ROOMS
 //
 //
 // Commands:
-//   [lab-]? check-off [NUM] [late]? [array of SIDs] -- check off these students for the lab specified. "Late" is optional and will assign students 1 point instead of 2. All SIDs will be assigned the same score.
+//   [late]? check off [LAB NUM] [late]? [SIDs...] – Late is optional.
 //
 // Notes:
 //
@@ -54,8 +53,8 @@ var ID_VALS = [];
 var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
 /* Hubot msg.match groups:
 [ '@Alonzo check-off 12 late 1234 1234 1234',
-  undefined,
-  undefined,
+  undefined, // Late?
+  undefined, // The word "lab"
   '12',
   'late',
   '1234 1234 1234',
@@ -231,7 +230,7 @@ module.exports = function(robot) {
     });
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     // https://bcourses.berkeley.edu/api/v1/courses/1246916/assignments/5179913
     var toCheck = [];
     toCheck.push('5179913'); // HW1
@@ -242,22 +241,22 @@ module.exports = function(robot) {
     toCheck.push('5179935'); // Impact Post comments
     toCheck.push('5179918'); // Final Project
     // toCheck.push(); // Data Project
-    
-    var cacheObj = 'ASSIGNMENT_DUE_DATE_'; 
+
+    var cacheObj = 'ASSIGNMENT_DUE_DATE_';
     /* Assigment Due Date Cache:
      * { cacheDate: <date>, AssnID: <date>, AssnID: <date> .... } */
-    
-    /* For all the assignments update the due dates and save them to the 
+
+    /* For all the assignments update the due dates and save them to the
      * 'brain' for Alonzo to avoid redundant http requests
      *  Also save the cache date. */
     function cacheDueDate(assnID) {
         console.log('trying to cache stuff');
         var cache = {};
         var url = '/courses/' + cs10CourseID + '/assignments/';
-        
+
         // Access Time (in MS) is now
         cache.cacheDate = (new Date()).getTime();
-        
+
         // Get Assignment Due Date (as strings)
         cs10.get(url + assnID, '', function(body) {
             console.log('cache request ' + assnID);
@@ -266,24 +265,24 @@ module.exports = function(robot) {
                 return;
                 // throw new Error(body.errors[0]);
             }
-            
+
             if (!body.due_at) {
                 console.log('errrrr');
                 return;
                 // throw new Error('No Due Date found for assignment ' + assign);
             }
-            
+
             console.log(body.due_at);
             console.log(cache);
             cache[assign] = body.due_at; // Save the actual date
-            
+
             // Save the cache
             console.log('Setting Cache');
             robot.brain.set(cacheObj, cache);
             robot.log('bCourses slip days cache updated');
         });
     }
-    
+
     /* Check if the assignment cache exists, if it does, check if it is
      * less than 1 week old */
     function cacheIsValid(assnID) {
@@ -291,33 +290,33 @@ module.exports = function(robot) {
         var maxAge = 1000 * 60 * 60 * 24 * 7; // 1 Week
         var now    = (new Date()).getTime();
         var cachedData = robot.brain.get(cacheObj + assnID);
-        
+
         if (!cachedData) {
             console.log('no cache found');
             return false; // No cache found
         }
-        
+
         if (cachedData.cacheDate) {
             return now - cachedData.cacheDate < maxAge;
         }
-        
+
         return false; // Couldn't find a cache date, so be cautious
     }
-    
-    
+
+
     function getSlipDays(submissionTime, dueTime) {
         var threshold = 1000 * 60 * 30,
             oneDay    = 1000 * 60 * 60 * 24,
             d1 = new Date(submissionTime),
             d2 = new Date(dueTime);
-        
+
         var diff = Math.abs(d1 - d2);
-        
+
         if (diff < threshold) {
             return 0;
         }
         // This is somewhat shitty if you use slightly more than a day
-        // TODO: only floor if < .1 difference 
+        // TODO: only floor if < .1 difference
         return Math.ceil(diff / oneDay);
     }
 
@@ -327,35 +326,35 @@ module.exports = function(robot) {
         // TODO: Once again... do the extenstion student thing
         var url = '/courses/' + cs10CourseID + '/assignments/';
         var urlEnd = '/submissions/sis_user_id:' + sid;
-        
+
         var i = 0, end = toCheck.length;
         var assn = '';
         for(; i < end; i += 1) {
             assn = toCheck[i];
             console.log('checking assignment ' + assn);
             cs10.get(url + assn + urlEnd, '', function (body) {
-                
+
                 console.log('CHECKED');
-                
+
                 if (!body || body.errors) {
                     console.log('errrrrroorrrrrrrrrr');
                     // ugggggghhhh
                 }
-                
+
                 if (body.late) { // body.late is fale even for no submission!
-                
+
                     if (!cacheIsValid(assn)) {
                         cacheDueDate(assn);
                         console.log('cached');
-                        setTimeout(function() {
+                        setTimeout(function() { // Replace this thing with a callback to the above function....
                             var dueDate = robot.brain.get(cacheObj + assn);
                             checked += 1;
-                            
+
                             var day = getSlipDays(body.submitted_at, dueDate[assn]);
-                            msg.send('Used ' + day + ' day' + (day === 1 ? '' : 's') + 
+                            msg.send('Used ' + day + ' day' + (day === 1 ? '' : 's') +
                             ' for assignment ' + assn + '.');
                             daysUsed += day;
-                            
+
                             if (checked === toCheck.length) { // Ran through the list
                                 msg.send(daysUsed + ' slip days were used');
                             }
@@ -363,21 +362,21 @@ module.exports = function(robot) {
                     } else {
                         var dueDate = robot.brain.get(cacheObj + assn);
                         checked += 1;
-                        
+
                         var day = getSlipDays(body.submitted_at, dueDate[assn]);
-                        msg.send('Used ' + day + ' day' + (day === 1 ? '' : 's') + 
+                        msg.send('Used ' + day + ' day' + (day === 1 ? '' : 's') +
                         ' for assignment ' + assn + '.');
                         daysUsed += day;
                     }
                 }
-                
+
                 if (checked === toCheck.length) { // Ran through the list
                     msg.send(daysUsed + ' slip days were used');
                 }
             });
         }
     }
-    
+
     robot.hear(slipDaysRegExp, function(msg) {
         var student = msg.match[1];
 
@@ -385,7 +384,7 @@ module.exports = function(robot) {
             msg.send('Error: No Student Provided');
             return;
         }
-        
+
         // Check Student Exists
         // TODO: Fix this crap for extension students
         var url = '/courses/' + cs10CourseID + 'users/sis_user_id' + student;
@@ -396,12 +395,12 @@ module.exports = function(robot) {
                     msg.send(ody.errors[0].message);
                 }
             }
-            
+
             console.log('Checking student');
-            msg.send('Checking slip days for ' + 
+            msg.send('Checking slip days for ' +
                      (body.name ? body.name : student) + '.');
         });
-        
+
         // Do the dirty work...
         calculateSlipDays(student, msg);
     });

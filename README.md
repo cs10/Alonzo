@@ -7,7 +7,7 @@ This CS10's version of GitHub's Campfire bot, hubot. He's pretty cool.
 This version is designed to be deployed on Heroku.
 
 ## Cool Story, Bro But I want X
-Sure, make a pull request! Don't push directly to master even if you can...
+Sure, make a pull request! Don't push directly to master even if you can avoid it.
 
 ## Setup Alonzo
 Alonzo is designed to be deployed on Heroku and connected to HipChat. This will give the basics of getting up to speed with Alonzo. Alonzo has already gone through initial deployments, so it should be easy to update.
@@ -25,7 +25,7 @@ Alonzo is designed to be deployed on Heroku and connected to HipChat. This will 
     heroku restart
     heroku logs # make sure nothing broke!
     ```
-7. All of the CS10 dependencies can be found in the [config notes][config] file. The values are on Heroku or in in the usual place where we store such info. You should know where it is, if you have access. :)
+7. All of the CS10 config values can be found in the file `.env [Alonzo]` (in a separate repo). The values are on Heroku or other places. You should be able to find where it is, if you have access. :)
 
 More detailed documentation can be found on the
 [deploying Alonzo onto Heroku][deploy-heroku] wiki page.
@@ -34,7 +34,7 @@ More detailed documentation can be found on the
 
 You can test Alonzo by running the following.
 
-    % bin/hubot -n Alonzo
+    $ ./alonzo
 
 You'll see some start up output about where your scripts come from and a
 prompt.
