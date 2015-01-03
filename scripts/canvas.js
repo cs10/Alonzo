@@ -37,16 +37,12 @@ var allowedRooms = ['lab_check-off_room', 'cs10_staff_room_(private)'] + [ proce
 
 // Mapping of extenstion IDs to bCourses IDs
 var SWAP_IDS = {
-    '539182':1083827,
-    '538761':1074257,
-    '538594':1074141,
-    '538652':1007900,
-    '539072':1082812,
+    '539182':'UID:1083827',
+    '538761':'UID:1074257',
+    '538594':'UID:1074141',
+    '538652':'UID:1007900',
+    '539072':'UID:1082812',
 };
-// This is a stupid backwards compatibility thing because these IDs are printed
-// on checkoff sheets...it's the just the VALUES of the above map.
-var ID_VALS = [];
-
 
 // @PNHilfinger, this is for you.
 // The most useful skill from 61B. ;)
@@ -71,7 +67,6 @@ var cs10 = new Canvas(bCoursesURL, { token: authToken });
  * getAllLabs(assnGroupID)
  * MatchLabNumber(int-N)
  * Assign Grade(SID, grade)
- * build Some URL paths
  */
 
 /* Take in a Canvas Assignment Group ID and return all the assignments in that
@@ -80,7 +75,7 @@ var getAllLabs = function(courseID, assnGroupID, callback) {
     var labGroups = '/courses/' + courseID + '/assignment_groups/' + assnGroupID;
     var params = '?include[]=assignments';
     cs10.get(labGroups + params, '', function(body) {
-        console.log(body);
+        return body;
     });
 };
 
@@ -100,33 +95,25 @@ module.exports = function(robot) {
         //     msg.send('You cannot post scores from this room');
         //     return;
         // }
-        console.log(msg.match);
         // match[3] is the late parameter.
         var labNo  = msg.match[3],
             points = (msg.match[1] !== undefined || msg.match[4] !== undefined) ? 1 : 2,
             // WTF is wrong with /s+/???
-            SIDs   = msg.match[5].trim().split(/[ \t\n]/g);
+            SIDs   = msg.match[5].trim().split(/[ \t\n]/g),
+            len, i, path;
 
         // Trim spaces
-        var len = SIDs.length, i = 0;
+        len = SIDs.length, i = 0;
         for (; i < len; i += 1) {
             SIDs[i] = SIDs[i].trim();
             if (SIDs[i].substring(0, 1) == 'X') {
-                msg.send('Please specify all extension ids without X.' +
-                '\nOr submit a bug fix on github...<3.');
+                SID[i] = SIDs[i].replace('X', '');
             }
-        }
-
-        if (points !== 1) {
-            msg.send('Yo, this ain\'t Harvard. Check off students as late now!');
-            msg.send('Go to bCourses and enter the scores manually!!');
-            msg.send('https://bcourses.berkeley.edu/courses/1246916/gradebook');
-            return;
         }
 
         msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
 
-        var path = '/courses/' + cs10CourseID + '/assignment_groups/' +
+        path = '/courses/' + cs10CourseID + '/assignment_groups/' +
                     labsAssnID;
 
         cs10.get(path + '?include[]=assignments', '', function(body) {
@@ -231,90 +218,6 @@ module.exports = function(robot) {
 
     ///////////////////////////////////////////////////////////////////////////
 
-    // https://bcourses.berkeley.edu/api/v1/courses/1246916/assignments/5179913
-    var toCheck = [];
-    toCheck.push('5179913'); // HW1
-    toCheck.push('5179914'); // HW2
-    toCheck.push('5179915'); // HW3
-    toCheck.push('5179917'); // MT Project
-    toCheck.push('5179919'); // Impact Post Link
-    toCheck.push('5179935'); // Impact Post comments
-    toCheck.push('5179918'); // Final Project
-    // toCheck.push(); // Data Project
-
-    function getSlipDays(submissionTime, dueTime) {
-        var threshold = 1000 * 60 * 30,
-            oneDay    = 1000 * 60 * 60 * 24,
-            d1 = new Date(submissionTime),
-            d2 = new Date(dueTime);
-
-        var diff = Math.abs(d1 - d2);
-
-        if (diff < threshold) {
-            return 0;
-        }
-        // This is somewhat shitty if you use slightly more than a day
-        // TODO: only floor if < .1 difference
-        return Math.ceil(diff / oneDay);
-    }
-
-    /* Iterate over all the assignments to check */
-    function calculateSlipDays(sid, msg) {
-        var daysUsed = 0, checked = 0;
-        // TODO: Once again... do the extenstion student thing
-        var url = '/courses/' + cs10CourseID + '/assignments/';
-        var urlEnd = '/submissions/sis_user_id:' + sid;
-
-        var i = 0, end = toCheck.length;
-        var assn = '';
-        for(; i < end; i += 1) {
-            assn = toCheck[i];
-            console.log('checking assignment ' + assn);
-            cs10.get(url + assn + urlEnd, '', function (body) {
-
-                console.log('CHECKED');
-
-                if (!body || body.errors) {
-                    console.log('errrrrroorrrrrrrrrr');
-                    // ugggggghhhh
-                }
-
-                if (body.late) { // body.late is fale even for no submission!
-
-                    if (!cacheIsValid(assn)) {
-                        cacheDueDate(assn);
-                        console.log('cached');
-                        setTimeout(function() { // Replace this thing with a callback to the above function....
-                            var dueDate = robot.brain.get(cacheObj + assn);
-                            checked += 1;
-
-                            var day = getSlipDays(body.submitted_at, dueDate[assn]);
-                            msg.send('Used ' + day + ' day' + (day === 1 ? '' : 's') +
-                            ' for assignment ' + assn + '.');
-                            daysUsed += day;
-
-                            if (checked === toCheck.length) { // Ran through the list
-                                msg.send(daysUsed + ' slip days were used');
-                            }
-                        }, 2000);
-                    } else {
-                        var dueDate = robot.brain.get(cacheObj + assn);
-                        checked += 1;
-
-                        var day = getSlipDays(body.submitted_at, dueDate[assn]);
-                        msg.send('Used ' + day + ' day' + (day === 1 ? '' : 's') +
-                        ' for assignment ' + assn + '.');
-                        daysUsed += day;
-                    }
-                }
-
-                if (checked === toCheck.length) { // Ran through the list
-                    msg.send(daysUsed + ' slip days were used');
-                }
-            });
-        }
-    }
-
     robot.hear(slipDaysRegExp, function(msg) {
         var student = msg.match[1];
 
@@ -326,7 +229,111 @@ module.exports = function(robot) {
         // Do the dirty work...
         calculateSlipDays(student, msg);
     });
-
-
-
 };
+
+////
+
+// https://bcourses.berkeley.edu/api/v1/courses/1246916/assignments/5179913
+var toCheck = [];
+toCheck.push('5179913'); // HW1
+toCheck.push('5179914'); // HW2
+toCheck.push('5179915'); // HW3
+toCheck.push('5179917'); // MT Project
+toCheck.push('5179919'); // Impact Post Link
+toCheck.push('5179935'); // Impact Post comments
+toCheck.push('5179918'); // Final Project
+// toCheck.push(); // Data Project
+
+function getSlipDays(submissionTime, dueTime) {
+    var threshold = 1000 * 60 * 30,
+        oneDay    = 1000 * 60 * 60 * 24,
+        d1 = new Date(submissionTime),
+        d2 = new Date(dueTime);
+
+    var diff = Math.abs(d1 - d2);
+
+    if (diff < threshold) {
+        return 0;
+    }
+    // This is somewhat shitty if you use slightly more than a day
+    // TODO: only floor if < .1 difference
+    return Math.ceil(diff / oneDay);
+}
+
+/* Canvas Result Format:
+[
+    {
+        "sis_user_id": "25631323",
+        "submissions": [
+            {
+                "assignment": {
+                    "due_at": "2014-12-06T07:59:00Z",
+                    "html_url": "https://bcourses.berkeley.edu/courses/1246916/assignments/5179918",
+                    "id": 5179918,
+                    "name": "Final Project"
+                },
+                "assignment_id": 5179918,
+                "id": 37710573,
+                "late": true,
+                "preview_url": "https://bcourses.berkeley.edu/courses/1246916/assignments/5179918/submissions/5018297?preview=1",
+                "submitted_at": "2014-12-06T08:54:14Z",
+                "workflow_state": "graded"
+            },
+        ],
+        "user_id": 5018297
+    }
+]
+*/
+
+
+/* Iterate over all the assignments that slip days count towards:
+ * URLs:
+ * [BASE]/courses/ID/students/submissions ?
+ * Query: assignment_ids[]=XXX&student_ids[]=XXX&grouped=true&include=assignment
+ */
+function calculateSlipDays(sid, msg) {
+    var daysUsed = 0, url, query, idType = 'sis_user_id:';
+
+    // Extension Student ID problems....
+    // TODO: Make this a function.
+    if (Object.keys(SWAP_IDS).indexOf(sid) !== -1) {
+        sid = SWAP_IDS[sid];
+    }
+
+    url = 'courses/' + cs10CourseID + '/students/submissions';
+    toCheck = toCheck.map(function(id) {
+        return 'assignment_ids[]=' + id;
+    });
+
+    // gather specified assignments
+    query = toCheck.join('&');
+    // Include assignment details and group by student (we'll only have 1 stu)
+    query += '&grouped=true&include=assignment';
+    // Include the student ID to query
+    query += '&student_ids[]=' + idType + sid;
+
+    cs10.get(url, query, function (body) {
+        // See above comments for API result formats
+        var submissions, days;
+        console.log(url+query);
+        if (!body || body.errors) {
+            msg.send('errrrrrooooorrrrrrrrrr');
+            console.log(body);
+            return;
+        }
+
+        // List of submissions contains only most recent submission
+        submissions = body[0].submissions;
+        submissions.forEach(function(subm) {
+            if (subm.late) { // late is fale even for no submission!
+                days = getSlipDays(subm.submitted_at, subm.assignment.due_at)
+            }
+            daysUsed += days;
+            if (days > 0) {
+                msg.send('Used ' + days + ' slip days for assignment ' +
+                    subm.assignment.name);
+            }
+        });
+        msg.send('Total: ' + daysUsed + ' slip days used.');
+    });
+}
