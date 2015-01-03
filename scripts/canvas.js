@@ -242,68 +242,6 @@ module.exports = function(robot) {
     toCheck.push('5179918'); // Final Project
     // toCheck.push(); // Data Project
 
-    var cacheObj = 'ASSIGNMENT_DUE_DATE_';
-    /* Assigment Due Date Cache:
-     * { cacheDate: <date>, AssnID: <date>, AssnID: <date> .... } */
-
-    /* For all the assignments update the due dates and save them to the
-     * 'brain' for Alonzo to avoid redundant http requests
-     *  Also save the cache date. */
-    function cacheDueDate(assnID) {
-        console.log('trying to cache stuff');
-        var cache = {};
-        var url = '/courses/' + cs10CourseID + '/assignments/';
-
-        // Access Time (in MS) is now
-        cache.cacheDate = (new Date()).getTime();
-
-        // Get Assignment Due Date (as strings)
-        cs10.get(url + assnID, '', function(body) {
-            console.log('cache request ' + assnID);
-            if (!body || body.errors) {
-                console.log('EROOR');
-                return;
-                // throw new Error(body.errors[0]);
-            }
-
-            if (!body.due_at) {
-                console.log('errrrr');
-                return;
-                // throw new Error('No Due Date found for assignment ' + assign);
-            }
-
-            console.log(body.due_at);
-            console.log(cache);
-            cache[assign] = body.due_at; // Save the actual date
-
-            // Save the cache
-            console.log('Setting Cache');
-            robot.brain.set(cacheObj, cache);
-            robot.log('bCourses slip days cache updated');
-        });
-    }
-
-    /* Check if the assignment cache exists, if it does, check if it is
-     * less than 1 week old */
-    function cacheIsValid(assnID) {
-        console.log('Valid Check  ' + assnID);
-        var maxAge = 1000 * 60 * 60 * 24 * 7; // 1 Week
-        var now    = (new Date()).getTime();
-        var cachedData = robot.brain.get(cacheObj + assnID);
-
-        if (!cachedData) {
-            console.log('no cache found');
-            return false; // No cache found
-        }
-
-        if (cachedData.cacheDate) {
-            return now - cachedData.cacheDate < maxAge;
-        }
-
-        return false; // Couldn't find a cache date, so be cautious
-    }
-
-
     function getSlipDays(submissionTime, dueTime) {
         var threshold = 1000 * 60 * 30,
             oneDay    = 1000 * 60 * 60 * 24,
@@ -384,22 +322,6 @@ module.exports = function(robot) {
             msg.send('Error: No Student Provided');
             return;
         }
-
-        // Check Student Exists
-        // TODO: Fix this crap for extension students
-        var url = '/courses/' + cs10CourseID + 'users/sis_user_id' + student;
-        cs10.get(url, '', function(body) {
-            if (!body || body.errors) { // TODO: Make this crap more generic?
-                msg.send('Error occurred for SID: ' + student);
-                if (body.errors && body.errors[0] && body.errors[0].message) {
-                    msg.send(ody.errors[0].message);
-                }
-            }
-
-            console.log('Checking student');
-            msg.send('Checking slip days for ' +
-                     (body.name ? body.name : student) + '.');
-        });
 
         // Do the dirty work...
         calculateSlipDays(student, msg);
