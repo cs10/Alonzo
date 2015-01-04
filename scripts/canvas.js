@@ -292,7 +292,7 @@ function getSlipDays(submissionTime, dueTime) {
  * Query: assignment_ids[]=XXX&student_ids[]=XXX&grouped=true&include=assignment
  */
 function calculateSlipDays(sid, msg) {
-    var daysUsed = 0, url, query, idType = 'sis_user_id:';
+    var url, query, idType = 'sis_user_id:';
 
     // Extension Student ID problems....
     // TODO: Make this a function.
@@ -300,40 +300,48 @@ function calculateSlipDays(sid, msg) {
         sid = SWAP_IDS[sid];
     }
 
-    url = 'courses/' + cs10CourseID + '/students/submissions';
+    url = '/courses/' + cs10CourseID + '/students/submissions';
     toCheck = toCheck.map(function(id) {
         return 'assignment_ids[]=' + id;
     });
 
     // gather specified assignments
-    query = toCheck.join('&');
+    query = '?' + toCheck.join('&');
     // Include assignment details and group by student (we'll only have 1 stu)
     query += '&grouped=true&include=assignment';
     // Include the student ID to query
     query += '&student_ids[]=' + idType + sid;
 
-    cs10.get(url, query, function (body) {
+    cs10.get(url + query, '', function(body, response, errors) {
         // See above comments for API result formats
-        var submissions, days;
-        console.log(url+query);
+        var submissions, days, daysUsed;
         if (!body || body.errors) {
             msg.send('errrrrrooooorrrrrrrrrr');
-            console.log(body);
+            msg.send(body.errors);
             return;
         }
 
+        daysUsed = 0;
         // List of submissions contains only most recent submission
         submissions = body[0].submissions;
-        submissions.forEach(function(subm) {
+        console.log(submissions.length);
+        var i = 0, end = submissions.length, subm;
+        for(; i < end; i += 1) {
+            subm = submissions[i];
+
             if (subm.late) { // late is fale even for no submission!
-                days = getSlipDays(subm.submitted_at, subm.assignment.due_at)
+                days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+                console.log('late');
+                console.log(days);
             }
             daysUsed += days;
+            console.log(daysUsed);
             if (days > 0) {
-                msg.send('Used ' + days + ' slip days for assignment ' +
+                msg.send('Used ' + days.toString() + ' slip days for assignment ' +
                     subm.assignment.name);
             }
-        });
-        msg.send('Total: ' + daysUsed + ' slip days used.');
+        }
+
+        msg.send('Total: ' + daysUsed.toString() + ' slip days used.');
     });
 }
