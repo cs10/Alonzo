@@ -273,14 +273,14 @@ function getSlipDays(submissionTime, dueTime) {
                     "name": "Final Project"
                 },
                 "assignment_id": 5179918,
-                "id": 37710573,
+                "id": XXXX,
                 "late": true,
                 "preview_url": "https://bcourses.berkeley.edu/courses/1246916/assignments/5179918/submissions/5018297?preview=1",
                 "submitted_at": "2014-12-06T08:54:14Z",
                 "workflow_state": "graded"
             },
         ],
-        "user_id": 5018297
+        "user_id": XXXX
     }
 ]
 */
@@ -329,17 +329,20 @@ function calculateSlipDays(sid, msg) {
         for(; i < end; i += 1) {
             subm = submissions[i];
 
-            if (subm.late) { // late is fale even for no submission!
+            if (subm.late === true) { // late is fale even for no submission!
+                console.log(subm);
                 days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                console.log('late');
-                console.log(days);
+                daysUsed += days;
+                if (days > 0) {
+                    msg.send('Used ' + days.toString() + ' slip days for assignment ' +
+                        subm.assignment.name);
+                }
+                
             }
-            daysUsed += days;
+
+            console.log('Days Used:');
             console.log(daysUsed);
-            if (days > 0) {
-                msg.send('Used ' + days.toString() + ' slip days for assignment ' +
-                    subm.assignment.name);
-            }
+
         }
 
         msg.send('Total: ' + daysUsed.toString() + ' slip days used.');
