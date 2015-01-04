@@ -263,7 +263,7 @@ function getSlipDays(submissionTime, dueTime) {
 /* Canvas Result Format:
 [
     {
-        "sis_user_id": "25631323",
+        "sis_user_id": "XXXX",
         "submissions": [
             {
                 "assignment": {
