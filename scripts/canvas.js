@@ -80,7 +80,7 @@ var getAllLabs = function(courseID, assnGroupID, callback) {
 };
 
 
-var pageSource = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Slip Day Checker</title><style type="text/css">body {background: #d3d6d9;color: #636c75;text-shadow: 0 1px 1px rgba(255, 255, 255, .5);font-family: Helvetica, Arial, sans-serif;}h1 {margin: 8px 0;padding: 0;}.commands {font-size: 13px;}p {border-bottom: 1px solid #eee;margin: 6px 0 0 0;padding-bottom: 5px;}p:last-child {border: 0;}</style></head><body><h1>#{SID}\'s Slip Day Check</h1><div class="commands">#{NOTES}</div></body></html>'
+var pageSource = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Slip Day Checker</title><style type="text/css">body {background: #d3d6d9;color: #636c75;text-shadow: 0 1px 1px rgba(255, 255, 255, .5);font-family: Helvetica, Arial, sans-serif;}h1 {margin: 8px 0;padding: 0;}.commands {font-size: 13px;}p {border-bottom: 1px solid #eee;margin: 6px 0 0 0;padding-bottom: 5px;}p:last-child {border: 0;}</style></head><body><h1>#{SID}\'s Slip Day Check</h1><div class="commands">#{NOTES}</div></body></html>';
 
 
 module.exports = function(robot) {
@@ -104,10 +104,11 @@ module.exports = function(robot) {
             points = (msg.match[1] !== undefined || msg.match[4] !== undefined) ? 1 : 2,
             // WTF is wrong with /s+/???
             SIDs   = msg.match[5].trim().split(/[ \t\n]/g),
-            len, i, path;
+            len    = SIDs.length,
+            i      = 0,
+            path;
 
         // Trim spaces
-        len = SIDs.length, i = 0;
         for (; i < len; i += 1) {
             SIDs[i] = SIDs[i].trim();
             if (SIDs[i].substring(0, 1) == 'X') {
@@ -250,9 +251,9 @@ module.exports = function(robot) {
 
         calculateSlipDays(sid, function(notices) {
             page = page.replace('#{SID}', sid);
-            results = notices.join('</p><p>')
+            results = notices.join('</p><p>');
             results = '<p>' + results + '</p>';
-            res.end(page.replace('#{NOTES}', results))
+            res.end(page.replace('#{NOTES}', results));
         });
     });
 
@@ -282,6 +283,13 @@ toCheck.push('5179919'); // Impact Post Link
 toCheck.push('5179935'); // Impact Post comments
 toCheck.push('5179918'); // Final Project
 // toCheck.push(); // Data Project
+// individual MT reflection
+
+toCheck = toCheck.map(function(id) {
+    return 'assignment_ids[]=' + id;
+});
+toCheck = toCheck.join('&');
+
 
 function getSlipDays(submissionTime, dueTime) {
     var threshold = 1000 * 60 * 30,
@@ -340,19 +348,16 @@ function calculateSlipDays(sid, callback) {
     }
 
     url = '/courses/' + cs10CourseID + '/students/submissions';
-    toCheck = toCheck.map(function(id) {
-        return 'assignment_ids[]=' + id;
-    });
 
     // gather specified assignments
-    query = '?' + toCheck.join('&');
+    query = '?' + toCheck;
     // Include assignment details and group by student (we'll only have 1 stu)
     query += '&grouped=true&include=assignment';
     // Include the student ID to query
     query += '&student_ids[]=' + idType + sid;
 
-    var results = [];
     cs10.get(url + query, '', function(body, response, errors) {
+        var results = [];
         // See above comments for API result formats
         var submissions, days, daysUsed;
         if (!body || body.errors) {
