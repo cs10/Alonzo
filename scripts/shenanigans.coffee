@@ -15,12 +15,6 @@ fuResponses = [
 
 module.exports = (robot) ->
 
-  robot.respond /this room/i, (msg) ->
-    msg.send 'Room Info:'
-    msg.send msg.message.room
-    msg.send msg.user.room
-    console.log msg
-
   # For @ibirnam
   robot.respond /fuck you/i, (msg) ->
     if msg.message.room != process.env.HUBOT_SECRET_ROOM

@@ -59,7 +59,7 @@ var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+
   input: '@Alonzo check-off 12 late 1234 1234 1234' ]
 */
 
-var slipDaysRegExp = /slip[- ]days\s*(\d+)/;
+var slipDaysRegExp = /slip[- ]?days\s*(\d+)/;
 
 var cs10 = new Canvas(bCoursesURL, { token: authToken });
 
@@ -238,7 +238,7 @@ module.exports = function(robot) {
         });
     });
 
-    robot.router.get('/slipdays/:sid', function(req, res) {
+    robot.router.get('/slipdays/:sid/', function(req, res) {
         var sid = req.params.sid,
             page = pageSource;
 
@@ -257,18 +257,20 @@ module.exports = function(robot) {
         });
     });
 
+    robot.router.get('slipdays/:sid/json', function(req, res) {
+        var sid = req.params.sid;
 
-    /*
-    cmds = robot.helpCommands().map (cmd) ->
-      cmd.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        res.setHeader('content-type', 'text/json');
+        if (!sid) {
+            res.end('No SID Found');
+            return;
+        }
 
-    emit = "<p>#{cmds.join '</p><p>'}</p>"
+        calculateSlipDays(sid, function(notices) {
+            res.end(JSON.stringify(notices));
+        });
+    });
 
-    emit = emit.replace /hubot/ig, "<b>#{robot.name}</b>"
-
-    res.setHeader 'content-type', 'text/html'
-    res.end helpContents robot.name, emit
-    */
 };
 
 ////
@@ -303,7 +305,7 @@ function getSlipDays(submissionTime, dueTime) {
         return 0;
     }
     // This is somewhat shitty if you use slightly more than a day
-    // TODO: only floor if < .1 difference
+    // TODO: only floor if < .1 difference ??
     return Math.ceil(diff / oneDay);
 }
 

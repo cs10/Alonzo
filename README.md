@@ -61,6 +61,8 @@ Take a look at the scripts in the `./scripts` folder for examples.
 Delete any scripts you think are useless or boring.  Add whatever functionality you
 want Alonzo to have. Read up on what you can do with Alonzo in the [Scripting Guide][scripts].
 
+https://leanpub.com/automation-and-monitoring-with-hubot/read#leanpub-auto-cross-script-communication-with-events
+
 #### Alonzo-scripts
 Alonzo uses many scripts which originate from [hubot-scripts][Hubot-scripts]. Feel free to add and configure some more if they're interesting :)
 
