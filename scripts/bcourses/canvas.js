@@ -257,7 +257,7 @@ module.exports = function(robot) {
         });
     });
 
-    robot.router.get('slipdays/:sid/json', function(req, res) {
+    robot.router.get('/slipdays/:sid/json', function(req, res) {
         var sid = req.params.sid;
 
         res.setHeader('content-type', 'text/json');
