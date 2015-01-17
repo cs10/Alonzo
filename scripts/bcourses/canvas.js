@@ -1,23 +1,3 @@
-// Description:
-//   A collection of CS10 scripts to automate grading with our Canvas LMS
-//   instance
-//
-// Dependencies:
-//     node-canvaslms
-//
-// Configuration:
-//   HUBOT_CANVAS_TOKEN
-//
-//
-// Commands:
-//   [late]? check off [LAB NUM] [late]? [SIDs...] – Late is optional.
-//
-// Notes:
-//
-//
-// Author:
-//   Michael Ball @cycomachead
-
 var Canvas    = require('node-canvas-lms');
 var authToken = process.env.HUBOT_CANVAS_KEY;
 
@@ -238,36 +218,38 @@ module.exports = function(robot) {
         });
     });
 
-    robot.router.get('/slipdays/:sid/', function(req, res) {
-        var sid = req.params.sid,
-            page = pageSource;
+    robot.router.get('/slipdays/:sid/:json?', function(req, res) {
+        var sid       = req.params.sid,
+            useJSON   = req.params.json,
+            type      = 'text/html',
+            errorFn   = processError;
+            successFn = processSuccess;
 
-        res.setHeader('content-type', 'text/html');
-        if (!sid) {
-            res.end(page.replace('#{NOTES}', 'No SID Found')
-                    .replace("#{SID}'s", "ERROR —"));
+        if (useJSON) {
+            type      = 'text/json';
+            successFn = JSON.stringify;
+            errorFn   = JSON.stringify;
+        }
+
+        res.setHeader('content-type', type);
+        if (!sid.match(/\d+/)) {
+            res.end(errorFn.call(null, 'No SID Found'));
             return;
         }
 
-        calculateSlipDays(sid, function(notices) {
-            page = page.replace('#{SID}', sid);
-            results = notices.join('</p><p>');
-            results = '<p>' + results + '</p>';
-            res.end(page.replace('#{NOTES}', results));
-        });
-    });
+        function processError() {
+            return pageSource.replace('#{NOTES}', 'No SID Found')
+                             .replace("#{SID}'s", "ERROR —");
+        }
 
-    robot.router.get('/slipdays/:sid/json', function(req, res) {
-        var sid = req.params.sid;
-
-        res.setHeader('content-type', 'text/json');
-        if (!sid) {
-            res.end('No SID Found');
-            return;
+        function processSuccess(notices) {
+            var page = pageSource.replace('#{SID}', sid);
+            var results = '<p>' + notices.join('</p><p>') + '</p>';
+            return page.replace('#{NOTES}', results);
         }
 
         calculateSlipDays(sid, function(notices) {
-            res.end(JSON.stringify(notices));
+            res.end(successFn.call(null, notices));
         });
     });
 
