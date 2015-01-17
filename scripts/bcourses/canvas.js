@@ -101,12 +101,11 @@ module.exports = function(robot) {
         path = '/courses/' + cs10CourseID + '/assignment_groups/' +
                     labsAssnID;
 
-        cs10.get(path + '?include[]=assignments', '', function(body) {
+        cs10.get(path + '?include[]=assignments', '', function(error, response, body) {
             var assignments = body.assignments,
                 assnID, i = 0;
 
             if (!assignments) {
-                console.log(body);
                 msg.send('Oh crap, no assignments were found. Please check the lab number');
                 return;
             }
@@ -153,7 +152,7 @@ module.exports = function(robot) {
 
             // Access in SID and points in the callback
             function callback(sid, points, msg) {
-                return function(body) {
+                return function(error, response, body) {
                     // TODO: Make an error function
                     // Absence of a grade indicates an error.
                     // WHY DONT I CHECK HEADERS THATS WHAT THEY ARE FOR
@@ -172,7 +171,7 @@ module.exports = function(robot) {
             // THese should really be condenced but I didn't want to figure
             // out a proper base case for a recursive callback...lazy....
             function loginCallback(sid, points, msg) {
-                return function(body) {
+                return function(error, response, body) {
                     var errorMsg = 'Problem encountered for ID: ' +
                                     sid.toString();
                     // TODO: Make an error function
@@ -340,13 +339,14 @@ function calculateSlipDays(sid, callback) {
     // Include the student ID to query
     query += '&student_ids[]=' + idType + sid;
 
-    cs10.get(url + query, '', function(body, response, errors) {
+    cs10.get(url + query, '', function(error, response, body) {
         var results = [];
         // See above comments for API result formats
         var submissions, days, daysUsed;
         if (!body || body.errors) {
             results.push('errrrrrooooorrrrrrrrrr');
             results.push(body.errors);
+            results.push(error)
             callback(results);
         }
 
