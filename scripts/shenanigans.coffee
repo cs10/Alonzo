@@ -25,3 +25,6 @@ module.exports = (robot) ->
     if msg.message.room != process.env.HUBOT_SECRET_ROOM
       return
     msg.send 'https://www.youtube.com/watch?v=ElxHoUShy1c'
+    
+  robot.respond /locker/, (msg) ->
+    msg.send '11-29-15'
