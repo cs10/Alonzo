@@ -225,7 +225,7 @@ module.exports = function(robot) {
         res.setHeader('content-type', type);
         // Damn you CORS....
         res.setHeader('Access-Control-Allow-Origin', '*');
-        
+
         if (!sid.match(/\d+/)) {
             res.end(errorFn.call(null, 'No SID Found'));
             return;
