@@ -222,9 +222,13 @@ module.exports = function(robot) {
             errorFn   = JSON.stringify;
         }
 
-        res.setHeader('content-type', type);
+        res.type(type);
         // Damn you CORS....
+        res.setHeader('Content-Type', type);
         res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
         if (!sid.match(/\d+/)) {
             res.end(errorFn.call(null, 'No SID Found'));
