@@ -24,6 +24,9 @@ var SWAP_IDS = {
     '539072':'UID:1082812',
 };
 
+
+
+
 // @PNHilfinger, this is for you.
 // The most useful skill from 61B. ;)
 var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
@@ -41,34 +44,23 @@ var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+
 
 var slipDaysRegExp = /slip[- ]?days\s*(\d+)/;
 
-var cs10 = new Canvas(bCoursesURL, { token: authToken });
-
-/* Fuctions To Do
- * getAllLabs(assnGroupID)
- * MatchLabNumber(int-N)
- * Assign Grade(SID, grade)
- */
-
 /* Take in a Canvas Assignment Group ID and return all the assignments in that
  * that group. */
 var getAllLabs = function(courseID, assnGroupID, callback) {
     var labGroups = '/courses/' + courseID + '/assignment_groups/' + assnGroupID;
     var params = '?include[]=assignments';
-    cs10.get(labGroups + params, '', function(body) {
+    cs10.get(labGroups + params, '', function(error, response, body) {
         return body;
     });
 };
+
+var cs10 = new Canvas(bCoursesURL, { token: authToken });
 
 
 var pageSource = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Slip Day Checker</title><style type="text/css">body {background: #d3d6d9;color: #636c75;text-shadow: 0 1px 1px rgba(255, 255, 255, .5);font-family: Helvetica, Arial, sans-serif;}h1 {margin: 8px 0;padding: 0;}.commands {font-size: 13px;}p {border-bottom: 1px solid #eee;margin: 6px 0 0 0;padding-bottom: 5px;}p:last-child {border: 0;}</style></head><body><h1>#{SID}\'s Slip Day Check</h1><div class="commands">#{NOTES}</div></body></html>';
 
 
 module.exports = function(robot) {
-
-    if (!authToken) {
-        robot.logger.log('HUBOT_CANVAS_KEY token not found!');
-        return;
-    }
 
     robot.hear(checkOffRegExp, function(msg) {
 
@@ -231,6 +223,9 @@ module.exports = function(robot) {
         }
 
         res.setHeader('content-type', type);
+        // Damn you CORS....
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        
         if (!sid.match(/\d+/)) {
             res.end(errorFn.call(null, 'No SID Found'));
             return;
@@ -348,6 +343,7 @@ function calculateSlipDays(sid, callback) {
             results.push(body.errors);
             results.push(error)
             callback(results);
+            return;
         }
 
         daysUsed = 0;
