@@ -2,7 +2,7 @@
 #    Random fun stuff for TAs
 #
 # Commands:
-#    None
+#    locker
 #
 # Dependencies:
 #    None
