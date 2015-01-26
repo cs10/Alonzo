@@ -1,6 +1,19 @@
-// Lab Check-Offs
+// Description:
+//   A simple interaction with the built in HTTP Daemon
+//
+// Dependencies:
+//   bcourses library see ./bcourses/index.js
+//
+// Configuration:
+//   See bcourses
+//
+// Commands:
+//   hubot (late) check-off <NUM> (late) <SIDs> -- check of these students
+//
+// Author:
+//  Michael Ball
 
-var cs10 = require('./cs10-bcourses-base');
+var cs10 = require('./bcourses/');
 
 var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
 /* Hubot msg.match groups:
@@ -20,6 +33,7 @@ var TARoom = 'lab_check-off_room';
 
 // Global-ish stuff for successful lab checkoff submissions.
 var successes;
+var failures;
 var expectedScores;
 var timeoutID;
 
@@ -80,9 +94,9 @@ function doTACheckoff(msg) {
             msg.send('Check to make sure you put in a correct lab number.');
             return;
         }
-        
 
         successes = 0;
+        failures = 0;
         expectedScores = SIDs.length;
         SIDs.forEach(function(sid) {
             if (!sid) { return; }
@@ -100,7 +114,35 @@ function doTACheckoff(msg) {
 }
 
 function doLACheckOff(msg) {
+    // match[3] is the late parameter.
+    var labNo  = msg.match[3],
+        points = (msg.match[1] !== undefined || msg.match[4] !== undefined) ? 1 : 2,
+        isLate = points === 1,
+        SIDs   = msg.match[5].trim().split(/[ \t\n]/g),
+        len    = SIDs.length;
+        
+    var LA_DATA = robot.brain.get('LA_DATA');
+    if (!LA_DATA) {
+        LA_DATA = [];
+    }
     
+    LA_DATA.append(
+        {
+            lab: labNo,
+            late: isLate,
+            sid: SIDs,
+            time:  (new Date()).toString(),
+            laname: msg.message.user.name,
+            uid: msg.message.user.id,
+            text: msg.message.text
+        }
+    );
+    
+    robot.brain.set('LA_DATA', LA_DATA);
+    
+    msg.send('Checking Off ' + SIDs.length + ' student for lab ' + labNo + '.');
+        
+        
 }
 
 function postLabScore(sid, labID, score, msg) {
@@ -116,6 +158,7 @@ function handleResponse(sid, points, msg) {
     return function(error, response, body) {
         var errorMsg = 'Problem encountered for ID: ' + sid;
         if (body.errors || !body.grade || body.grade != points.toString()) {
+            failures += 1;
             if (body.errors && body.errors[0]) {
                 errorMsg += '\nERROR:\t' + body.errors[0].message;
             }
@@ -124,9 +167,15 @@ function handleResponse(sid, points, msg) {
             msg.send(errorMsg);
         } else {
             successes += 1;
-            if (successes === expoectedScores) {
+        }
+        if (successes + failures === expectedScores) {
+            clearTimeout(timeoutID);
+            if (successes) {
                 var scores = successes + ' score' + (successes == 1 ? '' : 's');
-                msg.send(scores + ' successfully updated for lab ' + labNo + '.');
+                msg.send(scores + ' successfully updated.'); 
+            }
+            if (failures) {
+                msg.send('WARING: ' + failures + ' uploads failed.');
             }
         }
     };
