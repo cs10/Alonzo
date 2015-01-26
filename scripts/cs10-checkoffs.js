@@ -42,9 +42,8 @@ module.exports = function(robot) {
     robot.hear(checkOffRegExp, function(msg) {
         currentRoom = msg.message.room;
         
-        // Develop Condition: 
-        if (currentRoom === LARoom || currentRoom === 'Shell') {
-            console.log('LA Check Off');
+        // Develop Condition: || currentRoom === 'Shell'
+        if (currentRoom === LARoom) {
             doLACheckoff(msg);
         } else if (currentRoom === TARoom) {
             doTACheckoff(msg);
