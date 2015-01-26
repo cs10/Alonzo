@@ -42,9 +42,11 @@ module.exports = function(robot) {
     robot.hear(checkOffRegExp, function(msg) {
         currentRoom = msg.message.room;
         
-        if (currentRoom === LARoom) {
+        // Develop Condition: 
+        if (currentRoom === LARoom || currentRoom === 'Shell') {
+            console.log('LA Check Off');
             doLACheckoff(msg);
-        } else if (currentRoom === TARoom || currentRoom === 'Shell') {
+        } else if (currentRoom === TARoom) {
             doTACheckoff(msg);
         } else {
             msg.send('Lab Check offs are not allowed from this room');
@@ -113,7 +115,7 @@ function doTACheckoff(msg) {
     });
 }
 
-function doLACheckOff(msg) {
+function doLACheckoff(msg) {
     // match[3] is the late parameter.
     var labNo  = msg.match[3],
         points = (msg.match[1] !== undefined || msg.match[4] !== undefined) ? 1 : 2,
@@ -126,7 +128,7 @@ function doLACheckOff(msg) {
         LA_DATA = [];
     }
     
-    LA_DATA.append(
+    LA_DATA.push(
         {
             lab: labNo,
             late: isLate,
