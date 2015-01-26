@@ -1,7 +1,6 @@
-// Check-Offs
-// Right now, this handles LA check-offs only. 
+// Lab Check-Offs
 
-var cs10 = require('./bcourses/bcourses-base');
+var cs10 = require('./cs10-bcourses-base');
 
 var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
 /* Hubot msg.match groups:
