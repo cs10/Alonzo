@@ -16,32 +16,6 @@
 var cs10 = require('./bcourses/');
 
 var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[- ])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
-/* Hubot msg.match groups:
-[ '@Alonzo check-off 12 late 1234 1234 1234',
-  undefined,         // Late?
-  '12',              // Lab Number
-  'late',            // Late or undefined
-  '1234 1234 1234',  // SIDs
-  index: 0,
-  input: '@Alonzo check-off 12 late 1234 1234 1234' ]
-*/
-/* Proccess the regex match into a common formatted object */
-function extractMessage(match) {
-    console.log(match);
-    var result = {};
-
-    var labNo  = match[2],
-        isLate = match[1] !== undefined || match[3] !== undefined,
-        SIDs   = match[4].trim().split(/[ \t\n]/g);
-
-    result.lab    = labNo;
-    result.sids   = SIDs.map(cs10.normalizeSID);
-    result.isLate = isLate;
-    result.points = isLate ? latePoints : fullPoints;
-
-    return result;
-}
-
 
 var LARoom = 'lab_assistant_check-offs';
 var TARoom = 'lab_check-off_room';
@@ -68,7 +42,42 @@ module.exports = function(robot) {
         }
     });
 
+    // Commands for managing LA check-off publishing
+    robot.respond(/show la data/i, function(msg) {
+        if (msg.message.room === TARoom || msg.message.room === 'Shell') {
+            msg.send('/code \n' + JSON.stringify(robot.brain.get('LA_DATA')));
+        }
+    })
 };
+
+
+
+/* Hubot msg.match groups:
+[ '@Alonzo check-off 12 late 1234 1234 1234',
+  undefined,         // Late?
+  '12',              // Lab Number
+  'late',            // Late or undefined
+  '1234 1234 1234',  // SIDs
+  index: 0,
+  input: '@Alonzo check-off 12 late 1234 1234 1234' ]
+*/
+/* Proccess the regex match into a common formatted object */
+function extractMessage(match) {
+    var result = {};
+
+    var labNo  = match[2],
+        isLate = match[1] !== undefined || match[3] !== undefined,
+        SIDs   = match[4].trim().split(/[ \t\n]/g);
+
+    result.lab    = labNo;
+    result.sids   = SIDs.map(cs10.normalizeSID);
+    result.isLate = isLate;
+    result.points = isLate ? latePoints : fullPoints;
+
+    return result;
+}
+
+
 
 function doTACheckoff(msg) {
     var i = 0,
