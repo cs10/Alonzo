@@ -27,6 +27,7 @@ var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[- ])?off\s+(\d+)\s*
 */
 /* Proccess the regex match into a common formatted object */
 function extractMessage(match) {
+    console.log(match);
     var result = {};
 
     var labNo  = match[2],
@@ -57,8 +58,6 @@ var timeoutID;
 module.exports = function(robot) {
 
     robot.hear(checkOffRegExp, function(msg) {
-        console.log(msg.match);
-
         // Develop Condition: || msg.message.room === 'Shell'
         if (msg.message.room === LARoom) {
             doLACheckoff(msg);
@@ -72,14 +71,12 @@ module.exports = function(robot) {
 };
 
 function doTACheckoff(msg) {
-    var data = extractMessage(msg.match),
-        i    = 0,
-        labsURL;
+    var i = 0,
+        data = extractMessage(msg.match),
+        labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;;
 
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
               + data.lab + '.');
-
-    labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
 
     // TODO: Cache this request
     cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
@@ -91,6 +88,7 @@ function doTACheckoff(msg) {
             return;
         }
 
+        // TODO REFACTOR
         for (; i < assignments.length; i += 1) {
             var assnName  = assignments[i].name;
             // All labs are named "<#>. <Lab Title> <Date>"
@@ -102,7 +100,7 @@ function doTACheckoff(msg) {
             }
         }
         if (!assnID) {
-            msg.send('Well, crap...I can\'t find lab ' + msg.match[2] + '.');
+            msg.send('Well, crap...I can\'t find lab ' + data.lab + '.');
             msg.send('Check to make sure you put in a correct lab number.');
             return;
         }
@@ -125,9 +123,8 @@ function doTACheckoff(msg) {
 }
 
 function doLACheckoff(msg) {
-    var data = extractData(msg.match);
-
-    var LA_DATA = robot.brain.get('LA_DATA') || [];
+    var data    = extractMessage(msg.match),
+        LA_DATA = robot.brain.get('LA_DATA') || [];
 
     LA_DATA.push({
         lab: data.lab,
