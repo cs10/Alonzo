@@ -25,6 +25,22 @@ var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[- ])?off\s+(\d+)\s*
   index: 0,
   input: '@Alonzo check-off 12 late 1234 1234 1234' ]
 */
+/* Proccess the regex match into a common formatted object */
+function extractMessage(match) {
+    var result = {};
+
+    var labNo  = match[2],
+        isLate = match[1] !== undefined || match[3] !== undefined,
+        SIDs   = match[4].trim().split(/[ \t\n]/g);
+
+    result.lab = labNo;
+    result.sids = SIDs.map(cs10.normalizeSID);
+    result.isLate = isLate;
+    result.points = isLate ? latePoints : fullPoints;
+
+    return result;
+}
+
 
 var LARoom = 'lab_assistant_check-offs';
 var TARoom = 'lab_check-off_room';
@@ -43,13 +59,10 @@ module.exports = function(robot) {
     robot.hear(checkOffRegExp, function(msg) {
         console.log(msg.match);
 
-        return;
-        currentRoom = msg.message.room;
-
-        // Develop Condition: || currentRoom === 'Shell'
-        if (currentRoom === LARoom) {
+        // Develop Condition: || msg.message.room === 'Shell'
+        if (msg.message.room === LARoom) {
             doLACheckoff(msg);
-        } else if (currentRoom === TARoom) {
+        } else if (msg.message.room === TARoom || msg.message.room === 'Shell') {
             doTACheckoff(msg);
         } else {
             msg.send('Lab Check offs are not allowed from this room');
@@ -58,13 +71,10 @@ module.exports = function(robot) {
 
 };
 
-
 function doTACheckoff(msg) {
-    var data = extractData(mg.match),
+    var data = extractMessage(msg.match),
         i    = 0,
         labsURL;
-
-
 
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
               + data.lab + '.');
@@ -102,7 +112,6 @@ function doTACheckoff(msg) {
         expectedScores = data.sids.length;
         data.sids.forEach(function(sid) {
             if (!sid) { return; }
-
             postLabScore(sid, assnID, data.points, msg);
         });
 
@@ -144,22 +153,6 @@ var scoreForm = 'submission[posted_grade]=' + score,
             cs10.uid + sid;
 
     cs10.put(url , '', scoreForm, handleResponse(sid, score, msg));
-}
-
-/* Proccess the regex match into a common formatted object */
-function extractMessage(match) {
-    var results = {};
-
-    var labNo  = match[2],
-        isLate = match[1] !== undefined || match[3] !== undefined,
-        SIDs   = match[4].trim().split(/[ \t\n]/g);
-
-    result.lab = labNo;
-    result.sids = SIDs.map(cs10.normalizeSIDs);
-    result.isLate = isLate;
-    result.points = isLate ? latePoints : fullPoints;
-
-    return results;
 }
 
 // Error Handler for posting lab check off scores.
