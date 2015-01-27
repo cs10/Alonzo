@@ -15,21 +15,22 @@
 
 var cs10 = require('./bcourses/');
 
-var checkOffRegExp = /(late\s*)?(lab[- ])?check[- ]off\s+(\d+)\s*(late)?\s*((\d+\s*)*)\s*/i;
+var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[- ])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
 /* Hubot msg.match groups:
 [ '@Alonzo check-off 12 late 1234 1234 1234',
-  undefined, // Late?
-  undefined, // The word "lab"
-  '12',
-  'late',
-  '1234 1234 1234',
-  '1234',
+  undefined,         // Late?
+  '12',              // Lab Number
+  'late',            // Late or undefined
+  '1234 1234 1234',  // SIDs
   index: 0,
   input: '@Alonzo check-off 12 late 1234 1234 1234' ]
 */
 
 var LARoom = 'lab_assistant_check-offs';
 var TARoom = 'lab_check-off_room';
+
+var fullPoints = 2;
+var latePoints = fullPoints / 2;
 
 // Global-ish stuff for successful lab checkoff submissions.
 var successes;
@@ -38,10 +39,13 @@ var expectedScores;
 var timeoutID;
 
 module.exports = function(robot) {
-    
+
     robot.hear(checkOffRegExp, function(msg) {
+        console.log(msg.match);
+
+        return;
         currentRoom = msg.message.room;
-        
+
         // Develop Condition: || currentRoom === 'Shell'
         if (currentRoom === LARoom) {
             doLACheckoff(msg);
@@ -56,21 +60,18 @@ module.exports = function(robot) {
 
 
 function doTACheckoff(msg) {
-    // match[3] is the late parameter.
-    var labNo  = msg.match[3],
-        points = (msg.match[1] !== undefined || msg.match[4] !== undefined) ? 1 : 2,
-        isLate = points === 1,
-        SIDs   = msg.match[5].trim().split(/[ \t\n]/g),
-        len    = SIDs.length,
-        i      = 0,
+    var data = extractData(mg.match),
+        i    = 0,
         labsURL;
 
-    SIDs = SIDs.map(cs10.normalizeSID);
 
-    msg.send('Checking Off ' + SIDs.length + ' students for lab ' + labNo + '.');
+
+    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
+              + data.lab + '.');
 
     labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
 
+    // TODO: Cache this request
     cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
         var assignments = body.assignments,
             assnID, i = 0;
@@ -85,7 +86,7 @@ function doTACheckoff(msg) {
             // All labs are named "<#>. <Lab Title> <Date>"
             var searchNum = assnName.split('.');
 
-            if (searchNum[0] == labNo) {
+            if (searchNum[0] == data.lab) {
                 assnID = assignments[i].id;
                 break;
             }
@@ -98,11 +99,11 @@ function doTACheckoff(msg) {
 
         successes = 0;
         failures = 0;
-        expectedScores = SIDs.length;
-        SIDs.forEach(function(sid) {
+        expectedScores = data.sids.length;
+        data.sids.forEach(function(sid) {
             if (!sid) { return; }
-            
-            postLabScore(sid, assnID, points, msg);
+
+            postLabScore(sid, assnID, data.points, msg);
         });
 
         // wait till all requests are complete...hopefully.
@@ -115,43 +116,50 @@ function doTACheckoff(msg) {
 }
 
 function doLACheckoff(msg) {
-    // match[3] is the late parameter.
-    var labNo  = msg.match[3],
-        points = (msg.match[1] !== undefined || msg.match[4] !== undefined) ? 1 : 2,
-        isLate = points === 1,
-        SIDs   = msg.match[5].trim().split(/[ \t\n]/g),
-        len    = SIDs.length;
-        
-    var LA_DATA = robot.brain.get('LA_DATA');
-    if (!LA_DATA) {
-        LA_DATA = [];
-    }
-    
-    LA_DATA.push(
-        {
-            lab: labNo,
-            late: isLate,
-            sid: SIDs,
-            time:  (new Date()).toString(),
-            laname: msg.message.user.name,
-            uid: msg.message.user.id,
-            text: msg.message.text
-        }
-    );
-    
+    var data = extractData(msg.match);
+
+    var LA_DATA = robot.brain.get('LA_DATA') || [];
+
+    LA_DATA.push({
+        lab: data.lab,
+        late: data.isLate,
+        sid: data.sids,
+        points: data.points,
+        time:  (new Date()).toString(),
+        laname: msg.message.user.name,
+        uid: msg.message.user.id,
+        text: msg.message.text
+    });
+
     robot.brain.set('LA_DATA', LA_DATA);
-    
-    msg.send('Checking Off ' + SIDs.length + ' student for lab ' + labNo + '.');
-        
-        
+    var scores = 'score' + (data.sids.length === 1 ? '' : 's');
+    msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
+             ' for lab ' + data.lab  + '.');
+
 }
 
 function postLabScore(sid, labID, score, msg) {
 var scoreForm = 'submission[posted_grade]=' + score,
     url = cs10.baseURL + '/assignments/' + labID + '/submissions/' +
             cs10.uid + sid;
-    
+
     cs10.put(url , '', scoreForm, handleResponse(sid, score, msg));
+}
+
+/* Proccess the regex match into a common formatted object */
+function extractMessage(match) {
+    var results = {};
+
+    var labNo  = match[2],
+        isLate = match[1] !== undefined || match[3] !== undefined,
+        SIDs   = match[4].trim().split(/[ \t\n]/g);
+
+    result.lab = labNo;
+    result.sids = SIDs.map(cs10.normalizeSIDs);
+    result.isLate = isLate;
+    result.points = isLate ? latePoints : fullPoints;
+
+    return results;
 }
 
 // Error Handler for posting lab check off scores.
@@ -173,7 +181,7 @@ function handleResponse(sid, points, msg) {
             clearTimeout(timeoutID);
             if (successes) {
                 var scores = successes + ' score' + (successes == 1 ? '' : 's');
-                msg.send(scores + ' successfully updated.'); 
+                msg.send(scores + ' successfully updated.');
             }
             if (failures) {
                 msg.send('WARING: ' + failures + ' uploads failed.');
