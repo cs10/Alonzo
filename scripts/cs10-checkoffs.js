@@ -33,8 +33,8 @@ function extractMessage(match) {
         isLate = match[1] !== undefined || match[3] !== undefined,
         SIDs   = match[4].trim().split(/[ \t\n]/g);
 
-    result.lab = labNo;
-    result.sids = SIDs.map(cs10.normalizeSID);
+    result.lab    = labNo;
+    result.sids   = SIDs.map(cs10.normalizeSID);
     result.isLate = isLate;
     result.points = isLate ? latePoints : fullPoints;
 
@@ -119,7 +119,7 @@ function doTACheckoff(msg) {
         // Or send a message after 30 seconds
         timeoutID = setTimeout(function() {
             var scores = successes + ' score' + (successes == 1 ? '' : 's');
-            msg.send('After 30 seconds: ' + scores + ' successfully updated for lab ' + labNo + '.');
+            msg.send('After 30 seconds: ' + scores + ' successfully submitted.');
         }, 30000);
     });
 }
