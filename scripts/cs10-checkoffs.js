@@ -69,8 +69,11 @@ function extractMessage(match) {
         isLate = match[1] !== undefined || match[3] !== undefined,
         SIDs   = match[4].trim().split(/[ \t\n]/g);
 
+    SIDs = SIDs.filter(function(item) { return item.trim() !== '' });
+    SIDs = SIDs.map(cs10.normalizeSID);
+
     result.lab    = labNo;
-    result.sids   = SIDs.map(cs10.normalizeSID);
+    result.sids   = SIDs;
     result.isLate = isLate;
     result.points = isLate ? latePoints : fullPoints;
 
@@ -85,7 +88,7 @@ function doTACheckoff(msg) {
         labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;;
 
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
-              + data.lab + '.');
+              + data.lab + '.....');
 
     // TODO: Cache this request
     cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
@@ -127,7 +130,7 @@ function doTACheckoff(msg) {
         timeoutID = setTimeout(function() {
             var scores = successes + ' score' + (successes == 1 ? '' : 's');
             msg.send('After 30 seconds: ' + scores + ' successfully submitted.');
-        }, 30000);
+        }, 30 * 1000);
     });
 }
 
@@ -183,7 +186,7 @@ function handleResponse(sid, points, msg) {
                 msg.send(scores + ' successfully updated.');
             }
             if (failures) {
-                msg.send('WARING: ' + failures + ' uploads failed.');
+                msg.send('WARING: ' + failures + ' submissions failed.');
             }
         }
     };
