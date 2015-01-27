@@ -16,7 +16,8 @@ fuResponses = [
 gradingResponses = [
   'Bitch, patience please!',
   'What do you think?!',
-  'Can I dock you points for that?!'
+  'Can I dock you points for that?!',
+  'It will get graded faster if you shut up'
 ]
 
 module.exports = (robot) ->
