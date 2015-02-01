@@ -35,7 +35,6 @@ var TA_ROOM = 'lab_check-off_room';
 // Keys for data that key stored in robot.brain
 var laDataKey      = 'LA_DATA';
 var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
-var LAB_CACHE_DATE = 'LAB_CACHE_DATE';
 
 // Global-ish stuff for successful lab checkoff submissions.
 var successes;
@@ -108,7 +107,7 @@ function cacheLabAssignments(callback, args) {
         var assignments = body.assignments;
         var data = {};
         
-        data.time = new Date();
+        data.time = (new Date()).toString();
         data.labs = assignments;
         
         robot.brain.set(LAB_CACHE_KEY, data);
@@ -121,21 +120,19 @@ function cacheLabAssignments(callback, args) {
 
 
 function doTACheckoff(msg) {
-    var i = 0,
-        data = extractMessage(msg.match),
-        labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
-
-    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
-              + data.lab + '.....');
-
+    var data = extractMessage(msg.match);
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
     if (!assignments || !cacheIsValid(assignments)) {
+        console.log('ALONZO: Refreshing Lab assignments cache.');
         cacheLabAssignments(doTACheckoff, [msg]);
         return;
     }
 
-    var assnID = getAssignmentID(data.lab, assingments, msg);
+    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
+          + data.lab + '.....');
+
+    var assnID = getAssignmentID(data.lab, assignments, msg);
 
     if (!assnID) {
         msg.send('Well, crap...I can\'t find lab ' + data.lab + '.');
@@ -218,7 +215,7 @@ function handleResponse(sid, points, msg) {
 
 
 function cacheIsValid(assignments) {
-    var date = assignments.cacheTime;
+    var date = assignments.time;
     var diff = (new Date()) - (new Date(date));
     return diff / (1000 * 60 * 60) < CACHE_HOURS;
 }
