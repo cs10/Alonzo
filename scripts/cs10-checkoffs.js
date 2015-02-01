@@ -13,15 +13,29 @@
 // Author:
 //  Michael Ball
 
+// This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses/');
 
-var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[- ])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
-
-var LARoom = 'lab_assistant_check-offs';
-var TARoom = 'lab_check-off_room';
-
+// CONSTANTS
+var CACHE_HOURS = 6;
 var fullPoints = 2;
 var latePoints = fullPoints / 2;
+
+
+// A long regex to parse a lot of different check off commands.
+var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
+// A generic expression that matches all messages
+var containsSIDExp = /.*x?\d{6,9}/i;
+
+
+// Allowed rooms for doing / managing check offs
+var LA_ROOM = 'lab_assistant_check-offs';
+var TA_ROOM = 'lab_check-off_room';
+
+// Keys for data that key stored in robot.brain
+var laDataKey      = 'LA_DATA';
+var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
+var LAB_CACHE_DATE = 'LAB_CACHE_DATE';
 
 // Global-ish stuff for successful lab checkoff submissions.
 var successes;
@@ -33,9 +47,9 @@ module.exports = function(robot) {
 
     robot.hear(checkOffRegExp, function(msg) {
         // Develop Condition: || msg.message.room === 'Shell'
-        if (msg.message.room === LARoom) {
+        if (msg.message.room === LA_ROOM) {
             doLACheckoff(msg);
-        } else if (msg.message.room === TARoom || msg.message.room === 'Shell') {
+        } else if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
             doTACheckoff(msg);
         } else {
             msg.send('Lab Check offs are not allowed from this room');
@@ -44,10 +58,15 @@ module.exports = function(robot) {
 
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, function(msg) {
-        if (msg.message.room === TARoom || msg.message.room === 'Shell') {
+        if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
             msg.send('/code \n' + JSON.stringify(robot.brain.get('LA_DATA')));
         }
-    })
+    });
+
+    robot.respond(/clear bcourses cache/i, function(msg) {
+        robot.brain.remove(LAB_CACHE_KEY);
+        msg.send('Assignments Cache Removed');
+    });
 };
 
 
@@ -80,58 +99,63 @@ function extractMessage(match) {
     return result;
 }
 
+// Cache
+// TODO: document wacky callback thingy
+function cacheLabAssignments(callback, args) {
+    var labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
+
+    cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
+        var assignments = body.assignments;
+        var data = {};
+        
+        data.time = new Date();
+        data.labs = assignments;
+        
+        robot.brain.set(LAB_CACHE_KEY, data);
+        
+        if (callback) {
+            callback.apply(null, args);
+        }
+    });
+}
 
 
 function doTACheckoff(msg) {
     var i = 0,
         data = extractMessage(msg.match),
-        labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;;
+        labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
 
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
               + data.lab + '.....');
 
-    // TODO: Cache this request
-    cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
-        var assignments = body.assignments,
-            assnID, i = 0;
+    var assignments = robot.brain.get(LAB_CACHE_KEY);
 
-        if (!assignments) {
-            msg.send('Oh crap, no assignments were found. Please check the lab number');
-            return;
-        }
+    if (!assignments || !cacheIsValid(assignments)) {
+        cacheLabAssignments(doTACheckoff, [msg]);
+        return;
+    }
 
-        // TODO REFACTOR
-        for (; i < assignments.length; i += 1) {
-            var assnName  = assignments[i].name;
-            // All labs are named "<#>. <Lab Title> <Date>"
-            var searchNum = assnName.split('.');
+    var assnID = getAssignmentID(data.lab, assingments, msg);
 
-            if (searchNum[0] == data.lab) {
-                assnID = assignments[i].id;
-                break;
-            }
-        }
-        if (!assnID) {
-            msg.send('Well, crap...I can\'t find lab ' + data.lab + '.');
-            msg.send('Check to make sure you put in a correct lab number.');
-            return;
-        }
+    if (!assnID) {
+        msg.send('Well, crap...I can\'t find lab ' + data.lab + '.');
+        msg.send('Check to make sure you put in a correct lab number.');
+        return;
+    }
 
-        successes = 0;
-        failures = 0;
-        expectedScores = data.sids.length;
-        data.sids.forEach(function(sid) {
-            if (!sid) { return; }
-            postLabScore(sid, assnID, data.points, msg);
-        });
-
-        // wait till all requests are complete...hopefully.
-        // Or send a message after 30 seconds
-        timeoutID = setTimeout(function() {
-            var scores = successes + ' score' + (successes == 1 ? '' : 's');
-            msg.send('After 30 seconds: ' + scores + ' successfully submitted.');
-        }, 30 * 1000);
+    successes = 0;
+    failures = 0;
+    expectedScores = data.sids.length;
+    data.sids.forEach(function(sid) {
+        postLabScore(sid, assnID, data.points, msg);
     });
+
+    // wait till all requests are complete...hopefully.
+    // Or send a message after 30 seconds
+    timeoutID = setTimeout(function() {
+        var scores = successes + ' score' + (successes == 1 ? '' : 's');
+        msg.send('After 30 seconds: ' + scores + ' successfully submitted.');
+    }, 30 * 1000);
 }
 
 function doLACheckoff(msg) {
@@ -190,4 +214,32 @@ function handleResponse(sid, points, msg) {
             }
         }
     };
+}
+
+
+function cacheIsValid(assignments) {
+    var date = assignments.cacheTime;
+    var diff = (new Date()) - (new Date(date));
+    return diff / (1000 * 60 * 60) < CACHE_HOURS;
+}
+
+
+function getAssignmentID(num, assignments) {
+    var labs = assignments.labs,
+        assnID;
+
+    labs.some(function(lab) {
+        var assnName  = lab.name;
+        // All labs are named "<#>. <Lab Title>"
+        // TODO: Use regex in the future /^\d{1,2}/
+        var searchNum = assnName.split('.');
+
+        if (searchNum[0] == num) {
+            assnID = lab.id;
+            return true;
+        }
+        return false;
+    });
+
+    return assnID;
 }
