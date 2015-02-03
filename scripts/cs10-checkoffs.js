@@ -66,12 +66,12 @@ module.exports = function(robot) {
         robot.brain.remove(LAB_CACHE_KEY);
         msg.send('Assignments Cache Removed');
     });
-    
+
     // Command Review LA data
     // Output total, num sketchy
-    
+
     // submit LA scores
-    
+
     // review sketchy scores
 };
 
@@ -110,15 +110,15 @@ function extractMessage(match) {
 function cacheLabAssignments(callback, args) {
     var labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
 
-    cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
+    cs10.get(labsURL, 'include[]=assignments', function(error, response, body) {
         var assignments = body.assignments;
         var data = {};
-        
+
         data.time = (new Date()).toString();
         data.labs = assignments;
-        
+
         robot.brain.set(LAB_CACHE_KEY, data);
-        
+
         if (callback) {
             callback.apply(null, args);
         }
