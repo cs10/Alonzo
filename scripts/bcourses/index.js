@@ -40,4 +40,8 @@ cs10.normalizeSID = function(sid) {
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays    = 3;
 
+cs10.staffIDs = [
+    ''
+];
+
 module.exports = cs10;
