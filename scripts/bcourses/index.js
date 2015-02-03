@@ -6,9 +6,10 @@ var bCoursesURL = 'https://bcourses.berkeley.edu';
 var cs10 = new Canvas(bCoursesURL, { token: authToken });
 
 // Update Each Semester
-// Michael Sandbox: '1268501'
-// var cs10CourseID = '1301472'; Spring 2015
-cs10.courseID = '1301472';
+// Michael Sandbox: 1268501
+// Spring 2015: 1301472
+// Fall 2014: 1246916
+cs10.courseID = '1246916';
 // Update Each Semester
 // Michael Sandbox: 1593713
 // cs10.labsID = '1702126' Spring 2015
@@ -23,6 +24,7 @@ cs10.gradebookURL = bCoursesURL + cs10.baseURL + '/gradebook';
 // Mapping of extenstion IDs to bCourses IDs
 // Make sure this is still defined even if there are no extenstion students
 cs10.SWAP_IDS = {
+    '538866':'UID:1083023'
 };
 
 // Trim an SID and check of extenstion students
@@ -31,7 +33,11 @@ cs10.normalizeSID = function(sid) {
      if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
          sid = cs10.SWAP_IDS[sid];
      }
-     return sid;
+     return cs10.uid + sid;
 }
+
+// Course Level Policies:
+cs10.gracePeriodMinutes = 15;
+cs10.allowedSlipDays    = 3;
 
 module.exports = cs10;
