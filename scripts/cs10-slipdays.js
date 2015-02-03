@@ -170,6 +170,8 @@ function getSlipDays(submissionTime, dueTime) {
  * [BASE]/courses/ID/students/submissions ?
  * Query: assignment_ids[]=XXX&student_ids[]=XXX&grouped=true&include=assignment
  */
+
+var STATE_GRADED = 'graded';
 function calculateSlipDays(sid, callback) {
     var url, query, idType = 'sis_user_id:';
 
@@ -182,16 +184,16 @@ function calculateSlipDays(sid, callback) {
     url = '/courses/' + cs10CourseID + '/students/submissions';
 
     // gather specified assignments
-    query = '?' + toCheck;
+    query = toCheck;
     // Include assignment details and group by student (we'll only have 1 stu)
-    query += '&grouped=true&include=assignment';
+    query += '&grouped=true&include[]=assignment';
     // Include the student ID to query
     query += '&student_ids[]=' + idType + sid;
 
-    cs10.get(url + query, '', function(error, response, body) {
-        var results = [];
-        // See above comments for API result formats
-        var submissions, days, daysUsed;
+    // See above comments for API result formats
+    cs10.get(url, query, function(error, response, body) {
+        var submissions,
+            results = [];
         if (!body || body.errors) {
             results.push('errrrrrooooorrrrrrrrrr');
             results.push(body.errors);
@@ -200,24 +202,35 @@ function calculateSlipDays(sid, callback) {
             return;
         }
 
-        daysUsed = 0;
+        results = {
+            totalDays: 0,
+            overLimit: false,
+            assignments: []
+        };
+        // Assignment: name, days used, graded?
         // List of submissions contains only most recent submission
         submissions = body[0].submissions;
-        var i = 0, end = submissions.length, subm;
-        for(; i < end; i += 1) {
-            subm = submissions[i];
+        submissions.forEach(function(subm) {
+            var state = subm.workflow_state;
+            var assignment = {
+                name: subm.assignment.name
+            };
+            // TODO: Check for muted assignments?
+            if (state === STATE_GRADED) { // Use Reader Rubric
+                assignment.graded = true;
 
-            if (subm.late) { // late is fale even for no submission!
-                days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                daysUsed += days;
-                if (days > 0) {
-                    results.push('Used ' + days.toString() + ' slip days for assignment ' +
-                        subm.assignment.name);
+            } else {
+                assignment.graded = false;
+                if (subm.late) { // Calculate time based on submission
+                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+                } else { // Not late...
+                    days = 0;
                 }
             }
-        }
-
-        results.push('Total: ' + daysUsed.toString() + ' slip days used.');
+            assignment.slipDays    = days;
+            assignments.totalDays += days;
+            results.assignments.push(assignment);
+        })
 
         callback(results);
     });
