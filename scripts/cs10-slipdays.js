@@ -1,44 +1,24 @@
-var Canvas    = require('node-canvas-lms');
-var authToken = process.env.HUBOT_CANVAS_KEY;
+// Description:
+//   Logic for dealing with student slip day calculations
+//   Exposes: /slipdays/:studentID/:json? as a web endpoint
+//
+// Dependencies:
+//   bcourses library see ./bcourses/index.js
+//
+// Configuration:
+//   See bcourses
+//
+// Commands:
+//   hubot  slip days <SID> -- get slip days used for students
+//
+// Author:
+//  Michael Ball
 
-var bCoursesURL = 'https://bcourses.berkeley.edu/';
-// Update Each Semester
-// CS10 FA14: '1246916'
-// Michael Sandbox: '1268501'
-var cs10CourseID = '1246916';
-// Update Each Semester
-// CS10 FA14 Labs 1549984
-// Michael Sandbox: 1593713
-var labsAssnID = '1549984';
-// Make sure only a few people can assign grades
-// TODO: Grab the actual strings from HipChat
-// We can also use the "secret" room...
-var allowedRooms = ['lab_check-off_room', 'cs10_staff_room_(private)'] + [ process.env.HUBOT_SECRET_ROOM ];
+// This sets up all the bCourses interface stuff
+var cs10 = require('./bcourses/');
 
-// Mapping of extenstion IDs to bCourses IDs
-var SWAP_IDS = {
-    '539182':'UID:1083827',
-    '538761':'UID:1074257',
-    '538594':'UID:1074141',
-    '538652':'UID:1007900',
-    '539072':'UID:1082812',
-};
 
 var slipDaysRegExp = /slip[- ]?days\s*(\d+)/;
-
-/* Take in a Canvas Assignment Group ID and return all the assignments in that
- * that group. */
-var getAllLabs = function(courseID, assnGroupID, callback) {
-    var labGroups = '/courses/' + courseID + '/assignment_groups/' + assnGroupID;
-    var params = '?include[]=assignments';
-    cs10.get(labGroups + params, '', function(error, response, body) {
-        return body;
-    });
-};
-
-var cs10 = new Canvas(bCoursesURL, { token: authToken });
-
-
 var pageSource = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Slip Day Checker</title><style type="text/css">body {background: #d3d6d9;color: #636c75;text-shadow: 0 1px 1px rgba(255, 255, 255, .5);font-family: Helvetica, Arial, sans-serif;}h1 {margin: 8px 0;padding: 0;}.commands {font-size: 13px;}p {border-bottom: 1px solid #eee;margin: 6px 0 0 0;padding-bottom: 5px;}p:last-child {border: 0;}</style></head><body><h1>#{SID}\'s Slip Day Check</h1><div class="commands">#{NOTES}</div></body></html>';
 
 
@@ -52,10 +32,8 @@ module.exports = function(robot) {
             return;
         }
 
-        calculateSlipDays(student, function(notices) {
-            notices.forEach(function(note) {
-                msg.send(note);
-            });
+        calculateSlipDays(student, function(result) {
+            msg.send(JSON.stringify(result));
         });
     });
 
@@ -80,7 +58,7 @@ module.exports = function(robot) {
         res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
-        if (!sid.match(/\d+/)) {
+        if (!sid) {
             res.end(errorFn.call(null, 'No SID Found'));
             return;
         }
@@ -124,7 +102,7 @@ toCheck = toCheck.join('&');
 
 
 function getSlipDays(submissionTime, dueTime) {
-    var threshold = 1000 * 60 * 30,
+    var threshold = 1000 * 60 * cs10.gracePeriodMinutes,
         oneDay    = 1000 * 60 * 60 * 24,
         d1 = new Date(submissionTime),
         d2 = new Date(dueTime);
@@ -170,28 +148,20 @@ function getSlipDays(submissionTime, dueTime) {
  * [BASE]/courses/ID/students/submissions ?
  * Query: assignment_ids[]=XXX&student_ids[]=XXX&grouped=true&include=assignment
  */
-
 var STATE_GRADED = 'graded';
 function calculateSlipDays(sid, callback) {
-    var url, query, idType = 'sis_user_id:';
+    var url, query;
 
-    // Extension Student ID problems....
-    // TODO: Make this a function.
-    if (Object.keys(SWAP_IDS).indexOf(sid) !== -1) {
-        sid = SWAP_IDS[sid];
-    }
+    url = 'courses/' + cs10.courseID + '/students/submissions';
 
-    url = '/courses/' + cs10CourseID + '/students/submissions';
-
-    // gather specified assignments
-    query = toCheck;
     // Include assignment details and group by student (we'll only have 1 stu)
-    query += '&grouped=true&include[]=assignment';
+    query = toCheck + '&grouped=true&include[]=assignment&include[]=rubric_assessment';
     // Include the student ID to query
-    query += '&student_ids[]=' + idType + sid;
+    query += '&student_ids[]=' + cs10.normalizeSID(sid);
 
-    // See above comments for API result formats
-    cs10.get(url, query, function(error, response, body) {
+    console.log(url);
+    console.log(query);
+    cs10.get(url + '?' + query, '', function(error, response, body) {
         var submissions,
             results = [];
         if (!body || body.errors) {
@@ -204,31 +174,32 @@ function calculateSlipDays(sid, callback) {
 
         results = {
             totalDays: 0,
-            overLimit: false,
-            assignments: []
+            overLimit: 0,
+            assignments: [] // Assignment: name, daysUsed, graded (bool)
         };
-        // Assignment: name, days used, graded?
         // List of submissions contains only most recent submission
         submissions = body[0].submissions;
         submissions.forEach(function(subm) {
             var state = subm.workflow_state;
-            var assignment = {
-                name: subm.assignment.name
-            };
             // TODO: Check for muted assignments?
             if (state === STATE_GRADED) { // Use Reader Rubric
-                assignment.graded = true;
-
-            } else {
-                assignment.graded = false;
-                if (subm.late) { // Calculate time based on submission
-                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                } else { // Not late...
-                    days = 0;
-                }
+                console.log(subm.assignment.rubric);
+                days = 2;
+            } else if (subm.late) { // Calculate time based on submission
+                days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+            } else { // Not late...
+                days = 0;
             }
-            assignment.slipDays    = days;
-            assignments.totalDays += days;
+
+            var assignment = {
+                title: subm.assignment.name,
+                slipDays: days,
+                graded: state === STATE_GRADED,
+                url: subm.preview_url
+            };
+
+            results.totalDays += days;
+            results.overLimit  = results.totalDays - cs10.allowedSlipDays;
             results.assignments.push(assignment);
         })
 
