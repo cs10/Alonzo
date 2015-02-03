@@ -155,13 +155,12 @@ function calculateSlipDays(sid, callback) {
     url = 'courses/' + cs10.courseID + '/students/submissions';
 
     // Include assignment details and group by student (we'll only have 1 stu)
-    query = toCheck + '&grouped=true&include[]=assignment&include[]=rubric_assessment';
+    query = '?' + toCheck + '&grouped=true&include[]=assignment&include[]=submission_comments';
     // Include the student ID to query
     query += '&student_ids[]=' + cs10.normalizeSID(sid);
 
-    console.log(url);
-    console.log(query);
-    cs10.get(url + '?' + query, '', function(error, response, body) {
+
+    cs10.get(url + query, '', function(error, response, body) {
         var submissions,
             results = [];
         if (!body || body.errors) {
@@ -182,9 +181,11 @@ function calculateSlipDays(sid, callback) {
         submissions.forEach(function(subm) {
             var state = subm.workflow_state;
             // TODO: Check for muted assignments?
-            if (state === STATE_GRADED) { // Use Reader Rubric
-                console.log(subm.assignment.rubric);
-                days = 2;
+            if (state === STATE_GRADED) { // Use Reader Comments or fallback
+                days = getReaderDays(subm.submission_comments);
+                if (days === -1) { // TODO: Cleanup...
+                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at)
+                }
             } else if (subm.late) { // Calculate time based on submission
                 days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
             } else { // Not late...
@@ -205,4 +206,15 @@ function calculateSlipDays(sid, callback) {
 
         callback(results);
     });
+}
+
+// Get an array of comments on a submission
+// Filter for comments w/ valid author ID
+// Search comments for a "Slip Days Used" match
+//
+function getReaderDays(comments) {
+    // Fields I care about:
+    // comment.author_id, comment.comment, .created_at
+    // TODO: grab the last comment first -- verify it is the most recent
+    // cs10.staffIDs array
 }
