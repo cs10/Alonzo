@@ -66,6 +66,13 @@ module.exports = function(robot) {
         robot.brain.remove(LAB_CACHE_KEY);
         msg.send('Assignments Cache Removed');
     });
+    
+    // Command Review LA data
+    // Output total, num sketchy
+    
+    // submit LA scores
+    
+    // review sketchy scores
 };
 
 
