@@ -136,8 +136,9 @@ function doTACheckoff(msg) {
     var data = extractMessage(msg.match);
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
+    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '          + data.lab + '.....');
 
-    if (!assignments || !cacheIsValid(assignments))
+    if (!assignments || !cacheIsValid(assignments)) {
         console.log('ALONZO: Refreshing Lab assignments cache.');
         cacheLabAssignments(doTACheckoff, [msg]);
         return;
@@ -223,7 +224,6 @@ function handleResponse(sid, points, msg) {
         }
     };
 }
-
 
 function cacheIsValid(assignments) {
     var labsExist = assignments.labs ? assignments.labs.length > 0 : false;
