@@ -17,13 +17,9 @@
 // This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses/');
 
-
-var slipDaysRegExp = /slip[- ]?days\s*(\d+)/;
-
 module.exports = function(robot) {
-
     // Just a simple redirect to the CS10 site.
-    robot.respond(slipDaysRegExp, function(msg) {
+    robot.respond(/slip[- ]?days\s*(\d+)/i, function(msg) {
         msg.send('http://cs10.org/sp15/slipdays/?' + msg.match[1]);
     });
 
