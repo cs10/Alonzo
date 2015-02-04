@@ -2,12 +2,12 @@
 
 Alonzo is the sassy (and helpful!) bot for CS10. He's our mascot. Alonzo has attitude, but that's OK, because he's pretty awesome in general! He's a big help to everyone on the team!
 
-This CS10's version of GitHub's Campfire bot, hubot. He's pretty cool.
+This [CS10][awemest-class]'s version of GitHub's Campfire bot, hubot. He's awesome!
 
 This version is designed to be deployed on Heroku.
 
-## Cool Story, Bro But I want X
-Sure, make a pull request! Don't push directly to master even if you can avoid it.
+## Alonzo Needs More Brains...
+Anyone can contribute! Read below and then submit a pull-request! (Or file and issue.)
 
 ## Setup Alonzo
 Alonzo is designed to be deployed on Heroku and connected to HipChat. This will give the basics of getting up to speed with Alonzo. Alonzo has already gone through initial deployments, so it should be easy to update.
@@ -66,9 +66,6 @@ https://leanpub.com/automation-and-monitoring-with-hubot/read#leanpub-auto-cross
 #### Alonzo-scripts
 Alonzo uses many scripts which originate from [hubot-scripts][Hubot-scripts]. Feel free to add and configure some more if they're interesting :)
 
-To enable scripts from the hubot-scripts package, add the script name with
-extension as a double quoted string to the `hubot-scripts.json` file.
-
 #### external-scripts
 Alonzo is now able to load scripts from third-party `npm` packages! To enable
 this functionality you can follow the following steps.
@@ -82,9 +79,9 @@ name as a double quoted string to the `external-scripts.json` file in this repo.
 ##### Redis Persistence
 Alonzo has been setup to use redis already. If it ever becomes not needed it can be turned off.
 
+[awesomest-class]: http://cs10.org/
 [config]: config_notes.md
 [Hubot-scripts]: https://github.com/github/Hubot-scripts
 [scripts]: https://github.com/github/Alonzo/blob/master/docs/scripting.md
 [heroku-node-docs]: http://devcenter.heroku.com/articles/node-js
 [deploy-heroku]: https://github.com/github/Hubot/blob/master/docs/deploying/heroku.md
-[heroku]: http://www.heroku.com
