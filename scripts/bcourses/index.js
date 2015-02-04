@@ -40,8 +40,28 @@ cs10.normalizeSID = function(sid) {
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays    = 3;
 
+// These are the IDs of the assignments that matter for slip day calculations
+// They need to be updated every semester.
+cs10.slipDayAssignmentIDs = [
+    
+];
+
+// Note that these need to be internal canvas IDs.
+// TODO: Future Query roles for TAs.
+// courses/1301472/search_users?enrollment_type=ta
+// Note: These should be integers
 cs10.staffIDs = [
-    ''
+    4881542,
+    4901643,
+    4970007,
+    4890943,
+    4891642,
+    4831377,
+    4907764,
+    4997192,
+    4908524,
+    4900858
+    // FIXME
 ];
 
 module.exports = cs10;
