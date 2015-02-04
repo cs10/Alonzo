@@ -228,9 +228,10 @@ function handleResponse(sid, points, msg) {
 
 
 function cacheIsValid(assignments) {
+    var labsExist = assignments.labs ? assignments.labs.length > 0 : false;
     var date = assignments.time;
     var diff = (new Date()) - (new Date(date));
-    return diff / (1000 * 60 * 60) < CACHE_HOURS;
+    return labsExist && diff / (1000 * 60 * 60) < CACHE_HOURS;
 }
 
 
