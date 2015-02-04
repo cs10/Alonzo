@@ -155,11 +155,9 @@ function calculateSlipDays(sid, callback) {
     url = 'courses/' + cs10.courseID + '/students/submissions';
 
     // Include assignment details and group by student (we'll only have 1 stu)
-    query = '?' + toCheck + '&grouped=true&include[]=assignment&include[]=submission_comments';
+    query = '?' + toCheck + '&include[]=assignment&include[]=submission_comments';
     // Include the student ID to query
     query += '&student_ids[]=' + cs10.normalizeSID(sid);
-
-    console.log(url + query);
 
     cs10.get(url + query, '', function(error, response, body) {
         var submissions, days, verified, submitted, results;
@@ -182,8 +180,7 @@ function calculateSlipDays(sid, callback) {
 
 
         // List of submissions contains only most recent submission
-        submissions = body;
-        submissions.forEach(function(subm) {
+        body.forEach(function(subm) {
             state = subm.workflow_state;
             submitted = subm.submitted_at !== null;
             verified = false; // Reader explicitly left a comment
@@ -247,8 +244,8 @@ function commentIsAuthorized(comment) {
 function extractSlipDays(comment) {
     var slipdays = /.*(?:used)?\s*slip\s*days?\s*(?:used)?.*(\d+)/gi;
     var match = slipdays.exec(comment);
-    if (comment) {
-        return comment[1];
+    if (match) {
+        return match[1];
     }
     return -1;
 }
