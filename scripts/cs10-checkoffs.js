@@ -55,6 +55,10 @@ module.exports = function(robot) {
         }
     });
 
+    robot.respond(/.*gradebook.*/i, function(msg) {
+        msg.send(cs10.gradebookURL);
+    })
+    
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, function(msg) {
         if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
@@ -74,7 +78,9 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
+    robot.respond(/\s*review\s*la(b\s*assistant)?\s*scores?\s*/i, function(msg) {
 
+    })
     // submit LA scores
 
     // review sketchy scores
