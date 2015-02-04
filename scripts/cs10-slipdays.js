@@ -19,65 +19,25 @@ var cs10 = require('./bcourses/');
 
 
 var slipDaysRegExp = /slip[- ]?days\s*(\d+)/;
-var pageSource = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Slip Day Checker</title><style type="text/css">body {background: #d3d6d9;color: #636c75;text-shadow: 0 1px 1px rgba(255, 255, 255, .5);font-family: Helvetica, Arial, sans-serif;}h1 {margin: 8px 0;padding: 0;}.commands {font-size: 13px;}p {border-bottom: 1px solid #eee;margin: 6px 0 0 0;padding-bottom: 5px;}p:last-child {border: 0;}</style></head><body><h1>#{SID}\'s Slip Day Check</h1><div class="commands">#{NOTES}</div></body></html>';
-
 
 module.exports = function(robot) {
 
+    // Just a simple redirect to the CS10 site.
     robot.respond(slipDaysRegExp, function(msg) {
-        var student = msg.match[1];
-
-        if (!student) {
-            msg.send('Error: No Student Provided');
-            return;
-        }
-
-        calculateSlipDays(student, function(result) {
-            // TODO: Turn this into a real message.
-            // Or just go to the darn webpage....
-            msg.send(JSON.stringify(result));
-        });
+        msg.send('http://cs10.org/sp15/slipdays/?' + msg.match[1]);
     });
 
-    robot.router.get('/slipdays/:sid/:json?', function(req, res) {
-        var sid       = req.params.sid,
-            useJSON   = req.params.json,
-            type      = 'text/html',
-            errorFn   = processError;
-            successFn = processSuccess;
-
-        if (useJSON) {
-            type      = 'text/json';
-            successFn = JSON.stringify;
-            errorFn   = JSON.stringify;
-        }
-
-        res.type(type);
+    robot.router.get('/slipdays/:sid', function(req, res) {
         // Damn you CORS....
-        res.setHeader('Content-Type', type);
+        res.type('text/json');
+        res.setHeader('Content-Type', 'text/json');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Credentials', true);
-        res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
         res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
-        if (!sid) {
-            res.end(errorFn.call(null, 'No SID Found'));
-            return;
-        }
-
-        function processError() {
-            return pageSource.replace('#{NOTES}', 'No SID Found')
-                             .replace("#{SID}'s", "ERROR —");
-        }
-
-        function processSuccess(notices) {
-            var page = pageSource.replace('#{SID}', sid);
-            var results = '<p>' + notices.join('</p><p>') + '</p>';
-            return page.replace('#{NOTES}', results);
-        }
-
-        calculateSlipDays(sid, function(notices) {
-            res.end(successFn.call(null, notices));
+        calculateSlipDays(req.params.sid, function(data) {
+            res.end(JSON.stringify(data));
         });
     });
 
@@ -118,34 +78,33 @@ function calculateSlipDays(sid, callback) {
     url = 'courses/' + cs10.courseID + '/students/submissions';
 
     // Include assignment details and group by student (we'll only have 1 stu)
-    query = '?' + toCheck + '&include[]=assignment&include[]=submission_comments';
+    query = toCheck + '&include[]=assignment&include[]=submission_comments';
     // Include the student ID to query
     query += '&student_ids[]=' + cs10.normalizeSID(sid);
 
-    cs10.get(url + query, '', function(error, response, body) {
-        var days, verified, submitted, results;
-        
-        results = {
-            totalDays: 0,
-            overLimit: 0,
-            assignments: [], // Assignment object described below
-            errors: null
-        };
+    cs10.get(url + '?' + query, '', function(error, response, body) {
+        var days, verified, submitted,
+            results = {
+                totalDays: 0,
+                overLimit: 0,
+                assignments: [], // Assignment object described below
+                errors: null
+            };
         
         if (!body || body.errors) {
             results.errors = [];
             results.errors.push('Oh, Snap! Something went wrong. :(');
-            results.errors.push(body.errors);
+            results.errors.push(body.errors[0].message);
             callback(results);
             return;
         }
 
         // List of submissions contains only most recent submission
+        // TODO: Check for muted assignments?
         body.forEach(function(subm) {
             state = subm.workflow_state;
             submitted = subm.submitted_at !== null;
-            verified = false; // Reader explicitly left a comment
-            // TODO: Check for muted assignments?
+            verified = false; // True IFF Reader explicitly left a comment
             // TODO: Refactor this mess...
             if (state === STATE_GRADED) { // Use Reader Comments or fallback
                 days = getReaderDays(subm.submission_comments);
