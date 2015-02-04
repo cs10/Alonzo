@@ -62,7 +62,7 @@ module.exports = function(robot) {
         }
     });
 
-    robot.respond(/clear bcourses cache/i, function(msg) {
+    robot.respond(/clear\s+(bcourses)?\s+cache/i, function(msg) {
         robot.brain.remove(LAB_CACHE_KEY);
         msg.send('Assignments Cache Removed');
     });
@@ -110,7 +110,7 @@ function extractMessage(match) {
 function cacheLabAssignments(callback, args) {
     var labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
 
-    cs10.get(labsURL, 'include[]=assignments', function(error, response, body) {
+    cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
         var assignments = body.assignments;
         var data = {};
 
