@@ -82,7 +82,7 @@ function calculateSlipDays(sid, callback) {
         var days, verified, submitted,
             results = {
                 totalDays: 0,
-                overLimit: 0,
+                daysRemaining: cs10.allowedSlipDays,
                 assignments: [], // Assignment object described below
                 errors: null
             };
@@ -125,8 +125,8 @@ function calculateSlipDays(sid, callback) {
                 submitted: submitted
             };
 
-            results.totalDays += days;
-            results.overLimit  = results.totalDays - cs10.allowedSlipDays;
+            results.totalDays      += days;
+            results.daysRemaining  -= days;
             results.assignments.push(assignment);
         })
 
