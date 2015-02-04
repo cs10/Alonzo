@@ -136,14 +136,12 @@ function doTACheckoff(msg) {
     var data = extractMessage(msg.match);
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
-    if (!assignments || !cacheIsValid(assignments)) {
+
+    if (!assignments || !cacheIsValid(assignments))
         console.log('ALONZO: Refreshing Lab assignments cache.');
         cacheLabAssignments(doTACheckoff, [msg]);
         return;
     }
-
-    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '
-          + data.lab + '.....');
 
     var assnID = getAssignmentID(data.lab, assignments, msg);
 
