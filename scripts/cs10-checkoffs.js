@@ -1,5 +1,5 @@
 // Description:
-//   A simple interaction with the built in HTTP Daemon
+//   Handle lab check offs in hipchat. No more paper needed! :D
 //
 // Dependencies:
 //   bcourses library see ./bcourses/index.js
