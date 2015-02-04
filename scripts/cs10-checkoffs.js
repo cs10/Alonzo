@@ -62,9 +62,14 @@ module.exports = function(robot) {
         }
     });
 
-    robot.respond(/clear\s+(bcourses)?\s+cache/i, function(msg) {
+    robot.respond(/clear\s*(bcourses)?\s*cache/i, function(msg) {
         robot.brain.remove(LAB_CACHE_KEY);
         msg.send('Assignments Cache Removed');
+    });
+
+    robot.respond(/refresh\s*(bcourses)?\s*cache/i, function(msg) {
+        robot.brain.remove(LAB_CACHE_KEY);
+        cacheLabAssignments(msg.send, ['Assignments Cache Refreshed']);
     });
 
     // Command Review LA data
@@ -107,6 +112,7 @@ function extractMessage(match) {
 
 // Cache
 // TODO: document wacky callback thingy
+// FIXME: wtf is wrong with the query params arg...
 function cacheLabAssignments(callback, args) {
     var labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
 
@@ -187,7 +193,7 @@ function doLACheckoff(msg) {
 function postLabScore(sid, labID, score, msg) {
 var scoreForm = 'submission[posted_grade]=' + score,
     url = cs10.baseURL + '/assignments/' + labID + '/submissions/' +
-            cs10.uid + sid;
+            sid;
 
     cs10.put(url , '', scoreForm, handleResponse(sid, score, msg));
 }
@@ -195,7 +201,7 @@ var scoreForm = 'submission[posted_grade]=' + score,
 // Error Handler for posting lab check off scores.
 function handleResponse(sid, points, msg) {
     return function(error, response, body) {
-        var errorMsg = 'Problem encountered for ID: ' + sid;
+        var errorMsg = 'Problem encountered for ID: ' + sid.replace(cs10.uid, '');
         if (body.errors || !body.grade || body.grade != points.toString()) {
             failures += 1;
             if (body.errors && body.errors[0]) {
