@@ -9,7 +9,7 @@
 //   See bcourses
 //
 // Commands:
-//   hubot  slip days <SID> -- get slip days used for students
+//   hubot slip days <SID> -- get slip days used for students
 //
 // Author:
 //  Michael Ball
@@ -24,7 +24,7 @@ var pageSource = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Slip D
 
 module.exports = function(robot) {
 
-    robot.hear(slipDaysRegExp, function(msg) {
+    robot.respond(slipDaysRegExp, function(msg) {
         var student = msg.match[1];
 
         if (!student) {
@@ -33,6 +33,8 @@ module.exports = function(robot) {
         }
 
         calculateSlipDays(student, function(result) {
+            // TODO: Turn this into a real message.
+            // Or just go to the darn webpage....
             msg.send(JSON.stringify(result));
         });
     });
@@ -81,20 +83,8 @@ module.exports = function(robot) {
 
 };
 
-////
-
-// https://bcourses.berkeley.edu/api/v1/courses/1246916/assignments/5179913
-var toCheck = [];
-toCheck.push('5179913'); // HW1
-toCheck.push('5179914'); // HW2
-toCheck.push('5179915'); // HW3
-toCheck.push('5179917'); // MT Project
-toCheck.push('5179919'); // Impact Post Link
-toCheck.push('5179935'); // Impact Post comments
-toCheck.push('5179918'); // Final Project
-// toCheck.push(); // Data Project
-// individual MT reflection
-
+// Format the assignment IDs for the URL
+var toCheck = cs10.slipDayAssignmentIDs;
 toCheck = toCheck.map(function(id) {
     return 'assignment_ids[]=' + id;
 });
@@ -112,35 +102,8 @@ function getSlipDays(submissionTime, dueTime) {
     if (diff < threshold) {
         return 0;
     }
-    // This is somewhat shitty if you use slightly more than a day
-    // TODO: only floor if < .1 difference ??
     return Math.ceil(diff / oneDay);
 }
-
-/* Canvas Result Format:
-[
-    {
-        "sis_user_id": "XXXX",
-        "submissions": [
-            {
-                "assignment": {
-                    "due_at": "2014-12-06T07:59:00Z",
-                    "html_url": "https://bcourses.berkeley.edu/courses/1246916/assignments/5179918",
-                    "id": 5179918,
-                    "name": "Final Project"
-                },
-                "assignment_id": 5179918,
-                "id": XXXX,
-                "late": true,
-                "preview_url": "https://bcourses.berkeley.edu/courses/1246916/assignments/5179918/submissions/5018297?preview=1",
-                "submitted_at": "2014-12-06T08:54:14Z",
-                "workflow_state": "graded"
-            },
-        ],
-        "user_id": XXXX
-    }
-]
-*/
 
 
 /* Iterate over all the assignments that slip days count towards:
@@ -160,7 +123,7 @@ function calculateSlipDays(sid, callback) {
     query += '&student_ids[]=' + cs10.normalizeSID(sid);
 
     cs10.get(url + query, '', function(error, response, body) {
-        var submissions, days, verified, submitted, results;
+        var days, verified, submitted, results;
         
         results = {
             totalDays: 0,
@@ -171,13 +134,11 @@ function calculateSlipDays(sid, callback) {
         
         if (!body || body.errors) {
             results.errors = [];
-            results.errors.push('errrrrrooooorrrrrrrrrr');
+            results.errors.push('Oh, Snap! Something went wrong. :(');
             results.errors.push(body.errors);
-            results.errors.push(error)
             callback(results);
             return;
         }
-
 
         // List of submissions contains only most recent submission
         body.forEach(function(subm) {
@@ -185,6 +146,7 @@ function calculateSlipDays(sid, callback) {
             submitted = subm.submitted_at !== null;
             verified = false; // Reader explicitly left a comment
             // TODO: Check for muted assignments?
+            // TODO: Refactor this mess...
             if (state === STATE_GRADED) { // Use Reader Comments or fallback
                 days = getReaderDays(subm.submission_comments);
                 if (days === -1 && submitted) {
@@ -235,14 +197,18 @@ function getReaderDays(comments) {
     return days;
 }
 
+/** Make sure only staff can verify slip days
+    This is currently based on using a known list of staff IDs, but could
+    query bCourses in the future, though that would slow every request unless
+    someone implemented a cache.
+**/
 function commentIsAuthorized(comment) {
-    var staffIDs = cs10.staffIDs;
-    return staffIDs.indexOf(comment.author_id) !== -1;
+    return cs10.staffIDs.indexOf(comment.author_id) !== -1;
 }
 
 // parse comment (just a string) then return slip days or -1
 function extractSlipDays(comment) {
-    var slipdays = /.*(?:used)?\s*slip\s*days?\s*(?:used)?.*(\d+)/gi;
+    var slipdays = /.*(?:used)?\s*slip\s*days?\s*(?:used)?:?.*(\d+)/gi;
     var match = slipdays.exec(comment);
     if (match) {
         return match[1];
