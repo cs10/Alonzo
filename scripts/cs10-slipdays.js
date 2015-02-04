@@ -159,32 +159,43 @@ function calculateSlipDays(sid, callback) {
     // Include the student ID to query
     query += '&student_ids[]=' + cs10.normalizeSID(sid);
 
+    console.log(url + query);
 
     cs10.get(url + query, '', function(error, response, body) {
-        var submissions,
-            results = [];
+        var submissions, days, verified, submitted, results;
+        
+        results = {
+            totalDays: 0,
+            overLimit: 0,
+            assignments: [], // Assignment object described below
+            errors: null
+        };
+        
         if (!body || body.errors) {
-            results.push('errrrrrooooorrrrrrrrrr');
-            results.push(body.errors);
-            results.push(error)
+            results.errors = [];
+            results.errors.push('errrrrrooooorrrrrrrrrr');
+            results.errors.push(body.errors);
+            results.errors.push(error)
             callback(results);
             return;
         }
 
-        results = {
-            totalDays: 0,
-            overLimit: 0,
-            assignments: [] // Assignment: name, daysUsed, graded (bool)
-        };
+
         // List of submissions contains only most recent submission
-        submissions = body[0].submissions;
+        submissions = body;
         submissions.forEach(function(subm) {
-            var state = subm.workflow_state;
+            state = subm.workflow_state;
+            submitted = subm.submitted_at !== null;
+            verified = false; // Reader explicitly left a comment
             // TODO: Check for muted assignments?
             if (state === STATE_GRADED) { // Use Reader Comments or fallback
                 days = getReaderDays(subm.submission_comments);
-                if (days === -1) { // TODO: Cleanup...
-                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at)
+                if (days === -1 && submitted) {
+                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+                } else if (submitted) {
+                    verified = true; // Good comment === verified
+                } else { // No submission & no comment. (Group Assignmet)
+                    days = 0;
                 }
             } else if (subm.late) { // Calculate time based on submission
                 days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
@@ -195,8 +206,9 @@ function calculateSlipDays(sid, callback) {
             var assignment = {
                 title: subm.assignment.name,
                 slipDays: days,
-                graded: state === STATE_GRADED,
-                url: subm.preview_url
+                verified: verified,
+                url: subm.preview_url,
+                submitted: submitted
             };
 
             results.totalDays += days;
@@ -211,10 +223,32 @@ function calculateSlipDays(sid, callback) {
 // Get an array of comments on a submission
 // Filter for comments w/ valid author ID
 // Search comments for a "Slip Days Used" match
-//
 function getReaderDays(comments) {
-    // Fields I care about:
-    // comment.author_id, comment.comment, .created_at
-    // TODO: grab the last comment first -- verify it is the most recent
-    // cs10.staffIDs array
+    var tempDay, days = -1;
+    comments = comments.filter(commentIsAuthorized);
+    // It's possible multiple readers may comment.
+    // The last comment with a valid day found will be used for slip days
+    // TODO: Explictly verify the last comment is the most recent.
+    comments.forEach(function(comment) {
+        tempDay = extractSlipDays(comment.comment);
+        if (tempDay !== -1) {
+            days = tempDay;
+        }
+    });
+    return days;
+}
+
+function commentIsAuthorized(comment) {
+    var staffIDs = cs10.staffIDs;
+    return staffIDs.indexOf(comment.author_id) !== -1;
+}
+
+// parse comment (just a string) then return slip days or -1
+function extractSlipDays(comment) {
+    var slipdays = /.*(?:used)?\s*slip\s*days?\s*(?:used)?.*(\d+)/gi;
+    var match = slipdays.exec(comment);
+    if (comment) {
+        return comment[1];
+    }
+    return -1;
 }
