@@ -46,9 +46,9 @@ module.exports = function(robot) {
 
     robot.hear(checkOffRegExp, function(msg) {
         // Develop Condition: || msg.message.room === 'Shell'
-        if (msg.message.room === LA_ROOM) {
+        if (msg.message.room === LA_ROOM || msg.message.room === 'Shell') {
             doLACheckoff(msg);
-        } else if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
+        } else if (msg.message.room === TA_ROOM) {
             doTACheckoff(msg);
         } else {
             msg.send('Lab Check offs are not allowed from this room');
@@ -58,7 +58,7 @@ module.exports = function(robot) {
     robot.respond(/.*gradebook.*/i, function(msg) {
         msg.send(cs10.gradebookURL);
     })
-    
+
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, function(msg) {
         if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
@@ -155,6 +155,7 @@ function doTACheckoff(msg) {
     if (!assnID) {
         msg.send('Well, crap...I can\'t find lab ' + data.lab + '.');
         msg.send('Check to make sure you put in a correct lab number.');
+        msg.send(cs10.gradebookURL);
         return;
     }
 
@@ -174,9 +175,15 @@ function doTACheckoff(msg) {
 }
 
 function doLACheckoff(msg) {
-    var data    = extractMessage(msg.match),
-        LA_DATA = robot.brain.get('LA_DATA') || [];
+    var data    = extractMessage(msg.match);
 
+    if (data.lab < 2 || data.lab > 20) {
+        msg.send('ERROR: The lab ' + data.lab + ' does not exist!!\n' +
+            'Score were NOT saved, please try again. Thanks! (heart)');
+        return;
+    }
+
+    var LA_DATA = robot.brain.get('LA_DATA') || [];
     LA_DATA.push({
         lab: data.lab,
         late: data.isLate,
@@ -258,3 +265,9 @@ function getAssignmentID(num, assignments) {
 
     return assnID;
 }
+
+
+/** Determine whether an LA checkoff is sketchy.
+    "Sketchy" means: More than 1 week paste the due date,
+    Or: Checked off during non-lab hours
+**/
