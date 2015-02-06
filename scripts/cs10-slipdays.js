@@ -77,8 +77,6 @@ function calculateSlipDays(sid, callback) {
             };
 
         if (!body || body.errors) {
-            console.log('ERROR');
-            console.log(response.toJSON());
             results.errors = [];
             results.errors.push('Oh, Snap! Something went wrong. :(');
             body.errors.forEach(function(err) {

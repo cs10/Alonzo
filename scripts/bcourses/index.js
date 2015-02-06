@@ -27,7 +27,7 @@ cs10.uid = 'sis_user_id:';
 cs10.baseURL = '/courses/' + cs10.courseID + '/';
 
 // Shortcut for use in chat error messages
-cs10.gradebookURL = bCoursesURL + cs10.baseURL + '/gradebook';
+cs10.gradebookURL = bCoursesURL + cs10.baseURL + 'gradebook';
 
 /** Mapping of extenstion student IDs to bCourses IDs
     If there are no extenstion students, leave this empty
