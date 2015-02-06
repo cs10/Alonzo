@@ -25,7 +25,7 @@ var latePoints = fullPoints / 2;
 // A long regex to parse a lot of different check off commands.
 var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
 // A generic expression that matches all messages
-var containsSIDExp = /.*x?\d{6,9}/i;
+var containsSIDExp = /.*x?\d{5,}/i;
 
 
 // Allowed rooms for doing / managing check offs
@@ -66,13 +66,9 @@ module.exports = function(robot) {
         }
     });
 
-    robot.respond(/clear\s*(bcourses)?\s*cache/i, function(msg) {
-        robot.brain.remove(LAB_CACHE_KEY);
-        msg.send('Assignments Cache Removed');
-    });
-
     robot.respond(/refresh\s*(bcourses)?\s*cache/i, function(msg) {
         robot.brain.remove(LAB_CACHE_KEY);
+        msg.send('Waiting on bCourses...');
         cacheLabAssignments(msg.send, ['Assignments Cache Refreshed']);
     });
 
@@ -118,11 +114,11 @@ function extractMessage(match) {
 
 // Cache
 // TODO: document wacky callback thingy
-// FIXME: wtf is wrong with the query params arg...
 function cacheLabAssignments(callback, args) {
-    var labsURL = cs10.baseURL + '/assignment_groups/' + cs10.labsID;
+    var url   = cs10.baseURL + 'assignment_groups/' + cs10.labsID,
+        query = {'iclude[]': 'assignments'};
 
-    cs10.get(labsURL + '?include[]=assignments', '', function(error, response, body) {
+    cs10.get(url, query, function(error, response, body) {
         var assignments = body.assignments;
         var data = {};
 
@@ -142,7 +138,8 @@ function doTACheckoff(msg) {
     var data = extractMessage(msg.match);
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
-    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab '          + data.lab + '.....');
+    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
+        data.lab + '.');
 
     if (!assignments || !cacheIsValid(assignments)) {
         console.log('ALONZO: Refreshing Lab assignments cache.');
@@ -175,8 +172,10 @@ function doTACheckoff(msg) {
 }
 
 function doLACheckoff(msg) {
-    var data    = extractMessage(msg.match);
-
+    var data = extractMessage(msg.match);
+    // TODO: Note that this might change, these are loose rough bounds
+    // We could always search for values from the lab assignments list.
+    var minLab = 2, maxLab = 20;
     if (data.lab < 2 || data.lab > 20) {
         msg.send('ERROR: The lab ' + data.lab + ' does not exist!!\n' +
             'Score were NOT saved, please try again. Thanks! (heart)');
@@ -204,8 +203,7 @@ function doLACheckoff(msg) {
 
 function postLabScore(sid, labID, score, msg) {
 var scoreForm = 'submission[posted_grade]=' + score,
-    url = cs10.baseURL + '/assignments/' + labID + '/submissions/' +
-            sid;
+    url = cs10.baseURL + 'assignments/' + labID + '/submissions/' + sid;
 
     cs10.put(url , '', scoreForm, handleResponse(sid, score, msg));
 }
