@@ -24,19 +24,19 @@ cs10.labsID = '1702126';
 cs10.uid = 'sis_user_id:';
 
 // all endpoints are based of the course, at least for our usage
-cs10.baseURL = '/courses/' + cs10.courseID;
+cs10.baseURL = '/courses/' + cs10.courseID + '/';
 
 // Shortcut for use in chat error messages
 cs10.gradebookURL = bCoursesURL + cs10.baseURL + '/gradebook';
 
 /** Mapping of extenstion student IDs to bCourses IDs
     If there are no extenstion students, leave this empty
-    The UID.. is for the sis_user_id field as bCourses doesn't know about 
+    The UID.. is for the sis_user_id field as bCourses doesn't know about
     extenstion student IDs. To get the UID format go to the user's page in
-    bCourses and click "more details" (The extenstion IDs come from the 
+    bCourses and click "more details" (The extenstion IDs come from the
     BearFacts roster.)
 
-    TODO: Consider making this a config for privacy reasons 
+    TODO: Consider making this a config for privacy reasons
     However, these IDs don't actually reveal anything.
 **/
 cs10.SWAP_IDS = {
