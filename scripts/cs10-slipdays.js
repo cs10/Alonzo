@@ -39,13 +39,6 @@ module.exports = function(robot) {
 
 };
 
-// Format the assignment IDs for the URL
-var toCheck = cs10.slipDayAssignmentIDs;
-toCheck = toCheck.map(function(id) {
-    return 'assignment_ids[]=' + id;
-});
-toCheck = toCheck.join('&');
-
 
 function getSlipDays(submissionTime, dueTime) {
     var threshold = 1000 * 60 * cs10.gracePeriodMinutes,
@@ -62,23 +55,19 @@ function getSlipDays(submissionTime, dueTime) {
 }
 
 
-/* Iterate over all the assignments that slip days count towards:
- * URLs:
- * [BASE]/courses/ID/students/submissions ?
- * Query: assignment_ids[]=XXX&student_ids[]=XXX&grouped=true&include=assignment
- */
+/** Iterate over all the assignments that slip days count towards:
+
+**/
 var STATE_GRADED = 'graded';
 function calculateSlipDays(sid, callback) {
-    var url, query;
+    var url = cs10.baseURL + 'students/submissions',
+        options = {
+        'include[]' : ['assignment', 'submission_comments'],
+        'student_ids[]' : cs10.normalizeSID(sid),
+        'assignment_ids[]' : cs10.slipDayAssignmentIDs
+    };
 
-    url = 'courses/' + cs10.courseID + '/students/submissions';
-
-    // Include assignment details and group by student (we'll only have 1 stu)
-    query = toCheck + '&include[]=assignment&include[]=submission_comments';
-    // Include the student ID to query
-    query += '&student_ids[]=' + cs10.normalizeSID(sid);
-
-    cs10.get(url + '?' + query, '', function(error, response, body) {
+    cs10.get(url, options, function(error, response, body) {
         var days, verified, submitted,
             results = {
                 totalDays: 0,
@@ -86,11 +75,15 @@ function calculateSlipDays(sid, callback) {
                 assignments: [], // Assignment object described below
                 errors: null
             };
-        
+
         if (!body || body.errors) {
+            console.log('ERROR');
+            console.log(response.toJSON());
             results.errors = [];
             results.errors.push('Oh, Snap! Something went wrong. :(');
-            results.errors.push(body.errors[0].message);
+            body.errors.forEach(function(err) {
+                results.errors.push(err.message);
+            });
             callback(results);
             return;
         }
