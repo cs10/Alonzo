@@ -36,7 +36,8 @@
     "soupselect": "0.2.0",
     "underscore": "1.7.0",
     "underscore.string": "2.3.0",
-    "wolfram": "^0.3.0"
+    "wolfram": "^0.3.0",
+    "xml2js": "^0.4.4"
   },
   "engines": {
     "node": ">= 0.8.x",
