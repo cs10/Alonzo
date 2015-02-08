@@ -62,7 +62,7 @@ module.exports = function(robot) {
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, function(msg) {
         if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
-            msg.send('/code \n' + JSON.stringify(robot.brain.get('LA_DATA')));
+            msg.send('/code\n' + JSON.stringify(robot.brain.get('LA_DATA')));
         }
     });
 
@@ -75,7 +75,7 @@ module.exports = function(robot) {
     // Command Review LA data
     // Output total, num sketchy
     robot.respond(/\s*review\s*la(b\s*assistant)?\s*scores?\s*/i, function(msg) {
-
+        msg.send
     })
     // submit LA scores
 
