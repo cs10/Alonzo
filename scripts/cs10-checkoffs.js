@@ -46,9 +46,9 @@ module.exports = function(robot) {
 
     robot.hear(checkOffRegExp, function(msg) {
         // Develop Condition: || msg.message.room === 'Shell'
-        if (msg.message.room === LA_ROOM || msg.message.room === 'Shell') {
+        if (msg.message.room === LA_ROOM) {
             doLACheckoff(msg);
-        } else if (msg.message.room === TA_ROOM) {
+        } else if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
             doTACheckoff(msg);
         } else {
             msg.send('Lab Check offs are not allowed from this room');
@@ -114,9 +114,10 @@ function extractMessage(match) {
 
 // Cache
 // TODO: document wacky callback thingy
+// FIXME -- protect against infinite loops!!
 function cacheLabAssignments(callback, args) {
     var url   = cs10.baseURL + 'assignment_groups/' + cs10.labsID,
-        query = {'iclude[]': 'assignments'};
+        query = {'include[]': 'assignments'};
 
     cs10.get(url, query, function(error, response, body) {
         var assignments = body.assignments;
