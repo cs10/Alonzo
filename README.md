@@ -2,19 +2,20 @@
 
 Alonzo is the sassy (and helpful!) bot for CS10. He's our mascot. Alonzo has attitude, but that's OK, because he's pretty awesome in general! He's a big help to everyone on the team!
 
-Alonzo is [CS10][awesomest-class]'s version of GitHub's Campfire bot, hubot. Currently, Alonzo is configured to work with our staff HipChat instance. 
+Alonzo is [CS10][awesomest-class]'s version of GitHub's Campfire bot, hubot. Currently, Alonzo is configured to work with our staff HipChat instance.
 
 ## Current Functionality
 ##### Caution: This is may not be up to date always... Documentation is hard, man.
-#### CS10 Tools
+### CS10 Tools
 * bCourses interaction for lab check offs and slip days
 * Slip days are handled through a web endpoint /slipdays/:sid
 * Commands:
-	@Alonzo locker -- show the locker combo
-	@Alonzo links  -- give common links to TAs.
-	@Alonzo todo @user `task` -- assign that person a task in Asana.
-	@Alonzo shorten `url` -- Get a bjc.link short URL
-#### Fun Stuff & Useful Tools!
+	* @Alonzo locker -- show the locker combo
+	* @Alonzo links  -- give common links to TAs.
+	* @Alonzo todo @user `task` -- assign that person a task in Asana.
+	* @Alonzo shorten `url` -- Get a bjc.link short URL
+
+### Fun Stuff & Useful Tools!
 * @Alonzo question -- query wolfram alpha
 * ++ and -- score tracking are built in. Award your favorite TA some points!
 * Meme generation is built in (@Alonzo <Meme Text>)
