@@ -63,6 +63,9 @@ module.exports = (robot) ->
       if cmds.length == 0
         msg.send "No available commands match #{filter}"
         return
+    else
+      msg.send 'http://alonzo.herokuapp.com/Alonzo/help'
+      return
 
     prefix = robot.alias or robot.name
     cmds = cmds.map (cmd) ->
