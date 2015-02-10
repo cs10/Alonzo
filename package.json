@@ -25,7 +25,7 @@
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "latest",
     "hubot-hipchat": "^2.6.4",
-    "hubot-plusplus": "^1.1.2",
+    "hubot-plusplus": "cycomachead/hubot-plusolus",
     "hubot-pusheen": "0.0.1",
     "hubot-scripts": ">= 2.5.0 < 3.0.0",
     "ical": "^0.3.1",
