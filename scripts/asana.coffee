@@ -65,7 +65,7 @@ addTask = (msg, taskName, path, params, userAcct) ->
 
 module.exports = (robot) ->
 # Add a task
-  robot.hear /^(todo|task):\s?(@\w+)?(.*)/i, (msg) ->
+  robot.respond /^(todo|task):\s?(@\w+)?(.*)/i, (msg) ->
     taskName = msg.match[3]
     userAcct = msg.match[2] if msg.match[2] != undefined
     params = {data:{name: "#{taskName}", workspace: "#{workspace}"}}
