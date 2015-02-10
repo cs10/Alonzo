@@ -27,6 +27,7 @@ Alonzo is [CS10][awesomest-class]'s version of GitHub's Campfire bot, hubot. Cur
 	* Pugs
 	* Pusheen The Cat
 	* Octocats!
+
 #### Please see the full list of [generated commands][help].
 
 ### Our class use of 'chat-ops' is described in the [TA-Ops](https://github.com/cs10/TA-Ops) repo.
