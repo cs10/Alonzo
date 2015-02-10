@@ -21,5 +21,6 @@ module.exports = (robot) ->
     msg.send "Server time is: #{new Date()}"
 
   robot.respond /DIE$/i, (msg) ->
-    msg.send "Geez, I'm not going out that easily! That's mean... :("
+    msg.send "Well, this seems mean... Bye, bye! :'("
+    process.exist 0
 
