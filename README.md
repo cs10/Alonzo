@@ -2,27 +2,47 @@
 
 Alonzo is the sassy (and helpful!) bot for CS10. He's our mascot. Alonzo has attitude, but that's OK, because he's pretty awesome in general! He's a big help to everyone on the team!
 
-This [CS10][awemest-class]'s version of GitHub's Campfire bot, hubot. He's awesome!
+Alonzo is [CS10][awesomest-class]'s version of GitHub's Campfire bot, hubot. Currently, Alonzo is configured to work with our staff HipChat instance. 
 
-This version is designed to be deployed on Heroku.
+## Current Functionality
+##### Caution: This is may not be up to date always... Documentation is hard, man.
+#### CS10 Tools
+* bCourses interaction for lab check offs and slip days
+* Slip days are handled through a web endpoint /slipdays/:sid
+* Commands:
+	@Alonzo locker -- show the locker combo
+	@Alonzo links  -- give common links to TAs.
+	@Alonzo todo @user `task` -- assign that person a task in Asana.
+	@Alonzo shorten `url` -- Get a bjc.link short URL
+#### Fun Stuff & Useful Tools!
+* @Alonzo question -- query wolfram alpha
+* ++ and -- score tracking are built in. Award your favorite TA some points!
+* Meme generation is built in (@Alonzo <Meme Text>)
+* Something called Hubots Against Humanity...idk what that's about. ;)
+* Google Translate, Google Maps, Google Images!
+* XKCD, of course!
+* Url, base64 encoding and decoding as well as a bunch of hashing functions
+* Specific Images of:
+	* Programmer Ryan Gosling
+	* Pugs
+	* Pusheen The Cat
+	* Octocats!
+#### Please see the full list of [generated commands][help].
 
-## Alonzo Needs More Brains...
-Anyone can contribute! Read below and then submit a pull-request! (Or file and issue.)
+### Our class use of 'chat-ops' is described in the [TA-Ops](https://github.com/cs10/TA-Ops) repo.
 
 ## Setup Alonzo
-Alonzo is designed to be deployed on Heroku and connected to HipChat. This will give the basics of getting up to speed with Alonzo. Alonzo has already gone through initial deployments, so it should be easy to update.
+Alonzo is designed to be deployed on Heroku and connected to HipChat. The initial setup has already been done, so adapting Alonzo should be easy.
 
-1. Checkout out the main [Hubout Docs][hubot-docs]
-2. As well as the [hipchat-adapter][hc-adap] docs.
-3. These are the dependencies you should have:
+1. Clone this repo to your machine.
+2. These are the dependencies you should have:
     `node` (with `npm`) and the `heroku-toolbelt`
     On OS X systems, [`brew`](brew) is a good way to install these.
-4. If you have just cloned the repo, you should make sure to `npm install`.
-5. When you're adding scripts be sure to `npm install --save DEP` so others don't run into any issues!
-6. To update Herkou:
+3. If you have just cloned the repo, you should make sure to `npm install`.
+4. When you're adding scripts be sure to `npm install --save DEP` so others don't run into any issues!
+5. To update Herkou:
     ```
     git push heroku master
-    heroku restart
     heroku logs # make sure nothing broke!
     ```
 7. All of the CS10 config values can be found in the file `.env [Alonzo]` (in a separate repo). The values are on Heroku or other places. You should be able to find where it is, if you have access. :)
@@ -55,16 +75,15 @@ Then you can interact with Alonzo by typing `Alonzo help`.
 
 __Please at least run Alonzo locally before deploying!__
 
-## Scripting
+## Writing New Scripts
 
 Take a look at the scripts in the `./scripts` folder for examples.
-Delete any scripts you think are useless or boring.  Add whatever functionality you
-want Alonzo to have. Read up on what you can do with Alonzo in the [Scripting Guide][scripts].
+Delete any scripts you think are useless or boring. Add whatever functionality you want Alonzo to have. Read up on what you can do with Alonzo in the [Scripting Guide][scripts]. Scripts are pretty easy to write!
 
 https://leanpub.com/automation-and-monitoring-with-hubot/read#leanpub-auto-cross-script-communication-with-events
 
 #### Alonzo-scripts
-Alonzo uses many scripts which originate from [hubot-scripts][Hubot-scripts]. Feel free to add and configure some more if they're interesting :)
+Alonzo uses many scripts which originate from [hubot-scripts][Hubot-scripts]. Feel free to add and configure some more if they're interesting :) You can drop any new script into `./scripts` and run it will be run when Alonzo starts up. Just make sure to note any configuration that's needed.
 
 #### external-scripts
 Alonzo is now able to load scripts from third-party `npm` packages! To enable
@@ -76,11 +95,10 @@ this functionality you can follow the following steps.
 To enable third-party scripts that you've added you will need to add the package
 name as a double quoted string to the `external-scripts.json` file in this repo.
 
-##### Redis Persistence
-Alonzo has been setup to use redis already. If it ever becomes not needed it can be turned off.
+A good collection of scripts can be found in the [hubot-scripts organization](https://github.com/hubot-scripts).
 
 [awesomest-class]: http://cs10.org/
-[config]: config_notes.md
+[help]: http://alonzo.herokuapp.com/Alonzo/help
 [Hubot-scripts]: https://github.com/github/Hubot-scripts
 [scripts]: https://github.com/github/Alonzo/blob/master/docs/scripting.md
 [heroku-node-docs]: http://devcenter.heroku.com/articles/node-js

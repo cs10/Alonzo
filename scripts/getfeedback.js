@@ -11,15 +11,13 @@
 //
 //
 // Commands:
-//   update feedback -- pull the most recent GetFeedback results for labs
+//   Hubot update feedback – Copy relevant lab feedback forms as Github issues
 //
 // Notes:
 //
 //
 // Author:
 //   Michael Ball @cycomachead
-
-// _ = require 'underscore'
 
 var https = require('https'),
     github = require('githubot');
@@ -39,12 +37,11 @@ module.exports = function(robot) {
         // don't exist because we can post to a chatroom
     }
 
-    // TODO make this a schedule
     robot.respond( /update feedback/i, function(msg) {
 
         msg.send('Updating Feedback');
         msg.send('https://github.com/beautyjoy/bjc-r/labels/GetFeedback');
-        // survey ID, page nu mber, time, msg
+        // survey ID, page number, time, msg
         getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg, function(num) {
             msg.send(num + ' issues posted.');
             return;
