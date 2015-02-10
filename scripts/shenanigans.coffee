@@ -33,8 +33,5 @@ module.exports = (robot) ->
       return
     msg.send 'https://www.youtube.com/watch?v=ElxHoUShy1c'
 
-  robot.respond /locker/, (msg) ->
-    msg.send '11-29-15'
-
   robot.hear /.*is it graded.*/i, (msg) ->
     msg.send msg.random gradingResponses
