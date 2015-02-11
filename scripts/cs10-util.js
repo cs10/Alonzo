@@ -26,9 +26,9 @@ module.exports = function(robot) {
         txt += 'Contacts Sheet: http://bjc.link/cs10contacts\n';
         msg.send(txt)
     });
-    
+
     robot.respond( /\s*locker( combo)?/i, function(msg) {
         msg.send('11-29-15');
     });
-    
+
 }
