@@ -21,6 +21,7 @@ module.exports = function(robot) {
     robot.respond(/.*(links|forms).*/i, function(msg) {
         var txt = '';
         txt += 'Late Assignments Form: http://bjc.link/sp15lateassignment\n';
+        txt += 'LA Attendance: https://bcourses.berkeley.edu/courses/1301477/external_tools/36957\n';
         txt += 'Grade book:' + cs10.gradebookURL + '\n';
         txt += 'Contacts Sheet: http://bjc.link/cs10contacts\n';
         msg.send(txt)
