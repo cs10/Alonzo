@@ -11,7 +11,7 @@
 //
 //
 // Commands:
-//   Hubot update feedback – Copy relevant lab feedback forms as Github issues
+//   hubot update feedback – Copy relevant lab feedback forms as Github issues
 //
 // Notes:
 //
