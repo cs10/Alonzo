@@ -8,7 +8,7 @@
 //   See bcourses
 //
 // Commands:
-//   hubot (late) check-off <NUM> (late) <SIDs> -- check of these students
+//   hubot (late) check off <NUM> (late) <SIDs> -- check off these students
 //
 // Author:
 //  Michael Ball
