@@ -15,7 +15,7 @@
 #   curl -u <api_key>: https://app.asana.com/api/1.0/workspaces/<workspace id>/projects
 #
 # Commands:
-#   todo: @name? <task directive> - public message starting with todo: will add task, optional @name to assign task
+#   hubot todo: @name? <task directive> - public message starting with todo: will add task, optional @name to assign task
 #   hubot todo users - Message the bot directly to list all available users in the workspace
 #
 # Author:
@@ -65,7 +65,7 @@ addTask = (msg, taskName, path, params, userAcct) ->
 
 module.exports = (robot) ->
 # Add a task
-  robot.respond /^(todo|task):\s?(@\w+)?(.*)/i, (msg) ->
+  robot.respond /(todo|task):\s?(@\w+)?(.*)/i, (msg) ->
     taskName = msg.match[3]
     userAcct = msg.match[2] if msg.match[2] != undefined
     params = {data:{name: "#{taskName}", workspace: "#{workspace}"}}
