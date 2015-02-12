@@ -28,7 +28,6 @@
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
     "hubot-scripts": ">= 2.5.0 < 3.0.0",
-    "ical": "^0.3.1",
     "node-canvas-lms": "cs10/node-canvas-lms",
     "nodepie": "0.5.0",
     "redis": "0.8.4",
