@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Download a Snap! Project</title>
+    <meta name="robots" content="noindex,follow">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//code.jquery.com/jquery-2.1.3.min.js"></script> 
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+      /* .snap inserts the logo using the proper formatting.
+       * Insert using "<span class="snap">snap</span>"
+       */
+      .snap:first-letter {
+        font-variant: normal;
+      }
+
+      .snap {
+        text-transform: capitalize;
+        font-variant: small-caps;
+        font-style: normal;
+      }
+
+      .snap:after {
+        content: "!";
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row" style="padding-left: 1em">
+      <div class="container-responsive">
+        <div class="col-md-6">
+          <h1>Download A Public <span class="snap">snap</span> Project</h1>
+          <hr>
+          <h4>Please enter your username and project name exactly as they are in <span class="snap">snap</span></h2>
+
+          <div class="panel panel-default">
+            <div class="panel-heading panel-primary">Click the button to download your project</div>
+            <div class="panel-body">
+                <form class="form-horizontal">
+                  <div class="form-group has-feedback">
+                    <label class="control-label col-sm-3" for="inputSuccess3">Cloud Username</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="inputSuccess3" aria-describedby="inputSuccess3Status">
+                    </div>
+                  </div>
+                  <div class="form-group has-feedback">
+                    <label class="control-label col-sm-3" for="inputGroupSuccess2">Project Name</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="inputGroupSuccess2" aria-describedby="inputGroupSuccess2Status">
+                    </div>
+                  </div>
+                </form>
+                <button type="submit" class="btn btn-primary" onclick="getProj()">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+
+</html>
