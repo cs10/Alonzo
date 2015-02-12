@@ -266,7 +266,49 @@ function getAssignmentID(num, assignments) {
 }
 
 
+function sendLAStats(processed) {
+
+}
+
+/** Verify all the LA data for easy assignment posting
+    Each set of checkoffs creates:
+    <num>: { ontime: [], late: [] }
+    There is one object for safe check-offs and one for sketchy checkoffs
+**/
+function reviewLAData(data) {
+    var safe = {};
+    var sketchy = { msgs: [] };
+
+    // Prevent Checking if an array exists
+    for(var i = 1; i < 20; i += 1) {
+        safe[i] = { ontime: [], late: [] };
+        skethcy[i] = { ontime: [], late: [] };
+    }
+
+    data.forEach(function(checkoff) {
+        var sketch = isSketchy(checkoff);
+        var list_type =  'ontime';
+        var lab = checkoff.lab;
+        var obj = safe[lab];
+        if (sketch) {
+            obj = sketchy;
+            list = 'late'
+            sketchy.msgs.append(checkoff);
+        }
+        obj[list].push(checkoff.sid);
+    });
+
+    return {safe: safe, sketchy: skethcy };
+}
+
 /** Determine whether an LA checkoff is sketchy.
     "Sketchy" means: More than 1 week paste the due date,
     Or: Checked off during non-lab hours
 **/
+function isSketchy(co) {
+
+}
+
+function clearSafeScores() {
+
+}
