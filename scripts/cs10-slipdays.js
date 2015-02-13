@@ -10,7 +10,7 @@
 //
 // URLS:
 //  /slipdays/:sid -- show the slip days for SID
-// 
+//
 // Commands:
 //   hubot slip days <SID> -- get slip days used for students
 //
@@ -49,11 +49,12 @@ function getSlipDays(submissionTime, dueTime) {
         d1 = new Date(submissionTime),
         d2 = new Date(dueTime);
 
-    var diff = Math.abs(d1 - d2);
+    var diff = d1 - d2;
 
     if (diff < threshold) {
         return 0;
     }
+
     return Math.ceil(diff / oneDay);
 }
 
