@@ -796,12 +796,8 @@ answers = [
 
 module.exports = (robot) ->
   robot.respond /card(?: me)?(?: )(\d+)?/i, (msg) ->
-    if msg.message.room != process.env.HUBOT_SECRET_ROOM
-      return
     count = if msg.match[1]? then parseInt(msg.match[1], 10) else 1
     msg.send msg.random answers for i in [1..count]
 
   robot.respond /q(?:uestion)? card/i, (msg) ->
-    if msg.message.room != process.env.HUBOT_SECRET_ROOM
-      return
     msg.send msg.random questions
