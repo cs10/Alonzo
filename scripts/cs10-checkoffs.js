@@ -9,6 +9,8 @@
 //
 // Commands:
 //   hubot (late) check off <NUM> (late) <SIDs> -- check off these students
+//   hubot show la data -- dumb the raw saved Lab Assistant check offs.
+//   hubot review la scores -- stats abput LA scores. Will punlish the safe scores to bCourses
 //
 // Author:
 //  Michael Ball
@@ -25,7 +27,7 @@ var latePoints = fullPoints / 2;
 // A long regex to parse a lot of different check off commands.
 var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
 // A generic expression that matches all messages
-var containsSIDExp = /.*x?\d{5,}/i;
+var containsSIDExp = /.*x?\d{5,}/gi;
 
 
 // Allowed rooms for doing / managing check offs
@@ -33,7 +35,7 @@ var LA_ROOM = 'lab_assistant_check-offs';
 var TA_ROOM = 'lab_check-off_room';
 
 // Keys for data that key stored in robot.brain
-var laDataKey      = 'LA_DATA';
+var LA_DATA_KEY      = 'LA_DATA';
 var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
 
 // Global-ish stuff for successful lab checkoff submissions.
@@ -62,7 +64,7 @@ module.exports = function(robot) {
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, function(msg) {
         if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
-            msg.send('/code\n' + JSON.stringify(robot.brain.get('LA_DATA')));
+            msg.send('/code\n' + JSON.stringify(robot.brain.get(LA_DATA_KEY)));
         }
     });
 
@@ -74,14 +76,12 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/\s*review\s*la(b\s*assistant)?\s*scores?\s*/i, function(msg) {
-        msg.send
+    robot.respond(/\s*review\s*la(b\s*assistant)?\s*(?:scores|data)?\s*/i, function(msg) {
+
     })
     // submit LA scores
 
-    // review sketchy scores
 };
-
 
 
 /* Hubot msg.match groups:
@@ -183,7 +183,7 @@ function doLACheckoff(msg) {
         return;
     }
 
-    var LA_DATA = robot.brain.get('LA_DATA') || [];
+    var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
     LA_DATA.push({
         lab: data.lab,
         late: data.isLate,
@@ -195,7 +195,7 @@ function doLACheckoff(msg) {
         text: msg.message.text
     });
 
-    robot.brain.set('LA_DATA', LA_DATA);
+    robot.brain.set(LA_DATA_KEY, LA_DATA);
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
     msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
              ' for lab ' + data.lab  + '.');
@@ -245,27 +245,30 @@ function cacheIsValid(assignments) {
 }
 
 
-function getAssignmentID(num, assignments) {
-    var labs = assignments.labs,
-        assnID;
-
+// Return the bCourses lab object matching the CS10 lab number
+// All labs are named "<#>. <Lab Title>"
+function findLabByNum(num, labs) {
+    var result;
     labs.some(function(lab) {
-        var assnName  = lab.name;
-        // All labs are named "<#>. <Lab Title>"
-        // TODO: Use regex in the future /^\d{1,2}/
-        var searchNum = assnName.split('.');
-
-        if (searchNum[0] == num) {
-            assnID = lab.id;
+        var labNo = lab.name.match(/^(\d{1,2})/);
+        if (labNo[1] == num) {
+            result = lab;
             return true;
         }
         return false;
     });
-
-    return assnID;
+    return result;
 }
 
+function getAssignmentID(num, assignments) {
+    var lab = findLabByNum(num, assignments.labs);
+    return lab.id || false;
+}
 
+// Use a newer bCourses API
+// TODO: Test this API then re-write the nasty submissions function above
+// https://bcourses.berkeley.edu/doc/api/submissions.html#method.submissions_api.bulk_update
+// Note returning a "progress" w/ a URL -- this should be investigated
 function sendLAStats(processed) {
 
 }
@@ -287,12 +290,12 @@ function reviewLAData(data) {
 
     data.forEach(function(checkoff) {
         var sketch = isSketchy(checkoff);
-        var list_type =  'ontime';
+        var list_type =   checkoff.late ? 'late' : 'ontime';
         var lab = checkoff.lab;
         var obj = safe[lab];
         if (sketch) {
-            obj = sketchy;
-            list = 'late'
+            obj = sketchy[lab];
+            list = 'late'; // FIXME -- not sure this is right?
             sketchy.msgs.append(checkoff);
         }
         obj[list].push(checkoff.sid);
@@ -306,7 +309,20 @@ function reviewLAData(data) {
     Or: Checked off during non-lab hours
 **/
 function isSketchy(co) {
-
+    var date = new Date(co.time);
+    var hour = date.getUTCHours();
+    // NOTE: Heroku server time is in UTC
+    // PST, checkoffs should be between 9am - 8pm FIXME -- CONFIG THIS
+    // This means, in UTC GOOD check offs are <=5, >=17 hours
+    if (hour > 6 || hour < 17) {
+        return false;
+    }
+    var oneWeek = 1000 * 60 * 60 * 24 * 7;
+    // FIXME -- this assumes the cache is valid.
+    var assignments = robot.brain.get(LAB_CACHE_KEY),
+        dueDate = findLabByNum(co.lab, assignments.labs).due_at;
+    dueDate = new Date(dueDate);
+    return co.late || date - dueDate <= oneWeek;
 }
 
 function clearSafeScores() {
