@@ -19,9 +19,9 @@
 var cs10 = require('./bcourses/');
 
 // CONSTANTS
-var CACHE_HOURS = 6;
-var fullPoints = 2;
-var latePoints = fullPoints / 2;
+var CACHE_HOURS = 12;
+var FULL_POINTS = cs10.labCheckOffPoints;
+var LATE_POINTS = cs10.labCheckOffLatePts;
 
 
 // A long regex to parse a lot of different check off commands.
@@ -30,12 +30,13 @@ var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s
 var containsSIDExp = /.*x?\d{5,}/gi;
 
 
+
 // Allowed rooms for doing / managing check offs
 var LA_ROOM = 'lab_assistant_check-offs';
 var TA_ROOM = 'lab_check-off_room';
 
 // Keys for data that key stored in robot.brain
-var LA_DATA_KEY      = 'LA_DATA';
+var LA_DATA_KEY    = 'LA_DATA';
 var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
 
 // Global-ish stuff for successful lab checkoff submissions.
@@ -45,7 +46,6 @@ var expectedScores;
 var timeoutID;
 
 module.exports = function(robot) {
-
     robot.hear(checkOffRegExp, function(msg) {
         // Develop Condition: || msg.message.room === 'Shell'
         if (msg.message.room === LA_ROOM) {
@@ -56,10 +56,6 @@ module.exports = function(robot) {
             msg.send('Lab Check offs are not allowed from this room');
         }
     });
-
-    robot.respond(/.*gradebook.*/i, function(msg) {
-        msg.send(cs10.gradebookURL);
-    })
 
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, function(msg) {
@@ -76,11 +72,12 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/\s*review\s*la(b\s*assistant)?\s*(?:scores|data)?\s*/i, function(msg) {
-
+    robot.respond(/review la (scores|data)/i, function(msg) {
+        var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
+        sendLAStats(laScores, msg);
     })
-    // submit LA scores
 
+    // submit LA scores
 };
 
 
@@ -107,7 +104,7 @@ function extractMessage(match) {
     result.lab    = labNo;
     result.sids   = SIDs;
     result.isLate = isLate;
-    result.points = isLate ? latePoints : fullPoints;
+    result.points = isLate ? LATE_POINTS : FULL_POINTS;
 
     return result;
 }
@@ -189,7 +186,7 @@ function doLACheckoff(msg) {
         late: data.isLate,
         sid: data.sids,
         points: data.points,
-        time:  (new Date()).toString(),
+        time: (new Date()).toString(),
         laname: msg.message.user.name,
         uid: msg.message.user.id,
         text: msg.message.text
@@ -265,12 +262,40 @@ function getAssignmentID(num, assignments) {
     return lab.id || false;
 }
 
+
+function sendLAStats(ladata, msg) {
+    var safe = getSIDCount(ladata.safe);
+    var sketchy = getSIDCount(ladata.sketchy.labs);
+    var text = 'LA Data Processed:\n';
+    text += 'Found Safe Check offs for: ' + Object.keys(ladata.safe).join(' ') +
+            ' labs.\n';
+    text += 'Found Sketchy Check offs for: ' +
+            (Object.keys(ladata.sketchy.labs).join(' ') || 'no') + ' labs.\n';
+    text += 'Total of ' + safe.ontime + ' good on time checkoffs, ' +
+            safe.late + ' late check offs.\n';
+    text += 'Total of ' + sketchy.ontime + ' sketchy on time checkoffs, ' +
+            sketchy.late + ' late check offs.';
+    msg.send(text);
+}
+
+
 // Use a newer bCourses API
 // TODO: Test this API then re-write the nasty submissions function above
 // https://bcourses.berkeley.edu/doc/api/submissions.html#method.submissions_api.bulk_update
 // Note returning a "progress" w/ a URL -- this should be investigated
-function sendLAStats(processed) {
+function postGrades(ladata, msg) {
 
+}
+
+// This takes in a processed labs object from review LA data.
+function getSIDCount(labs) {
+    var ontime = 0;
+    var late = 0;
+    for(num in labs) {
+        ontime += labs[num].ontime.length || 0;
+        late += labs[num].late.length || 0;
+    }
+    return {ontime: ontime, late: late};
 }
 
 /** Verify all the LA data for easy assignment posting
@@ -280,28 +305,36 @@ function sendLAStats(processed) {
 **/
 function reviewLAData(data) {
     var safe = {};
-    var sketchy = { msgs: [] };
-
-    // Prevent Checking if an array exists
-    for(var i = 1; i < 20; i += 1) {
-        safe[i] = { ontime: [], late: [] };
-        skethcy[i] = { ontime: [], late: [] };
-    }
+    var sketchy = { labs: {}, msgs: [] };
 
     data.forEach(function(checkoff) {
-        var sketch = isSketchy(checkoff);
-        var list_type =   checkoff.late ? 'late' : 'ontime';
-        var lab = checkoff.lab;
-        var obj = safe[lab];
+        var lab = checkoff.lab,
+            sketch = isSketchy(checkoff);
+
+        if (parseInt(lab) > 20) {
+            return;
+        }
+        
+        if (!safe[lab] && !sketch) {
+            safe[lab] = { ontime: [], late: [] };
+        }
+
+        if (!sketchy.labs[lab] && sketch) {
+            sketchy[lab] = { ontime: [], late: [] };
+        }
+
+        var list   = checkoff.late ? 'late' : 'ontime',
+            obj    = safe[lab];
+
         if (sketch) {
-            obj = sketchy[lab];
-            list = 'late'; // FIXME -- not sure this is right?
+            obj = sketchy.labs[lab];
             sketchy.msgs.append(checkoff);
         }
+
         obj[list].push(checkoff.sid);
     });
 
-    return {safe: safe, sketchy: skethcy };
+    return { safe: safe, sketchy: sketchy };
 }
 
 /** Determine whether an LA checkoff is sketchy.
