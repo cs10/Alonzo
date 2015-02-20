@@ -107,12 +107,41 @@ cs10.normalizeSID = function(sid) {
      if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
          sid = cs10.SWAP_IDS[sid];
      }
+     if (sid.indexOf(cs10.uid) !== -1) {
+         return sid;
+     }
      return cs10.uid + sid;
 }
 
 
-cs10.postAssignmentGrades = function(assnID, grades, msg) {
+/**
+POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/update_grades
 
+    
+ **/
+cs10.postAssignmentGrades = function(assnID, grades, msg) {
+    var url = cs10.baseURL + 'assignments/' + assnID + '/submissions/update_grades';
+    var form = {};
+    for (sid in grades) {
+        var id = sid;
+        if (sid.indexOf(cs10.uid) == -1) {
+            console.log('WARNING: Something isnt sending good SIDs');
+            id = cs10.uid + sid;
+            console.log(id);
+        }
+        form['grade_data[' + id + '][posted_grade]'] = grades[sid];
+    }
+    cs10.post(url, '', form, function(error, response, body) {
+        var notify = msg ? msg.send : console.log;
+        if (error || !body || body.errors) {
+            notify('Uh, oh! An error occurred');
+            notify(error);
+            notify(body.errors || 'No error message...');
+            return;
+        }
+        console.log(body.url);
+        notify('Success?!');
+    })
 }
 
 // Note that all variable which you want to share with other scripts must be
