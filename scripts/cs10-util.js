@@ -17,7 +17,6 @@
 cs10 = require('./bcourses/');
 
 module.exports = function(robot) {
-
     robot.respond(/.*(links|forms).*/i, function(msg) {
         var txt = '';
         txt += 'Late Assignments Form: http://bjc.link/sp15lateassignment\n';
@@ -31,5 +30,4 @@ module.exports = function(robot) {
     robot.respond( /\s*locker( combo)?/i, function(msg) {
         msg.send('11-29-15');
     });
-
 }
