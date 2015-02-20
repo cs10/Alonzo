@@ -75,9 +75,18 @@ module.exports = function(robot) {
     robot.respond(/review la (scores|data)/i, function(msg) {
         var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
         sendLAStats(laScores, msg);
-    })
+        console.log(laScores.safe['1']);
+    });
 
     // submit LA scores
+    robot.respond(/post la scores/i, function(msg) {
+        if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
+            return;
+        }
+        var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
+        sendLAStats(laScores, msg);
+        postGrades(laScores, msg);
+    })
 };
 
 
@@ -111,7 +120,6 @@ function extractMessage(match) {
 
 // Cache
 // TODO: document wacky callback thingy
-// FIXME -- protect against infinite loops!!
 function cacheLabAssignments(callback, args) {
     var url   = cs10.baseURL + 'assignment_groups/' + cs10.labsID,
         query = {'include[]': 'assignments'};
@@ -131,7 +139,7 @@ function cacheLabAssignments(callback, args) {
     });
 }
 
-
+// FIXME -- protect against infinite loops!!
 function doTACheckoff(msg) {
     var data = extractMessage(msg.match);
     var assignments = robot.brain.get(LAB_CACHE_KEY);
@@ -265,7 +273,6 @@ function getAssignmentID(num, assignments) {
 
 function sendLAStats(ladata, msg) {
     var safe = getSIDCount(ladata.safe);
-    var sketchy = getSIDCount(ladata.sketchy.labs);
     var text = 'LA Data Processed:\n';
     text += 'Found Safe Check offs for: ' + Object.keys(ladata.safe).join(' ') +
             ' labs.\n';
@@ -273,18 +280,16 @@ function sendLAStats(ladata, msg) {
             (Object.keys(ladata.sketchy.labs).join(' ') || 'no') + ' labs.\n';
     text += 'Total of ' + safe.ontime + ' good on time checkoffs, ' +
             safe.late + ' late check offs.\n';
-    text += 'Total of ' + sketchy.ontime + ' sketchy on time checkoffs, ' +
-            sketchy.late + ' late check offs.';
     msg.send(text);
 }
 
-
-// Use a newer bCourses API
-// TODO: Test this API then re-write the nasty submissions function above
-// https://bcourses.berkeley.edu/doc/api/submissions.html#method.submissions_api.bulk_update
-// Note returning a "progress" w/ a URL -- this should be investigated
+// Bulk upload grades to bCourses
 function postGrades(ladata, msg) {
-
+    var grades = ladata.safe;
+    for (lab in grades) {
+        var assnID = getAssignmentID(lab, robot.brain.get(LAB_CACHE_KEY));
+        cs10.postAssignmentGrades(assnID, grades[lab], msg);
+    }
 }
 
 // This takes in a processed labs object from review LA data.
@@ -292,8 +297,8 @@ function getSIDCount(labs) {
     var ontime = 0;
     var late = 0;
     for(num in labs) {
-        ontime += labs[num].ontime.length || 0;
-        late += labs[num].late.length || 0;
+        ontime += Object.keys(labs[num]).length || 0;
+        // late += labs[num].late.length || 0;
     }
     return {ontime: ontime, late: late};
 }
@@ -311,27 +316,30 @@ function reviewLAData(data) {
         var lab = checkoff.lab,
             sketch = isSketchy(checkoff);
 
-        if (parseInt(lab) > 20) {
-            return;
-        }
+        if (parseInt(lab) > 20 || parseInt(lab) < 2) { return; }
         
-        if (!safe[lab] && !sketch) {
-            safe[lab] = { ontime: [], late: [] };
-        }
+        if (!safe[lab] && !sketch) { safe[lab] = {}; }
 
-        if (!sketchy.labs[lab] && sketch) {
-            sketchy[lab] = { ontime: [], late: [] };
-        }
+        if (!sketchy.labs[lab] && sketch) { sketchy[lab] = {}; }
 
-        var list   = checkoff.late ? 'late' : 'ontime',
-            obj    = safe[lab];
+        var obj = safe[lab];
 
         if (sketch) {
             obj = sketchy.labs[lab];
             sketchy.msgs.append(checkoff);
         }
-
-        obj[list].push(checkoff.sid);
+        
+        checkoff.sid.forEach(function(sid) {
+            if (!sid) { return; }
+            if (sid.length !== 20 && sid.length !== 8) {
+                console.log('STUPID LA');
+                console.log('LAB ', lab);
+                console.log('SID ', sid);
+                return
+            }
+            sid = cs10.normalizeSID(sid);
+            obj[sid] = checkoff.points;
+        })
     });
 
     return { safe: safe, sketchy: sketchy };
