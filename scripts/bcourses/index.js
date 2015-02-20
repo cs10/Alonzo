@@ -6,14 +6,19 @@ var bCoursesURL = 'https://bcourses.berkeley.edu';
 
 var cs10 = new Canvas(bCoursesURL, { token: authToken });
 
-// COURSE AND ASSIGNMENT IDS
+/** COURSE AND ASSIGNMENT IDS
+    Update these each semester!!
+    The course ID is the standard CS10 course id, easily obtainable from the URL:
+    http://bcourses.berkeley.edu/courses/<id>/ when you are viewing the CS10
+    page in bCourses.
+    The labsID is the id of the "assignment group" for all lab check offs.
+    To get this id...... TODO.
+**/
 // These are used in URL building, so strings are OK.
-// Update Each Semester
 // Michael Sandbox: 1268501
 // Spring 2015: 1301472
 // Fall 2014: 1246916
 cs10.courseID = '1301472';
-// Update Each Semester
 // Michael Sandbox: 1593713
 // cs10.labsID = '1702126' Spring 2015
 cs10.labsID = '1702126';
@@ -43,19 +48,12 @@ cs10.SWAP_IDS = {
     '538866':'UID:1083023'
 };
 
-// Trim an SID and check of extenstion students
-// This must called whenever a SID is used to make sure its the proper format
-cs10.normalizeSID = function(sid) {
-     sid = sid.trim().replace('X', '');
-     if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
-         sid = cs10.SWAP_IDS[sid];
-     }
-     return cs10.uid + sid;
-}
-
 // Course Level Policies:
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays    = 3;
+cs10.numberLabs         = 18;
+cs10.labCheckOffPoints  = 2; // These could be changed as the course changes.
+cs10.labCheckOffLatePts = 1;
 
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
@@ -101,6 +99,21 @@ cs10.staffIDs = [
     4897435
 ];
 
+
+// Trim an SID and check of extenstion students
+// This must called whenever a SID is used to make sure its the proper format
+cs10.normalizeSID = function(sid) {
+     sid = sid.trim().replace('X', '');
+     if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
+         sid = cs10.SWAP_IDS[sid];
+     }
+     return cs10.uid + sid;
+}
+
+
+cs10.postAssignmentGrades = function(assnID, grades, msg) {
+
+}
 
 // Note that all variable which you want to share with other scripts must be
 // a member of the CS10 object.
