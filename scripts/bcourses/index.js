@@ -115,11 +115,12 @@ cs10.normalizeSID = function(sid) {
 
 
 /**
-POST /api/v1/courses/:course_id/assignments/:assignment_id/submissions/update_grades
-
+    This posts multiple grades to a single assignment at once.
+    Grades should be of the form: { sid: grade }
+    Note, bCourses is whacky and updates grades in an async manner:
     
  **/
-cs10.postAssignmentGrades = function(assnID, grades, msg) {
+cs10.postMultipleGrades = function(assnID, grades, msg) {
     var url = cs10.baseURL + 'assignments/' + assnID + '/submissions/update_grades';
     var form = {};
     for (sid in grades) {
@@ -139,7 +140,7 @@ cs10.postAssignmentGrades = function(assnID, grades, msg) {
             notify(body.errors || 'No error message...');
             return;
         }
-        console.log(body.url);
+        console.log('Assignment ID: ', assnID, '\nURL: ', body.url);
         notify('Success?!');
     })
 }
