@@ -44,9 +44,7 @@ cs10.gradebookURL = bCoursesURL + cs10.baseURL + 'gradebook';
     TODO: Consider making this a config for privacy reasons
     However, these IDs don't actually reveal anything.
 **/
-cs10.SWAP_IDS = {
-    '538866':'UID:1083023'
-};
+cs10.SWAP_IDS = { };
 
 // Course Level Policies:
 cs10.gracePeriodMinutes = 15;
@@ -118,19 +116,13 @@ cs10.normalizeSID = function(sid) {
     This posts multiple grades to a single assignment at once.
     Grades should be of the form: { sid: grade }
     Note, bCourses is whacky and updates grades in an async manner:
-    
+
  **/
 cs10.postMultipleGrades = function(assnID, grades, msg) {
     var url = cs10.baseURL + 'assignments/' + assnID + '/submissions/update_grades';
     var form = {};
     for (sid in grades) {
-        var id = sid;
-        if (sid.indexOf(cs10.uid) == -1) {
-            console.log('WARNING: Something isnt sending good SIDs');
-            id = cs10.uid + sid;
-            console.log(id);
-        }
-        form['grade_data[' + id + '][posted_grade]'] = grades[sid];
+        form['grade_data[' + sid + '][posted_grade]'] = grades[sid];
     }
     cs10.post(url, '', form, function(error, response, body) {
         var notify = msg ? msg.send : console.log;
@@ -140,7 +132,6 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
             notify(body.errors || 'No error message...');
             return;
         }
-        console.log('Assignment ID: ', assnID, '\nURL: ', body.url);
         notify('Success?!');
     })
 }

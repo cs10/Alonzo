@@ -75,7 +75,6 @@ module.exports = function(robot) {
     robot.respond(/review la (scores|data)/i, function(msg) {
         var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
         sendLAStats(laScores, msg);
-        console.log(laScores.safe['1']);
     });
 
     // submit LA scores
@@ -86,7 +85,7 @@ module.exports = function(robot) {
         var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
         sendLAStats(laScores, msg);
         postGrades(laScores, msg);
-    })
+    });
 };
 
 
@@ -148,7 +147,7 @@ function doTACheckoff(msg) {
         data.lab + '.');
 
     if (!assignments || !cacheIsValid(assignments)) {
-        console.log('ALONZO: Refreshing Lab assignments cache.');
+        robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
         cacheLabAssignments(doTACheckoff, [msg]);
         return;
     }
@@ -288,7 +287,7 @@ function postGrades(ladata, msg) {
     var grades = ladata.safe;
     for (lab in grades) {
         var assnID = getAssignmentID(lab, robot.brain.get(LAB_CACHE_KEY));
-        cs10.postAssignmentGrades(assnID, grades[lab], msg);
+        cs10.postMultipleGrades(assnID, grades[lab], msg);
     }
 }
 
@@ -317,7 +316,7 @@ function reviewLAData(data) {
             sketch = isSketchy(checkoff);
 
         if (parseInt(lab) > 20 || parseInt(lab) < 2) { return; }
-        
+
         if (!safe[lab] && !sketch) { safe[lab] = {}; }
 
         if (!sketchy.labs[lab] && sketch) { sketchy[lab] = {}; }
@@ -328,13 +327,9 @@ function reviewLAData(data) {
             obj = sketchy.labs[lab];
             sketchy.msgs.append(checkoff);
         }
-        
+
         checkoff.sid.forEach(function(sid) {
-            if (!sid) { return; }
-            if (sid.length !== 20 && sid.length !== 8) {
-                console.log('STUPID LA');
-                console.log('LAB ', lab);
-                console.log('SID ', sid);
+            if (!sid || sid.length !== 20 && sid.length !== 8) {
                 return
             }
             sid = cs10.normalizeSID(sid);
@@ -364,8 +359,4 @@ function isSketchy(co) {
         dueDate = findLabByNum(co.lab, assignments.labs).due_at;
     dueDate = new Date(dueDate);
     return co.late || date - dueDate <= oneWeek;
-}
-
-function clearSafeScores() {
-
 }
