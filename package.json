@@ -30,9 +30,8 @@
     "hubot-hipchat": "^2.6.4",
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
-    "hubot-scripts": ">= 2.5.0 < 3.0.0",
+    "hubot-scripts": "^2.6.4",
     "node-canvas-lms": "cs10/node-canvas-lms",
-    "nodepie": "0.5.0",
     "redis": "0.8.4",
     "request": "^2.51.0",
     "soupselect": "0.2.0",
@@ -42,7 +41,7 @@
     "xml2js": "^0.4.4"
   },
   "engines": {
-    "node": ">= 0.8.x",
+    "node": ">= 0.10.33",
     "npm": ">= 1.1.x"
   }
 }
