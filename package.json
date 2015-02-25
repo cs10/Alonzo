@@ -19,12 +19,11 @@
     "cheerio": "0.7.0",
     "cleverbot-node": "^0.1.8",
     "githubot": "^1.0.0-beta2",
-    "handlebars": "1.0.5beta",
     "htmlparser": "1.7.6",
     "hubot": "^2.6.0",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "cycomachead/hubot-group-alias",
-    "hubot-hipchat": "^2.6.4",
+    "hubot-hipchat": "cycomachead/hubot-hipchat",
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
     "hubot-scripts": "github/hubot-scripts",
@@ -38,7 +37,7 @@
     "xml2js": "^0.4.5"
   },
   "engines": {
-    "node": "0.10.36",
+    "iojs": "1.x.x",
     "npm": "2.5.1"
   }
 }

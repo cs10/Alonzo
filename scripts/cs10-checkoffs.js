@@ -25,10 +25,7 @@ var LATE_POINTS = cs10.labCheckOffLatePts;
 
 
 // A long regex to parse a lot of different check off commands.
-var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
-// A generic expression that matches all messages
-var containsSIDExp = /.*x?\d{5,}/gi;
-
+var checkOffRegExp = /check.*off.*x?\d{1,}/i;
 
 
 // Allowed rooms for doing / managing check offs
@@ -48,6 +45,7 @@ var timeoutID;
 module.exports = function(robot) {
     robot.hear(checkOffRegExp, function(msg) {
         // Develop Condition: || msg.message.room === 'Shell'
+        parsed = extractMessage(msg);
         if (msg.message.room === LA_ROOM) {
             doLACheckoff(msg);
         } else if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
@@ -99,22 +97,26 @@ module.exports = function(robot) {
   input: '@Alonzo check-off 12 late 1234 1234 1234' ]
 */
 /* Proccess the regex match into a common formatted object */
-function extractMessage(match) {
-    var result = {};
+function extractMessage(msg) {
+    // A generic expression that matches all messages
+    var findSIDs = /.*x?\d{5,}/gi,
+        findLate = /late/i,
+        findLab = /\d{1,2}/,
+        text = msg.message.text;
 
-    var labNo  = match[2],
-        isLate = match[1] !== undefined || match[3] !== undefined,
-        SIDs   = match[4].trim().split(/[ \t\n]/g);
+    var labNo  = findLab.exec(text)[0] || null,
+        isLate = findLate.exec(text) != null,
+        SIDs   = findSIDs.exec(text);
 
     SIDs = SIDs.filter(function(item) { return item.trim() !== '' });
     SIDs = SIDs.map(cs10.normalizeSID);
 
-    result.lab    = labNo;
-    result.sids   = SIDs;
-    result.isLate = isLate;
-    result.points = isLate ? LATE_POINTS : FULL_POINTS;
-
-    return result;
+    return {
+        lab: labNo,
+        sids: SIDs,
+        isLate: isLate,
+        points: isLate ? LATE_POINTS : FULL_POINTS
+    };
 }
 
 // Cache
@@ -140,7 +142,7 @@ function cacheLabAssignments(callback, args) {
 
 // FIXME -- protect against infinite loops!!
 function doTACheckoff(msg) {
-    var data = extractMessage(msg.match);
+    var data = extractMessage(msg);
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
@@ -177,7 +179,7 @@ function doTACheckoff(msg) {
 }
 
 function doLACheckoff(msg) {
-    var data = extractMessage(msg.match);
+    var data = extractMessage(msg);
     // TODO: Note that this might change, these are loose rough bounds
     // We could always search for values from the lab assignments list.
     var minLab = 2, maxLab = 20;
