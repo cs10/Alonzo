@@ -78,17 +78,28 @@ module.exports = function(robot) {
 };
 
 function processCheckOff(msg) {
-    // Develop Condition: || msg.message.room === 'Shell'
-    var roomFn, parsed, room = msg.message.room;
-    if (room === LA_ROOM) {
+    var roomFn, parsed, errors; 
+    switch (msg.message.room) {
+    case LA_ROOM:
         roomFn = doLACheckoff;
-    } else if (room === TA_ROOM || room === 'Shell') {
+        break;
+    case 'Shell': // Move this condition around for command line testing
+    case TA_ROOM:
         roomFn = doTACheckoff;
-    } else {
+        break;
+    default:
         msg.send('Lab Check offs are not allowed from this room');
+        return;
     }
+    
     parsed = extractMessage(msg.message.text);
-    // Verify Errors and return if found
+    errors = verifyErrors(parsed);
+    if (errors.length) {
+        msg.send('Your check off was NOT saved!',
+                 'ERROR: The following errors occurred.',
+                 errors.join('\n'));
+        return;
+    }
     // Verify Cache Here
     roomFn(parsed, msg);
 }
@@ -115,6 +126,19 @@ function extractMessage(text) {
     };
 }
 
+// Return an array of error messages that prevent the checkoff from being saved.
+function verifyErrors(parsed) {
+    var errors = [];
+    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) {
+        errors.push('The lab number: ' + parsed.lab + ' is not a valid lab!');
+        errors.push('Please specify the lab number before all student ids.');
+    }
+    if (parsed.sids.length < 1) {
+        errors.push('No SIDs were found.');
+    }
+    
+    return errors;
+}
 // Cache
 // TODO: document wacky callback thingy
 function cacheLabAssignments(callback, args) {
