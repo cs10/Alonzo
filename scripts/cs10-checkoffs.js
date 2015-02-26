@@ -199,15 +199,6 @@ function doTACheckoff(data, msg) {
 }
 
 function doLACheckoff(data, msg) {
-    // TODO: Note that this might change, these are loose rough bounds
-    // We could always search for values from the lab assignments list.
-    var minLab = 2, maxLab = 20;
-    if (data.lab < 2 || data.lab > 20) {
-        msg.send('ERROR: The lab ' + data.lab + ' does not exist!!\n' +
-            'Score were NOT saved, please try again. Thanks! (heart)');
-        return;
-    }
-
     var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
     LA_DATA.push({
         lab: data.lab,
@@ -334,6 +325,8 @@ function reviewLAData(data) {
         var lab = checkoff.lab,
             sketch = isSketchy(checkoff);
 
+        // LEGACY before I placed a check on lab number this can be deleted
+        // once all the existing saved check offs are uploaded and cleared.
         if (parseInt(lab) > 20 || parseInt(lab) < 2) { return; }
 
         if (!safe[lab] && !sketch) { safe[lab] = {}; }
@@ -363,17 +356,23 @@ function reviewLAData(data) {
     "Sketchy" means: More than 1 week paste the due date,
     Or: Checked off during non-lab hours
 **/
-function isSketchy(co) {
-    var date = new Date(co.time);
-    var hour = date.getUTCHours();
+function isSketchy(co, assingments) {
+    var results = [],
+        date = new Date(co.time),
+        day  = date.getUTCDay(),
+        hour = date.getUTCHours(),
+        oneWeek = 1000 * 60 * 60 * 24 * 7;
     // NOTE: Heroku server time is in UTC
     // PST, checkoffs should be between 9am - 8pm FIXME -- CONFIG THIS
     // This means, in UTC GOOD check offs are <=5, >=17 hours
     if (hour > 6 || hour < 17) {
-        return false;
+        results.push('Check offs should happen during lab or office hours!');
     }
-    // FIXME  -- exclude Sat and Sun
-    var oneWeek = 1000 * 60 * 60 * 24 * 7;
+    // FIXME -- is late friday a saturday in UTC??
+    if (day == 0 || day == 6) {
+        result.push('Check offs should happen during the week!');
+    }
+    
     // FIXME -- this assumes the cache is valid.
     var assignments = robot.brain.get(LAB_CACHE_KEY),
         dueDate = findLabByNum(co.lab, assignments.labs).due_at;
