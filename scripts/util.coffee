@@ -18,6 +18,7 @@ module.exports = (robot) ->
   robot.respond /calendar( me)?/i, (msg) ->
     child_process.exec 'cal -h', (error, stdout, stderr) ->
       msg.send(stdout)
-      
+
   robot.respond /room name/i, (msg) ->
     msg.send msg.message.room
+

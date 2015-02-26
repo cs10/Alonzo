@@ -23,10 +23,9 @@ var CACHE_HOURS = 12;
 var FULL_POINTS = cs10.labCheckOffPoints;
 var LATE_POINTS = cs10.labCheckOffLatePts;
 
-
-// A long regex to parse a lot of different check off commands.
-var checkOffRegExp = /check.*off.*x?\d{1,}/i;
-
+// Lab Numbers that people can be checked off for.
+var MIN_LAB = 2;
+var MAX_LAB = 18;
 
 // Allowed rooms for doing / managing check offs
 var LA_ROOM = 'lab_assistant_check-offs';
@@ -43,17 +42,9 @@ var expectedScores;
 var timeoutID;
 
 module.exports = function(robot) {
-    robot.hear(checkOffRegExp, function(msg) {
-        // Develop Condition: || msg.message.room === 'Shell'
-        parsed = extractMessage(msg);
-        if (msg.message.room === LA_ROOM) {
-            doLACheckoff(msg);
-        } else if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
-            doTACheckoff(msg);
-        } else {
-            msg.send('Lab Check offs are not allowed from this room');
-        }
-    });
+    // Loosely look for the phrase check off and the possibility of a number.
+    var couldBeCheckOff = /check.*off.*x?\d{1,}/i;
+    robot.hear(couldBeCheckOff, processCheckOff);
 
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, function(msg) {
@@ -86,24 +77,29 @@ module.exports = function(robot) {
     });
 };
 
+function processCheckOff(msg) {
+    // Develop Condition: || msg.message.room === 'Shell'
+    var roomFn, parsed, room = msg.message.room;
+    if (room === LA_ROOM) {
+        roomFn = doLACheckoff;
+    } else if (room === TA_ROOM || room === 'Shell') {
+        roomFn = doTACheckoff;
+    } else {
+        msg.send('Lab Check offs are not allowed from this room');
+    }
+    parsed = extractMessage(msg.message.txt);
+    // Verify Errors and return if found
+    // Verify Cache Here
+    roomFn(parsed, msg);
+}
 
-/* Hubot msg.match groups:
-[ '@Alonzo check-off 12 late 1234 1234 1234',
-  undefined,         // Late?
-  '12',              // Lab Number
-  'late',            // Late or undefined
-  '1234 1234 1234',  // SIDs
-  index: 0,
-  input: '@Alonzo check-off 12 late 1234 1234 1234' ]
-*/
 /* Proccess the regex match into a common formatted object */
-function extractMessage(msg) {
-    // A generic expression that matches all messages
+function extractMessage(text) {
+    // Parse the following components out of a message.
     var findSIDs = /.*x?\d{5,}/gi,
         findLate = /late/i,
-        findLab = /\d{1,2}/,
-        text = msg.message.text;
-
+        findLab = /\d{1,2}/;
+        
     var labNo  = findLab.exec(text)[0] || null,
         isLate = findLate.exec(text) != null,
         SIDs   = findSIDs.exec(text);
@@ -141,8 +137,8 @@ function cacheLabAssignments(callback, args) {
 }
 
 // FIXME -- protect against infinite loops!!
-function doTACheckoff(msg) {
-    var data = extractMessage(msg);
+function doTACheckoff(parsed, msg) {
+    var data = parsed;
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
@@ -163,6 +159,7 @@ function doTACheckoff(msg) {
         return;
     }
 
+    // FIXME -- check whether 1 or more scores.
     successes = 0;
     failures = 0;
     expectedScores = data.sids.length;
@@ -178,8 +175,8 @@ function doTACheckoff(msg) {
     }, 30 * 1000);
 }
 
-function doLACheckoff(msg) {
-    var data = extractMessage(msg);
+function doLACheckoff(parsed, msg) {
+    var data = pased;
     // TODO: Note that this might change, these are loose rough bounds
     // We could always search for values from the lab assignments list.
     var minLab = 2, maxLab = 20;
@@ -196,9 +193,7 @@ function doLACheckoff(msg) {
         sid: data.sids,
         points: data.points,
         time: (new Date()).toString(),
-        laname: msg.message.user.name,
-        uid: msg.message.user.id,
-        text: msg.message.text
+        laname: msg.message.user.name
     });
 
     robot.brain.set(LA_DATA_KEY, LA_DATA);
@@ -263,7 +258,7 @@ function findLabByNum(num, labs) {
         }
         return false;
     });
-    return result;
+    return result || { id: 0 };
 }
 
 function getAssignmentID(num, assignments) {
@@ -355,6 +350,7 @@ function isSketchy(co) {
     if (hour > 6 || hour < 17) {
         return false;
     }
+    // FIXME  -- exclude Sat and Sun
     var oneWeek = 1000 * 60 * 60 * 24 * 7;
     // FIXME -- this assumes the cache is valid.
     var assignments = robot.brain.get(LAB_CACHE_KEY),
