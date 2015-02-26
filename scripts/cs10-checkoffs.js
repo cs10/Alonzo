@@ -87,7 +87,7 @@ function processCheckOff(msg) {
     } else {
         msg.send('Lab Check offs are not allowed from this room');
     }
-    parsed = extractMessage(msg.message.txt);
+    parsed = extractMessage(msg.message.text);
     // Verify Errors and return if found
     // Verify Cache Here
     roomFn(parsed, msg);
@@ -96,19 +96,19 @@ function processCheckOff(msg) {
 /* Proccess the regex match into a common formatted object */
 function extractMessage(text) {
     // Parse the following components out of a message.
-    var findSIDs = /.*x?\d{5,}/gi,
+    var findSIDs = /x?\d{5,}/g,
         findLate = /late/i,
         findLab = /\d{1,2}/;
-        
-    var labNo  = findLab.exec(text)[0] || null,
-        isLate = findLate.exec(text) != null,
-        SIDs   = findSIDs.exec(text);
+
+    var labNo  = text.match(findLab) || [0],
+        isLate = text.match(findLate) != null,
+        SIDs   = text.match(findSIDs);
 
     SIDs = SIDs.filter(function(item) { return item.trim() !== '' });
     SIDs = SIDs.map(cs10.normalizeSID);
 
     return {
-        lab: labNo,
+        lab: labNo[0],
         sids: SIDs,
         isLate: isLate,
         points: isLate ? LATE_POINTS : FULL_POINTS
@@ -145,7 +145,7 @@ function doTACheckoff(data, msg) {
 
     if (!assignments || !cacheIsValid(assignments)) {
         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
-        cacheLabAssignments(doTACheckoff, [msg]);
+        cacheLabAssignments(doTACheckoff, [data, msg]);
         return;
     }
 
@@ -163,7 +163,7 @@ function doTACheckoff(data, msg) {
     failures = 0;
     expectedScores = data.sids.length;
     data.sids.forEach(function(sid) {
-        postLabScore(sid, assnID, data.points, msg);
+        postSignleAssignment(assnID, sid, data.points, msg);
     });
 
     // wait till all requests are complete...hopefully.
@@ -201,15 +201,15 @@ function doLACheckoff(data, msg) {
 
 }
 
-function postLabScore(sid, labID, score, msg) {
+function postSignleAssignment(assnID, sid, score, msg) {
 var scoreForm = 'submission[posted_grade]=' + score,
-    url = cs10.baseURL + 'assignments/' + labID + '/submissions/' + sid;
+    url = cs10.baseURL + 'assignments/' + assnID + '/submissions/' + sid;
 
-    cs10.put(url , '', scoreForm, handleResponse(sid, score, msg));
+    cs10.put(url , '', scoreForm, verifyScoreSubmission(sid, score, msg));
 }
 
 // Error Handler for posting lab check off scores.
-function handleResponse(sid, points, msg) {
+function verifyScoreSubmission(sid, points, msg) {
     return function(error, response, body) {
         var errorMsg = 'Problem encountered for ID: ' + sid.replace(cs10.uid, '');
         if (body.errors || !body.grade || body.grade != points.toString()) {
