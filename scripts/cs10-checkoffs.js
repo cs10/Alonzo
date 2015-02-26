@@ -137,8 +137,7 @@ function cacheLabAssignments(callback, args) {
 }
 
 // FIXME -- protect against infinite loops!!
-function doTACheckoff(parsed, msg) {
-    var data = parsed;
+function doTACheckoff(data, msg) {
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
@@ -153,9 +152,9 @@ function doTACheckoff(parsed, msg) {
     var assnID = getAssignmentID(data.lab, assignments, msg);
 
     if (!assnID) {
-        msg.send('Well, crap...I can\'t find lab ' + data.lab + '.');
-        msg.send('Check to make sure you put in a correct lab number.');
-        msg.send(cs10.gradebookURL);
+        msg.send('Well, crap...I can\'t find lab ' + data.lab + '.\n' +
+                 'Check to make sure you put in a correct lab number.\n' +
+                 cs10.gradebookURL);
         return;
     }
 
@@ -175,8 +174,7 @@ function doTACheckoff(parsed, msg) {
     }, 30 * 1000);
 }
 
-function doLACheckoff(parsed, msg) {
-    var data = pased;
+function doLACheckoff(data, msg) {
     // TODO: Note that this might change, these are loose rough bounds
     // We could always search for values from the lab assignments list.
     var minLab = 2, maxLab = 20;
