@@ -12,7 +12,7 @@
 //  /slipdays/:sid -- show the slip days for SID
 //
 // Commands:
-//   hubot slip days <SID> -- get slip days used for students
+//   hubot slip days <SID> -- CS10: get slip days used for students
 //
 // Author:
 //  Michael Ball

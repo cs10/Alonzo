@@ -8,9 +8,9 @@
 //   See bcourses
 //
 // Commands:
-//   hubot (late) check off <NUM> (late) <SIDs> -- check off these students
-//   hubot show la data -- dumb the raw saved Lab Assistant check offs.
-//   hubot review la scores -- stats abput LA scores. Will punlish the safe scores to bCourses
+//   hubot (late) check off <NUM> <SIDs> -- CS10: check off these students
+//   hubot show la data -- CS10: dumb the raw saved Lab Assistant check offs.
+//   hubot review la scores -- CS10: stats abput LA scores. Will punlish the safe scores to bCourses
 //
 // Author:
 //  Michael Ball
@@ -78,7 +78,7 @@ module.exports = function(robot) {
 };
 
 function processCheckOff(msg) {
-    var roomFn, parsed, errors; 
+    var roomFn, parsed, errors;
     switch (msg.message.room) {
     case LA_ROOM:
         roomFn = doLACheckoff;
@@ -91,7 +91,7 @@ function processCheckOff(msg) {
         msg.send('Lab Check offs are not allowed from this room');
         return;
     }
-    
+
     parsed = extractMessage(msg.message.text);
     errors = verifyErrors(parsed);
     if (errors.length) {
@@ -109,13 +109,12 @@ function extractMessage(text) {
     // Parse the following components out of a message.
     var findSIDs = /x?\d{5,}/g,
         findLate = /late/i,
-        findLab = /\d{1,2}/;
+        findLab  = /\d{1,2}/;
 
     var labNo  = text.match(findLab) || [0],
         isLate = text.match(findLate) != null,
         SIDs   = text.match(findSIDs);
 
-    SIDs = SIDs.filter(function(item) { return item.trim() !== '' });
     SIDs = SIDs.map(cs10.normalizeSID);
 
     return {
@@ -136,11 +135,20 @@ function verifyErrors(parsed) {
     if (parsed.sids.length < 1) {
         errors.push('No SIDs were found.');
     }
-    
+
     return errors;
 }
 // Cache
 // TODO: document wacky callback thingy
+function verifyCache(callback, args) {
+    var cached = robot.brain.get(LAB_CACHE_KEY);
+    if (cacheIsValid(cached)) {
+        callback.apply(null, args);
+    } else {
+        cacheLabAssignments(callback, args);
+    }
+}
+
 function cacheLabAssignments(callback, args) {
     var url   = cs10.baseURL + 'assignment_groups/' + cs10.labsID,
         query = {'include[]': 'assignments'};
@@ -199,17 +207,27 @@ function doTACheckoff(data, msg) {
 }
 
 function doLACheckoff(data, msg) {
-    var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
-    LA_DATA.push({
+    var checkoff = {
         lab: data.lab,
         late: data.isLate,
         sid: data.sids,
         points: data.points,
         time: (new Date()).toString(),
         laname: msg.message.user.name
-    });
+    };
 
-    robot.brain.set(LA_DATA_KEY, LA_DATA);
+    var sketchy = isSketchy(checkoff);
+    if (sketchy) {
+        msg.send('ERROR: You\'re being sketchy right now...\n',
+                 sketchy.join('\n'),
+                 'This checkoff will not be saved. :(');
+        var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
+        LA_DATA.push(checkoff);
+        robot.brain.set(LA_DATA_KEY, LA_DATA);
+        return;
+    }
+    // Post scores to bCourses
+
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
     msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
              ' for lab ' + data.lab  + '.');
@@ -341,6 +359,8 @@ function reviewLAData(data) {
         }
 
         checkoff.sid.forEach(function(sid) {
+            // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
+            // FIXME -- this should be removed sometime soon...
             if (!sid || sid.length !== 20 && sid.length !== 8) {
                 return
             }
@@ -355,6 +375,7 @@ function reviewLAData(data) {
 /** Determine whether an LA checkoff is sketchy.
     "Sketchy" means: More than 1 week paste the due date,
     Or: Checked off during non-lab hours
+    If a checkoff is sketchy, return an arry of warnings about why.
 **/
 function isSketchy(co, assingments) {
     var results = [],
@@ -372,10 +393,14 @@ function isSketchy(co, assingments) {
     if (day == 0 || day == 6) {
         result.push('Check offs should happen during the week!');
     }
-    
+
     // FIXME -- this assumes the cache is valid.
     var assignments = robot.brain.get(LAB_CACHE_KEY),
         dueDate = findLabByNum(co.lab, assignments.labs).due_at;
     dueDate = new Date(dueDate);
-    return co.late || date - dueDate <= oneWeek;
+
+    if (!co.late && date - dueDate > oneWeek) {
+        results.push('This checkoff is past due!');
+    }
+    return results;
 }
