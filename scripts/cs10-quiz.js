@@ -15,6 +15,7 @@
 
 cs10 = require('./bcourses/');
 
+var TA_ROOM = 'cs10_staff_room_(private)';
 function getQuizID(quizNum, password, msg, callback) {
     var url = cs10.baseURL + 'assignment_groups';
     var options = {
@@ -51,6 +52,9 @@ setQuizPassword = function(quizID, password, msg) {
 }
 
 processQuizMessage = function(msg) {
+    if (msg.message.room != TA_ROOM) {
+        msg.send('You\'re not allowed to set quiz passwords in this room.');
+    }
     msg.send("Attempting to set quiz password.")
     var quizNum = msg.match[1];
     var password = msg.match[2];
