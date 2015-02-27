@@ -19,35 +19,35 @@ var TA_ROOM = 'cs10_staff_room_(private)';
 function getQuizID(quizNum, password, msg, callback) {
     var url = cs10.baseURL + 'assignment_groups';
     var options = {
-	'include' : 'assignments'
+        'include' : 'assignments'
     };
 
     cs10.get(url, options, function(error, response, body) {
-	body.forEach(function(group) {
-	    if (group.name == "Reading Quizzes") {
-		group.assignments.forEach(function(assn) {
-		    if (assn.name.match(/\d+/)[0] == quizNum) {
-			callback(assn.quiz_id, password, msg) // should this be id??
-		    }
-		});
-	    }
-	});
+        body.forEach(function(group) {
+            if (group.name == "Reading Quizzes") {
+                group.assignments.forEach(function(assn) {
+                    if (assn.name.match(/\d+/)[0] == quizNum) {
+                        callback(assn.quiz_id, password, msg) // should this be id??
+                    }
+                });
+            }
+        });
     });
 }
 
 setQuizPassword = function(quizID, password, msg) {
     var url = cs10.baseURL + 'quizzes/' + quizID;
     var options = {
-	'quiz[access_code]': password
+        'quiz[access_code]': password
     };
     cs10.put(url, '', options, function(error, response, body) {
-	if (error || !body || body.errors || body.access_code != password) {
-	    msg.send("There was a problem setting the password.");
-	} else {
-	    msg.send("Password for quiz " + msg.match[1] + " updated successfully!");
-	    msg.send("New password: " + password);
-	    //msg.send("Will update to random password in 30 minutes.") // add this in when implemented
-	}
+        if (error || !body || body.errors || body.access_code != password) {
+            msg.send("There was a problem setting the password.");
+        } else {
+            msg.send("Password for quiz " + msg.match[1] + " updated successfully!");
+            msg.send("New password: " + password);
+            //msg.send("Will update to random password in 30 minutes.") // add this in when implemented
+        }
     });
 }
 
