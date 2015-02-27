@@ -2,14 +2,14 @@
 //  Simple stuff for TAs
 //
 // Dependencies:
-//   None
+//   bcourses/index.js
 //
 // Configuration:
-//   None
+//   See bcourses/index.js
 //
 // Commands:
-//   hubot links | forms -- show useful TA notes.
-//   hubot locker combo? -- show the locker comber for lab
+//   hubot links | forms - CS10: show useful TA notes.
+//   hubot locker (combo)? - CS10: show the locker comber for lab
 //
 // Author:
 //  Michael Ball
@@ -24,10 +24,10 @@ module.exports = function(robot) {
         txt += 'Grade book:' + cs10.gradebookURL + '\n';
         txt += 'Checkoff Answers: http://bjc.link/cs10checkoffquestions'
         txt += 'Contacts Sheet: http://bjc.link/cs10contacts\n';
-        msg.send(txt)
+        msg.send(txt);
     });
 
-    robot.respond( /\s*locker( combo)?/i, function(msg) {
+    robot.respond(/\s*locker( combo)?/i, function(msg) {
         msg.send('11-29-15');
     });
 }
