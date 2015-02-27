@@ -8,7 +8,7 @@
 //   None
 //
 // Commands:
-//   hubot links | forms -- show useful TA notes.
+//   hubot quiz <n> password <word> -- CS10: update the password for reading quiz <n>.
 //
 // Author:
 //  Peter Sujan
@@ -37,13 +37,11 @@ function getQuizID(quizNum, password, msg, callback) {
 setQuizPassword = function(quizID, password, msg) {
     var url = cs10.baseURL + 'quizzes/' + quizID;
     var options = {
-	'access_code': password
+	'quiz[access_code]': password
     };
     cs10.put(url, '', options, function(error, response, body) {
 	if (error || !body || body.errors || body.access_code != password) {
 	    msg.send("There was a problem setting the password.");
-	    console.log(error);
-	    
 	} else {
 	    msg.send("Password for quiz " + msg.match[1] + " updated successfully!");
 	    msg.send("New password: " + password);
