@@ -238,7 +238,7 @@ function postSignleAssignment(assnID, sid, score, msg) {
 var scoreForm = 'submission[posted_grade]=' + score,
     url = cs10.baseURL + 'assignments/' + assnID + '/submissions/' + sid;
 
-    cs10.put(url , '', scoreForm, verifyScoreSubmission(sid, score, msg));
+    cs10.put(url, '', scoreForm, verifyScoreSubmission(sid, score, msg));
 }
 
 // Error Handler for posting lab check off scores.
