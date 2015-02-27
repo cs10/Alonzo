@@ -66,10 +66,10 @@ var STATE_GRADED = 'graded';
 function calculateSlipDays(sid, callback) {
     var url = cs10.baseURL + 'students/submissions',
         options = {
-        'include[]' : ['assignment', 'submission_comments'],
-        'student_ids[]' : cs10.normalizeSID(sid),
-        'assignment_ids[]' : cs10.slipDayAssignmentIDs
-    };
+            'include[]' : ['assignment', 'submission_comments'],
+            'student_ids[]' : cs10.normalizeSID(sid),
+            'assignment_ids[]' : cs10.slipDayAssignmentIDs
+	};
 
     cs10.get(url, options, function(error, response, body) {
         var days, verified, submitted,
