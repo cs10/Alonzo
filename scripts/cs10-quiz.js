@@ -15,7 +15,10 @@
 
 cs10 = require('./bcourses/');
 
+// Resetting a password can only be done in the TA room
 var TA_ROOM = 'cs10_staff_room_(private)';
+
+var storedResetID;
 function getQuizID(quizNum, password, msg, callback) {
     var url = cs10.baseURL + 'assignment_groups';
     var options = {

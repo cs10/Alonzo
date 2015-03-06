@@ -69,7 +69,7 @@ function calculateSlipDays(sid, callback) {
             'include[]' : ['assignment', 'submission_comments'],
             'student_ids[]' : cs10.normalizeSID(sid),
             'assignment_ids[]' : cs10.slipDayAssignmentIDs
-	};
+    };
 
     cs10.get(url, options, function(error, response, body) {
         var days, verified, submitted,
