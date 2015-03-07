@@ -23,7 +23,7 @@
     "htmlparser": "1.7.6",
     "hubot": "^2.6.0",
     "hubot-google-hangouts": "^0.7.1",
-    "hubot-group-alias": "1.5.2",
+    "hubot-group-alias": "1.5.0",
     "hubot-hipchat": "^2.6.4",
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
