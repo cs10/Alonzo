@@ -20,7 +20,7 @@ var TA_ROOM = 'cs10_staff_room_(private)';
 var RESET_MINS = 30;
 
 var TIMEOUT = 1000 * 60 * RESET_MINS;
-var storedResetID;
+var storedResetID = null;
 
 function getQuizID(quizNum, password, msg, callback) {
     var url = cs10.baseURL + 'assignment_groups';
