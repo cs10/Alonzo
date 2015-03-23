@@ -12,12 +12,15 @@
 //
 // Author:
 //  Peter Sujan
+// Augmented by Michael Ball
+
+var crypto = require('crypto');
 
 cs10 = require('./bcourses/');
 
 // Resetting a password can only be done in the TA room
 var TA_ROOM = 'cs10_staff_room_(private)';
-var RESET_MINS = 30;
+var RESET_MINS = .1;
 
 var TIMEOUT = 1000 * 60 * RESET_MINS;
 var storedResetID = null;
@@ -41,7 +44,7 @@ function getQuizID(quizNum, password, msg, callback) {
     });
 }
 
-setQuizPassword = function(quizID, password, msg) {
+function setQuizPassword(quizID, password, msg) {
     var url = cs10.baseURL + 'quizzes/' + quizID;
     var options = {
         'quiz[access_code]': password
@@ -49,24 +52,56 @@ setQuizPassword = function(quizID, password, msg) {
     cs10.put(url, '', options, function(error, response, body) {
         if (error || !body || body.errors || body.access_code != password) {
             msg.send("There was a problem setting the password.");
+            if (body.access_code) {
+                msg.send('The current password is: ' + body.access_code);
+            }
         } else {
             msg.send("Password for quiz " + msg.match[1] + " updated successfully!");
             msg.send("New password: " + password);
             msg.send("Will update to random password in 30 minutes.");
-            storedResetID = setTimout(function() {
-                
+            storedResetID = setTimeout(function() {
+                var md5 = crypto.createHash('md5');
+                var hash = md5.update(password).digest('hex');
+                autoResetPassword(quizID, hash, msg);
+                storedResetID = null;
             }, TIMEOUT);
         }
     });
 }
 
+
+function autoResetPassword(quizID, password, msg) {
+    var url = cs10.baseURL + 'quizzes/' + quizID;
+    var options = {
+        'quiz[access_code]': password
+    };
+    cs10.put(url, '', options, function(error, response, body) {
+        if (error || !body || body.errors || body.access_code != password) {
+            msg.send("There was a problem resetting the password for quiz " +
+                msg.match[1] + ".");
+            if (body.access_code) {
+                msg.send('The current password is: ' + body.access_code);
+            }
+        } else {
+            msg.send("Automatically reset quiz " + msg.match[1] + " password.");
+            msg.send("New password: " + password);
+        }
+    });
+}
+
+
 processQuizMessage = function(msg) {
-    if (msg.message.room != TA_ROOM) {
+    if (msg.message.room != TA_ROOM || msg.message.room != 'Shell') {
         msg.send('You\'re not allowed to set quiz passwords in this room.');
+        //return;
     }
     msg.send("Attempting to set quiz password.")
     var quizNum = msg.match[1];
     var password = msg.match[2];
+    if (storedResetID !== null) {
+        msg.send('Existing auto-reset was cleared.');
+        clearTimeout(storedResetID);
+    }
     getQuizID(quizNum, password, msg, setQuizPassword);
 }
 
