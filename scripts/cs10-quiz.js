@@ -20,9 +20,10 @@ cs10 = require('./bcourses/');
 
 // Resetting a password can only be done in the TA room
 var TA_ROOM = 'cs10_staff_room_(private)';
-var RESET_MINS = .1;
+var RESET_MINS = 30;
 
 var TIMEOUT = 1000 * 60 * RESET_MINS;
+// Map Quiz ID's to resetIDs.
 var storedResetID = {};
 
 function getQuizID(quizNum, password, msg, call0, call1) {
@@ -56,14 +57,15 @@ function autoResetCallback(quizID, password, msg) {
                 msg.send('The current password is: ' + body.access_code);
             }
         } else {
-            msg.send("Password for quiz " + msg.match[1] + " updated successfully!");
+            var qz = msg.match[1];
+            msg.send("Password for quiz " + qz + " updated successfully!");
             msg.send("New password: " + password);
             msg.send("Will update to random password in 30 minutes.");
-            storedResetID = setTimeout(function() {
+            storedResetID[qz] = setTimeout(function() {
                 var md5 = crypto.createHash('md5');
                 var hash = md5.update(password).digest('hex');
                 setQuizPassword(quizID, hash, msg, simpleResetCallback);
-                storedResetID = null;
+                storedResetID[qz] = null;
             }, TIMEOUT);
         }
     }
@@ -85,16 +87,16 @@ function simpleResetCallback(quizID, password, msg) {
 
 
 processQuizMessage = function(msg) {
-    if (msg.message.room != TA_ROOM || msg.message.room != 'Shell') {
+    if (msg.message.room != TA_ROOM || msg.message.room != 'shell') {
         msg.send('You\'re not allowed to set quiz passwords in this room.');
-        //return;
+        return;
     }
     msg.send("Attempting to set quiz password.")
     var quizNum = msg.match[1];
     var password = msg.match[2];
-    if (storedResetID !== null) {
+    if (storedResetID[quizNum]) {
         msg.send('Existing auto-reset was cleared.');
-        clearTimeout(storedResetID);
+        clearTimeout(storedResetID[quizNum]);
     }
     getQuizID(quizNum, password, msg, setQuizPassword, autoResetCallback);
 }
