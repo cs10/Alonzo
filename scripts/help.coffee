@@ -72,7 +72,7 @@ module.exports = (robot) ->
       cmd = cmd.replace /^hubot/, prefix
       cmd.replace /hubot/ig, robot.name
 
-    emit = cmds.join "\n"
+    emit = cmds.sort().join("\n")
 
     msg.send emit
 
