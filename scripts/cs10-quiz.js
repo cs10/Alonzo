@@ -23,9 +23,9 @@ var TA_ROOM = 'cs10_staff_room_(private)';
 var RESET_MINS = .1;
 
 var TIMEOUT = 1000 * 60 * RESET_MINS;
-var storedResetID = null;
+var storedResetID = {};
 
-function getQuizID(quizNum, password, msg, callback) {
+function getQuizID(quizNum, password, msg, call0, call1) {
     var url = cs10.baseURL + 'assignment_groups';
     var options = { 'include' : 'assignments' };
 
@@ -34,7 +34,7 @@ function getQuizID(quizNum, password, msg, callback) {
             if (group.name == "Reading Quizzes") {
                 group.assignments.forEach(function(assn) {
                     if (assn.name.match(/\d+/)[0] == quizNum) {
-                        callback[0](assn.quiz_id, password, msg, callback[1]);
+                        call0(assn.quiz_id, password, msg, call1);
                     }
                 });
             }
@@ -62,8 +62,7 @@ function autoResetCallback(quizID, password, msg) {
             storedResetID = setTimeout(function() {
                 var md5 = crypto.createHash('md5');
                 var hash = md5.update(password).digest('hex');
-                setQuizPassword(quizID, hash, msg,
-                        simpleResetCallback(quizID, password, msg));
+                setQuizPassword(quizID, hash, msg, simpleResetCallback);
                 storedResetID = null;
             }, TIMEOUT);
         }
@@ -97,7 +96,7 @@ processQuizMessage = function(msg) {
         msg.send('Existing auto-reset was cleared.');
         clearTimeout(storedResetID);
     }
-    getQuizID(quizNum, password, msg, [setQuizPassword, autoResetCallback]);
+    getQuizID(quizNum, password, msg, setQuizPassword, autoResetCallback);
 }
 
 module.exports = function(robot) {
