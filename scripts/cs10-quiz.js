@@ -30,6 +30,7 @@ function getQuizID(quizNum, password, msg, call0, call1) {
     var url = cs10.baseURL + 'assignment_groups';
     var options = { 'include' : 'assignments' };
 
+
     cs10.get(url, options, function(error, response, body) {
         body.forEach(function(group) {
             if (group.name == "Reading Quizzes") {

@@ -28,7 +28,7 @@
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
     "hubot-scripts": "github/hubot-scripts",
-    "node-canvas-lms": "cs10/node-canvas-lms",
+    "node-canvas-lms": "0.0.6",
     "redis": "0.8.4",
     "request": "^2.51.0",
     "soupselect": "0.2.0",
