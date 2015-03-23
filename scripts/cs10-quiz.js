@@ -27,16 +27,14 @@ var storedResetID = null;
 
 function getQuizID(quizNum, password, msg, callback) {
     var url = cs10.baseURL + 'assignment_groups';
-    var options = {
-        'include' : 'assignments'
-    };
+    var options = { 'include' : 'assignments' };
 
     cs10.get(url, options, function(error, response, body) {
         body.forEach(function(group) {
             if (group.name == "Reading Quizzes") {
                 group.assignments.forEach(function(assn) {
                     if (assn.name.match(/\d+/)[0] == quizNum) {
-                        callback(assn.quiz_id, password, msg)
+                        callback[0](assn.quiz_id, password, msg, callback[1]);
                     }
                 });
             }
@@ -44,12 +42,14 @@ function getQuizID(quizNum, password, msg, callback) {
     });
 }
 
-function setQuizPassword(quizID, password, msg) {
+function setQuizPassword(quizID, password, msg, callback) {
     var url = cs10.baseURL + 'quizzes/' + quizID;
-    var options = {
-        'quiz[access_code]': password
-    };
-    cs10.put(url, '', options, function(error, response, body) {
+    var options = { 'quiz[access_code]': password };
+    cs10.put(url, '', options, callback(quizID, password, msg));
+}
+
+function autoResetCallback(quizID, password, msg) {
+    return function(error, response, body) {
         if (error || !body || body.errors || body.access_code != password) {
             msg.send("There was a problem setting the password.");
             if (body.access_code) {
@@ -62,20 +62,16 @@ function setQuizPassword(quizID, password, msg) {
             storedResetID = setTimeout(function() {
                 var md5 = crypto.createHash('md5');
                 var hash = md5.update(password).digest('hex');
-                autoResetPassword(quizID, hash, msg);
+                setQuizPassword(quizID, hash, msg,
+                        simpleResetCallback(quizID, password, msg));
                 storedResetID = null;
             }, TIMEOUT);
         }
-    });
+    }
 }
 
-
-function autoResetPassword(quizID, password, msg) {
-    var url = cs10.baseURL + 'quizzes/' + quizID;
-    var options = {
-        'quiz[access_code]': password
-    };
-    cs10.put(url, '', options, function(error, response, body) {
+function simpleResetCallback(quizID, password, msg) {
+    return function(error, response, body) {
         if (error || !body || body.errors || body.access_code != password) {
             msg.send("There was a problem resetting the password for quiz " +
                 msg.match[1] + ".");
@@ -84,9 +80,8 @@ function autoResetPassword(quizID, password, msg) {
             }
         } else {
             msg.send("Automatically reset quiz " + msg.match[1] + " password.");
-            msg.send("New password: " + password);
         }
-    });
+    };
 }
 
 
@@ -102,7 +97,7 @@ processQuizMessage = function(msg) {
         msg.send('Existing auto-reset was cleared.');
         clearTimeout(storedResetID);
     }
-    getQuizID(quizNum, password, msg, setQuizPassword);
+    getQuizID(quizNum, password, msg, [setQuizPassword, autoResetCallback]);
 }
 
 module.exports = function(robot) {
