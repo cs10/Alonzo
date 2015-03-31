@@ -60,8 +60,6 @@ cs10.slipDayAssignmentIDs = [
     5919083, // Homework 1
     5919084, // Homework 2
     5919085, // Homework 3
-    6120151, // MT Individual Midpoint
-    6120100, // MT Collaborative Midpoint
     5919087, // Midterm Project
     5919089, // Explore Post Content
     5919103, // Explore Post Artifact and Comments
