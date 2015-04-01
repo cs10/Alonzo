@@ -88,7 +88,7 @@ function simpleResetCallback(quizID, password, msg) {
 
 
 processQuizMessage = function(msg) {
-    if (msg.message.room != TA_ROOM || msg.message.room != 'shell') {
+    if (msg.message.room != TA_ROOM && msg.message.room != 'Shell') {
         msg.send('You\'re not allowed to set quiz passwords in this room.');
         return;
     }
