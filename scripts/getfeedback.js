@@ -25,6 +25,10 @@ var https = require('https'),
 var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY;
 var GH_KEY = process.env.HUBOT_GITHUB_TOKEN;
 
+
+var GH_BJC_ORG = 'beautyjoy';
+var GH_EDC_ORG = 'bjc-edc';
+var GH_ORG = GH_BJC_ORG;
 module.exports = function(robot) {
     if (!GF_KEY) {
         robot.logger.warning("Configuration HUBOT_GETFEEDBACK_KEY is not defined.");
@@ -40,10 +44,11 @@ module.exports = function(robot) {
     robot.respond( /update feedback/i, function(msg) {
 
         msg.send('Updating Feedback');
-        msg.send('https://github.com/beautyjoy/bjc-r/labels/GetFeedback');
         // survey ID, page number, time, msg
         getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg, function(num) {
-            msg.send(num + ' issues posted.');
+            msg.send('https://github.com/' + GH_ORG + '/bjc-r/labels/GetFeedback');
+
+            msg.send('Total:' + num + ' issues posted.');
             return;
         });
         // msg.send('Finished!');
@@ -97,6 +102,7 @@ var getResults = function(sid, page, time, msg, callback) {
         console.log('GetFeedback Request Error');
         console.error(e);
         msg.send('Oh Dear! An error has occurred. I am most sorry.');
+        msg.send(e);
     });
 
     req.end();
@@ -121,7 +127,13 @@ var processResponse = function(gfData, dateStr, msg, callback) {
     responses.forEach(function(response) {
         data = createGitHubIssue(response);
         // TODO -- logging of errors needed!!
-        github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {});
+        // FIXME -- use
+        if (data.body.toLowerCase().indexOf('edc')) {
+            GH_ORG = GH_EDC_ORG;
+        } else {
+            GH_ORG = GH_BJC_ORG;
+        }
+        github.post('/repos/' + GH_ORG + '/bjc-r/issues', data, function(issue) {});
         return;
     });
     var s = responses.length === 1 ? '' : 's';
