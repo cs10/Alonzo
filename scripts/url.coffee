@@ -16,7 +16,6 @@
 
 module.exports = (robot) ->
   robot.respond /URL encode( me)? (.*)/i, (msg) ->
-    console.log msg.match
     msg.send encodeURIComponent(msg.match[2])
 
   robot.respond /URL decode( me)? (.*)/i, (msg) ->
