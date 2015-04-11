@@ -51,7 +51,6 @@ module.exports = function(robot) {
             msg.send('Total:' + num + ' issues posted.');
             return;
         });
-        // msg.send('Finished!');
         // Update the time for the next call
         SURVEY_TIME = (new Date()).toISOString();
         robot.brain.set('SURVEY_TIME', SURVEY_TIME);
@@ -144,21 +143,18 @@ var processResponse = function(gfData, dateStr, msg, callback) {
 
 /** Check the submission to see if it should be posted to github
  * Returns true IFF
- * Rating: <= 3 (of 5)
  * Feedback: Exists and is > 10 characters
  */
 var isGitHubWorthy = function(gfItem) {
     // Iterate over answers -- check type and content
-    var ratingMatches, contentMatches,
-        answers = responseAnswers(gfItem);
+    var answers, contentMatches;
+    answers = responseAnswers(gfItem);
     answers.forEach(function(ans) {
         if (answerType(ans) === 'ShortAnswer') {
             contentMatches = ans['text'].length >= 10;
-        } else if (answerType(ans) === 'Rating') {
-            ratingMatches = ans['number'] <= 3;
         }
     });
-    return ratingMatches & contentMatches;
+    return contentMatches;
 };
 
 /** Check the rating on "Scale" questions and make sure it's lower than 3
@@ -198,7 +194,7 @@ var answerRating = function(gfSubmission) {
 var createGitHubIssue = function(gfSubmission) {
     return {
         title: createIssueTitle(gfSubmission),
-        assignee: 'cycomachead', // FIXME -- for now
+        assignee: 'cycomachead',
         body: createIssueBody(gfSubmission),
         labels: createIssueLabels(gfSubmission)
     };
