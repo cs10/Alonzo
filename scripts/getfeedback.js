@@ -206,7 +206,19 @@ var createIssueLabels = function(gfSubmission, ghOrg) {
         topic  = responseTopic(gfSubmission), // topic file path.
         rating = answerRating(gfSubmission);
         labels.push('Rating - ' + rating);
+    
+    var newLabels = [];
+    if (ghOrg == GH_BJC_ORG) {
+        newLabels = bjcLabels(topic);
+    } else if (ghOrg == GH_EDC_ORG) {
+        newLabels = edcLabels(topic);
+    }
+    
+    return labels.concat(newLabels);
+};
 
+var bjcLabels = function(topic) {
+    var labels = [];
     // FIXME -- YAY for shitty list of conditionals.
     // captures recur and recursion sub dirs.
     if (topic.indexOf('recur') !== -1) {
@@ -222,7 +234,15 @@ var createIssueLabels = function(gfSubmission, ghOrg) {
         labels.push('Lab - Lists');
     }
     return labels;
-};
+}
+
+// EDC Labels are based on U1..U6
+// topic files are all named nyc_bjc/#-xxxxx.topic
+var edcLavels = function(topic) {
+    var labels = [];
+    labels.push('U' + topic[8]);
+    return labels;
+}
 
 var responsePage = function(gfSubmission) {
     return gfSubmission['merge_map']['page'];
