@@ -124,15 +124,14 @@ var processResponse = function(gfData, dateStr, msg, callback) {
         return;
     }
     responses.forEach(function(response) {
-        data = createGitHubIssue(response);
-        // TODO -- logging of errors needed!!
-        // FIXME -- use
-        if (data.body.toLowerCase().indexOf('edc')) {
-            GH_ORG = GH_EDC_ORG;
-        } else {
-            GH_ORG = GH_BJC_ORG;
-        }
-        github.post('/repos/' + GH_ORG + '/bjc-r/issues', data, function(issue) {});
+        var isEDC = responseURL(response).match(/edc/i);
+        GH_ORG = isEDC ? GH_EDC_ORG : GH_BJC_ORG;
+        
+        data = createGitHubIssue(response, GH_ORG);
+
+        github.post('/repos/' + GH_ORG + '/bjc-r/issues', data, function(issue) {
+            
+        });
         return;
     });
     var s = responses.length === 1 ? '' : 's';
@@ -191,23 +190,22 @@ var answerRating = function(gfSubmission) {
 /***********************************************************************/
 
 // Create the JSON map to use as the POST data
-var createGitHubIssue = function(gfSubmission) {
+var createGitHubIssue = function(gfSubmission, ghOrg) {
     return {
         title: createIssueTitle(gfSubmission),
         assignee: 'cycomachead',
         body: createIssueBody(gfSubmission),
-        labels: createIssueLabels(gfSubmission)
+        labels: createIssueLabels(gfSubmission, ghOrg)
     };
 };
 
 /** Create a list of tags to use on GitHub */
-var createIssueLabels = function(gfSubmission) {
+var createIssueLabels = function(gfSubmission, ghOrg) {
     // Currently a static list but we can eventually improve this!
     var labels = ['GetFeedback', 'Needs Review'],
-        topic  = responseTopic(gfSubmission),
+        topic  = responseTopic(gfSubmission), // topic file path.
         rating = answerRating(gfSubmission);
-    // add a rating label (the bjc-r scheme)
-    labels.push('Rating - ' + rating);
+        labels.push('Rating - ' + rating);
 
     // FIXME -- YAY for shitty list of conditionals.
     // captures recur and recursion sub dirs.
@@ -215,7 +213,7 @@ var createIssueLabels = function(gfSubmission) {
         labels.push('Lab - Recursion');
     }
     if (topic.indexOf('intro') !== -1) {
-        // TODO
+        labels.push('Lab - 1 Welcome');
     }
     if (topic.indexOf('python') !== -1) {
         labels.push('Lab - Besides Blocks');
