@@ -30,6 +30,7 @@ var GH_BJC_ORG = 'beautyjoy';
 var GH_EDC_ORG = 'bjc-edc';
 var GH_ORG = GH_BJC_ORG;
 module.exports = function(robot) {
+        
     if (!GF_KEY) {
         robot.logger.warning("Configuration HUBOT_GETFEEDBACK_KEY is not defined.");
         // exit because we can't get any surveys
@@ -46,9 +47,7 @@ module.exports = function(robot) {
         msg.send('Updating Feedback');
         // survey ID, page number, time, msg
         getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg, function(num) {
-            msg.send('https://github.com/' + GH_ORG + '/bjc-r/labels/GetFeedback');
-
-            msg.send('Total:' + num + ' issues posted.');
+            msg.send('Total: ' + num + ' issues posted.');
             return;
         });
         // Update the time for the next call
@@ -130,7 +129,13 @@ var processResponse = function(gfData, dateStr, msg, callback) {
         data = createGitHubIssue(response, GH_ORG);
 
         github.post('/repos/' + GH_ORG + '/bjc-r/issues', data, function(issue) {
-            
+            if (typeof issue == 'String') {
+                console.log('is string...');
+                issue = JSON.parse(issue);
+            }
+            if (issue.html_url) {
+                msg.send('Posted: ' + issue.html_url);
+            }
         });
         return;
     });
@@ -238,7 +243,7 @@ var bjcLabels = function(topic) {
 
 // EDC Labels are based on U1..U6
 // topic files are all named nyc_bjc/#-xxxxx.topic
-var edcLavels = function(topic) {
+var edcLabels = function(topic) {
     var labels = [];
     labels.push('U' + topic[8]);
     return labels;
