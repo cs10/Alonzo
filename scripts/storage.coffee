@@ -34,9 +34,9 @@ module.exports = (robot) ->
     else if item.indexOf('_private.') != -1
       item = item.slice('_private.'.length) # trim the item strig to find.
       output = Util.inspect data._private[item], false, 4
-      if item == 'LA_DATA' || item == 'SID_CACHE'
-        msg.send 'This item is too large to show in a chatroom...'
-        return
+      msg.send 'You will get a private message with your answer!'
+      robot.send user: msg.message.user.id, output
+      return
     else
       output = Util.inspect data[item], false, 4
     msg.send output
