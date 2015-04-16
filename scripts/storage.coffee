@@ -35,6 +35,7 @@ module.exports = (robot) ->
       item = item.slice('_private.'.length) # trim the item strig to find.
       output = Util.inspect data._private[item], false, 4
       msg.send 'You will get a private message with your answer!'
+      # Note - send if supposed to take a user ID, but this doesn't work?
       robot.send user: msg.message.user.id, output
       return
     else
