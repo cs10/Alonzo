@@ -21,6 +21,7 @@
     "githubot": "^1.0.0-beta2",
     "htmlparser": "1.7.6",
     "hubot": "^2.6.0",
+    "hubot-auth": "^1.2.0",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "cycomachead/hubot-group-alias",
     "hubot-hipchat": "cycomachead/hubot-hipchat",
