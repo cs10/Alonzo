@@ -22,6 +22,7 @@
     "handlebars": "1.0.5beta",
     "htmlparser": "1.7.6",
     "hubot": "^2.6.0",
+    "hubot-auth": "^1.2.0",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "cycomachead/hubot-group-alias",
     "hubot-hipchat": "^2.6.4",

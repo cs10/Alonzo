@@ -1,6 +1,7 @@
 [
-"hubot-group-alias",
-"hubot-google-hangouts",
-"hubot-pusheen",
-"hubot-plusplus"
+    "hubot-auth",
+    "hubot-group-alias",
+    "hubot-google-hangouts",
+    "hubot-pusheen",
+    "hubot-plusplus"
 ]
