@@ -16,6 +16,7 @@
     "url": "https://github.com/cs10/alonzo.git"
   },
   "dependencies": {
+    "bcrypt": "^0.8.2",
     "cheerio": "0.7.0",
     "cleverbot-node": "^0.1.8",
     "githubot": "^1.0.0-beta2",

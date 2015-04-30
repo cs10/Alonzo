@@ -27,9 +27,9 @@ module.exports = function(robot) {
     });
 
     robot.router.get('/slipdays/:sid', function(req, res) {
-        // Damn you CORS....
         res.type('text/json');
         res.setHeader('Content-Type', 'text/json');
+        // Damn you CORS....
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Credentials', true);
         res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
