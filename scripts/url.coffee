@@ -15,16 +15,16 @@
 #   jimeh
 
 module.exports = (robot) ->
-  robot.respond /URL encode( me)? (.*)/gi, (msg) ->
+  robot.respond /URL encode( me)? (.*)/i, (msg) ->
     msg.send encodeURIComponent(msg.match[2])
 
-  robot.respond /URL decode( me)? (.*)/gi, (msg) ->
+  robot.respond /URL decode( me)? (.*)/i, (msg) ->
     msg.send decodeURIComponent(msg.match[2])
 
-  robot.respond /URL form encode( me)? (.*)/gi, (msg) ->
+  robot.respond /URL form encode( me)? (.*)/i, (msg) ->
     msg.send urlFormEncode(msg.match[2])
 
-  robot.respond /URL form decode( me)? (.*)/gi, (msg) ->
+  robot.respond /URL form decode( me)? (.*)/i, (msg) ->
     msg.send urlFormDecode(msg.match[2])
 
 # url form-data encoding helpers (partially ripped from jshashes npm package)

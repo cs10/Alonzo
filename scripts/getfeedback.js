@@ -25,7 +25,12 @@ var https = require('https'),
 var GF_KEY = process.env.HUBOT_GETFEEDBACK_KEY;
 var GH_KEY = process.env.HUBOT_GITHUB_TOKEN;
 
+
+var GH_BJC_ORG = 'beautyjoy';
+var GH_EDC_ORG = 'bjc-edc';
+var GH_ORG = GH_BJC_ORG;
 module.exports = function(robot) {
+        
     if (!GF_KEY) {
         robot.logger.warning("Configuration HUBOT_GETFEEDBACK_KEY is not defined.");
         // exit because we can't get any surveys
@@ -40,13 +45,11 @@ module.exports = function(robot) {
     robot.respond( /update feedback/i, function(msg) {
 
         msg.send('Updating Feedback');
-        msg.send('https://github.com/beautyjoy/bjc-r/labels/GetFeedback');
         // survey ID, page number, time, msg
         getResults(36448, 1, robot.brain.get('SURVEY_TIME'), msg, function(num) {
-            msg.send(num + ' issues posted.');
+            msg.send('Total: ' + num + ' issues posted.');
             return;
         });
-        // msg.send('Finished!');
         // Update the time for the next call
         SURVEY_TIME = (new Date()).toISOString();
         robot.brain.set('SURVEY_TIME', SURVEY_TIME);
@@ -97,6 +100,7 @@ var getResults = function(sid, page, time, msg, callback) {
         console.log('GetFeedback Request Error');
         console.error(e);
         msg.send('Oh Dear! An error has occurred. I am most sorry.');
+        msg.send(e);
     });
 
     req.end();
@@ -119,9 +123,20 @@ var processResponse = function(gfData, dateStr, msg, callback) {
         return;
     }
     responses.forEach(function(response) {
-        data = createGitHubIssue(response);
-        // TODO -- logging of errors needed!!
-        github.post('/repos/beautyjoy/bjc-r/issues', data, function(issue) {});
+        var isEDC = responseURL(response).match(/edc/i);
+        GH_ORG = isEDC ? GH_EDC_ORG : GH_BJC_ORG;
+        
+        data = createGitHubIssue(response, GH_ORG);
+
+        github.post('/repos/' + GH_ORG + '/bjc-r/issues', data, function(issue) {
+            if (typeof issue == 'String') {
+                console.log('is string...');
+                issue = JSON.parse(issue);
+            }
+            if (issue.html_url) {
+                msg.send('Posted: ' + issue.html_url);
+            }
+        });
         return;
     });
     var s = responses.length === 1 ? '' : 's';
@@ -132,21 +147,18 @@ var processResponse = function(gfData, dateStr, msg, callback) {
 
 /** Check the submission to see if it should be posted to github
  * Returns true IFF
- * Rating: <= 3 (of 5)
  * Feedback: Exists and is > 10 characters
  */
 var isGitHubWorthy = function(gfItem) {
     // Iterate over answers -- check type and content
-    var ratingMatches, contentMatches,
-        answers = responseAnswers(gfItem);
+    var answers, contentMatches;
+    answers = responseAnswers(gfItem);
     answers.forEach(function(ans) {
         if (answerType(ans) === 'ShortAnswer') {
             contentMatches = ans['text'].length >= 10;
-        } else if (answerType(ans) === 'Rating') {
-            ratingMatches = ans['number'] <= 3;
         }
     });
-    return ratingMatches & contentMatches;
+    return contentMatches;
 };
 
 /** Check the rating on "Scale" questions and make sure it's lower than 3
@@ -183,31 +195,42 @@ var answerRating = function(gfSubmission) {
 /***********************************************************************/
 
 // Create the JSON map to use as the POST data
-var createGitHubIssue = function(gfSubmission) {
+var createGitHubIssue = function(gfSubmission, ghOrg) {
     return {
         title: createIssueTitle(gfSubmission),
-        assignee: 'cycomachead', // FIXME -- for now
+        assignee: 'cycomachead',
         body: createIssueBody(gfSubmission),
-        labels: createIssueLabels(gfSubmission)
+        labels: createIssueLabels(gfSubmission, ghOrg)
     };
 };
 
 /** Create a list of tags to use on GitHub */
-var createIssueLabels = function(gfSubmission) {
+var createIssueLabels = function(gfSubmission, ghOrg) {
     // Currently a static list but we can eventually improve this!
     var labels = ['GetFeedback', 'Needs Review'],
-        topic  = responseTopic(gfSubmission),
+        topic  = responseTopic(gfSubmission), // topic file path.
         rating = answerRating(gfSubmission);
-    // add a rating label (the bjc-r scheme)
-    labels.push('Rating - ' + rating);
+        labels.push('Rating - ' + rating);
+    
+    var newLabels = [];
+    if (ghOrg == GH_BJC_ORG) {
+        newLabels = bjcLabels(topic);
+    } else if (ghOrg == GH_EDC_ORG) {
+        newLabels = edcLabels(topic);
+    }
+    
+    return labels.concat(newLabels);
+};
 
+var bjcLabels = function(topic) {
+    var labels = [];
     // FIXME -- YAY for shitty list of conditionals.
     // captures recur and recursion sub dirs.
     if (topic.indexOf('recur') !== -1) {
         labels.push('Lab - Recursion');
     }
     if (topic.indexOf('intro') !== -1) {
-        // TODO
+        labels.push('Lab - 1 Welcome');
     }
     if (topic.indexOf('python') !== -1) {
         labels.push('Lab - Besides Blocks');
@@ -216,7 +239,15 @@ var createIssueLabels = function(gfSubmission) {
         labels.push('Lab - Lists');
     }
     return labels;
-};
+}
+
+// EDC Labels are based on U1..U6
+// topic files are all named nyc_bjc/#-xxxxx.topic
+var edcLabels = function(topic) {
+    var labels = [];
+    labels.push('U' + topic[8]);
+    return labels;
+}
 
 var responsePage = function(gfSubmission) {
     return gfSubmission['merge_map']['page'];

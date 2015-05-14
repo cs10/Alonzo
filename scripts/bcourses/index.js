@@ -57,16 +57,13 @@ cs10.labCheckOffLatePts = 1;
 // They need to be updated every semester.
 // Use the bCourses API courses/X/assignments to get these IDs or the page URLs
 cs10.slipDayAssignmentIDs = [
-    5919083, // "Homework 1"
-    5919084, // "Homework 2"
-    5919085, // "Homework 3"
-    5919137, // "Midterm Project Individual Reflection"
-    5919087, // "Midterm Project"
-    5919089, // "Impact Post Link"
-    5919103, // "Impact Post Comments Links"
-    5919088, // "Final Project"
-    5919092, // "Data Project - Collaborative Report"
-    5919105  // "Data Project - Individual Report / Individual Reflection"
+    5919083, // Homework 1
+    5919084, // Homework 2
+    5919085, // Homework 3
+    5919087, // Midterm Project
+    5919089, // Explore Post Content
+    5919103, // Explore Post Artifact and Comments
+    5919088, // Final Project
 ];
 
 // Note that these need to be internal canvas IDs as integers!

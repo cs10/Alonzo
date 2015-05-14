@@ -16,18 +16,20 @@
     "url": "https://github.com/cs10/alonzo.git"
   },
   "dependencies": {
+    "bcrypt": "^0.8.2",
     "cheerio": "0.7.0",
     "cleverbot-node": "^0.1.8",
     "githubot": "^1.0.0-beta2",
     "htmlparser": "1.7.6",
     "hubot": "^2.6.0",
+    "hubot-auth": "^1.2.0",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "cycomachead/hubot-group-alias",
-    "hubot-hipchat": "cycomachead/hubot-hipchat",
+    "hubot-hipchat": "^2.12.0",
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
     "hubot-scripts": "github/hubot-scripts",
-    "node-canvas-lms": "cs10/node-canvas-lms",
+    "node-canvas-lms": "0.0.6",
     "redis": "0.8.4",
     "request": "^2.51.0",
     "soupselect": "0.2.0",
@@ -38,6 +40,6 @@
   },
   "engines": {
     "iojs": "1.x.x",
-    "npm": "2.5.1"
+    "npm": "2.8.x"
   }
 }
