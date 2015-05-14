@@ -46,15 +46,15 @@
             <div class="panel-body">
                 <form class="form-horizontal">
                   <div class="form-group has-feedback">
-                    <label class="control-label col-sm-3" for="inputSuccess3">Cloud Username</label>
+                    <label class="control-label col-sm-3" for="cloud-user-name">Cloud Username</label>
                     <div class="col-sm-9">
-                      <input type="text" class="form-control" id="inputSuccess3" aria-describedby="inputSuccess3Status">
+                      <input type="text" class="form-control" id="cloud-user-name" aria-describedby="inputSuccess3Status">
                     </div>
                   </div>
                   <div class="form-group has-feedback">
-                    <label class="control-label col-sm-3" for="inputGroupSuccess2">Project Name</label>
+                    <label class="control-label col-sm-3" for="cloud-proj-name">Project Name</label>
                     <div class="col-sm-9">
-                      <input type="text" class="form-control" id="inputGroupSuccess2" aria-describedby="inputGroupSuccess2Status">
+                      <input type="text" class="form-control" id="cloud-proj-name" aria-describedby="inputGroupSuccess2Status">
                     </div>
                   </div>
                 </form>
@@ -64,6 +64,40 @@
         </div>
       </div>
     </div>
+    <script type="text/javascript">
+    var buildTable = function(result, xhr, other) {
+        console.log(result);
+        console.log(xhr);
+        console.log(other);
+    };
+
+    var projectAPICall = function(uname, pname) {
+      // relative to chatbot host: https://alonzo.herokuapp.com
+      var api = '/download-project';
+
+      var user = encodeURIComponent(user);
+      var proj = encodeURIComponent(proj);
+
+      var url = api + 'Username=' + uname + '&ProjectName=' + pname;;
+      $.ajax({
+        url: url,
+        cache: true,
+        crossDomain: true,
+        success: downloadProject,
+        error: function(a, b, c) { // TODO: Better error handling..
+          var table = $('#table-contents');
+          table.append($('<tr>').html($('<td>').html('Whoops, an error occured! Sorry!')));
+        }
+      });
+    }
+
+    function getProj() {
+      projectAPICall($('#cloud-user-name').val(),
+                       $('#cloud-proj-name').val());
+    }
+
+    $(document).ready(function() {});
+    </script>
   </body>
 
 
