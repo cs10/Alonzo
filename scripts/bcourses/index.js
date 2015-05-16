@@ -129,8 +129,8 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
             notify(body.errors || 'No error message...');
             return;
         }
-        notify('Success?!');
-    })
+        notify('bCourses Progress:\n\t', assnID, body.message, body.url);
+    });
 }
 
 // Note that all variable which you want to share with other scripts must be

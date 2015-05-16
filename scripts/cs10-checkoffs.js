@@ -67,13 +67,15 @@ module.exports = function(robot) {
     });
 
     // submit LA scores
-    robot.respond(/post la scores/i, function(msg) {
+    robot.respond(/post la scores( for \d+)?/i, function(msg) {
         if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
             return;
         }
+        var labs = msg.match[1] ? msg.match[1] : 'all';
+
         var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
         sendLAStats(laScores, msg);
-        postGrades(laScores, msg);
+        postGrades(laScores, labs, msg);
     });
 };
 
@@ -311,11 +313,13 @@ function sendLAStats(ladata, msg) {
 }
 
 // Bulk upload grades to bCourses
-function postGrades(ladata, msg) {
+function postGrades(ladata, labNo,msg) {
     var grades = ladata.safe;
     for (lab in grades) {
-        var assnID = getAssignmentID(lab, robot.brain.get(LAB_CACHE_KEY));
-        cs10.postMultipleGrades(assnID, grades[lab], msg);
+        if (labNo === 'all' || labNo === lab) {
+            var assnID = getAssignmentID(lab, robot.brain.get(LAB_CACHE_KEY));
+            cs10.postMultipleGrades(assnID, grades[lab], msg);
+        }
     }
 }
 

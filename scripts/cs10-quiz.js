@@ -12,7 +12,7 @@
 //
 // Author:
 //  Peter Sujan
-// Augmented by Michael Ball
+//  Augmented by Michael Ball
 
 var crypto = require('crypto');
 
