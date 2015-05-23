@@ -414,10 +414,38 @@ function isSketchy(co, assingments) {
     // FIXME -- this assumes the cache is valid.
     var assignments = robot.brain.get(LAB_CACHE_KEY),
         dueDate = findLabByNum(co.lab, assignments.labs).due_at;
-    dueDate = new Date(dueDate);
+        dueDate = new Date(dueDate);
 
     if (!co.late && date - dueDate > oneWeek) {
         results.push('This checkoff is past due!');
     }
     return results;
 }
+
+/* 
+A way of building a function and an a corresponding error message.
+If check passes → error is shown
+Each function takes in a checkoff object, and the bCourses assignment.
+{ }
+bCourses:
+*/
+
+var sketchyTests = {
+    isDuringDayTime: {
+        test: function(co, assn) {},
+        message: ''
+    },
+    isDuringWeek: {
+        test: function(co, assn) {},
+        message: ''
+    },
+    isOnTime: {
+        test: function(co, assn) {},
+        message: ''
+    },
+    hasValidSIDs: {
+        test: function(co, assn) {},
+        message: ''
+    }
+};
+
