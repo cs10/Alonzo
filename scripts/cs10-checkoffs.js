@@ -330,6 +330,7 @@ function postGrades(ladata, labNo,msg) {
     }
 }
 
+
 // This takes in a processed labs object from review LA data.
 function getSIDCount(labs) {
     var ontime = 0;
