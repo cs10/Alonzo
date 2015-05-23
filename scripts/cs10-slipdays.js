@@ -28,16 +28,41 @@ module.exports = function(robot) {
 
     robot.router.get('/slipdays/:sid', function(req, res) {
         res.type('text/json');
-        res.setHeader('Content-Type', 'text/json');
+
         // Damn you CORS....
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Credentials', true);
         res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
         res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
-        calculateSlipDays(req.params.sid, function(data) {
-            res.end(JSON.stringify(data));
-        });
+        res.writeHead(200, {'Content-Type': 'application/json'});
+
+        // var resultData = {};
+        var sid = req.params.sid;
+        if (sid.indexOf(',') !== -1) {
+            var sids = sid.split(',');
+            var total = sids.length;
+            var soFar = 0;
+            var first = true;
+            sids.forEach(function(sid) {
+                setTimeout(calculateSlipDays(sid, function(data) {
+                    // Complex way to stream results.
+                    // Because performance. Bitch.
+                    res.write(first ? (first = false, '[') : ',');
+                    var result = {};
+                    result[sid] = data;
+                    res.write(JSON.stringify(result));
+                    soFar += 1;
+                    if (soFar === total) {
+                        res.end(']');
+                    }
+                }), 200);
+            })
+        } else {
+            calculateSlipDays(sid, function(data) {
+                res.end(JSON.stringify(data));
+            });
+        }
     });
 
 };
@@ -81,12 +106,19 @@ function calculateSlipDays(sid, callback) {
                 errors: null
             };
 
-        if (!body || body.errors) {
+        var status = response.statusCode
+        if (!body || body.errors || status !== 200) {
             results.errors = [];
             results.errors.push('Oh, Snap! Something went wrong. :(');
-            body.errors.forEach(function(err) {
-                results.errors.push(err.message);
-            });
+            if (body.errors) {
+                body.errors.forEach(function(err) {
+                    results.errors.push(err.message);
+                });
+            }
+            if (status !== 200) {
+                results.errors.push('bCourses Error Code: ' + status);
+                results.errors.push(body)
+            }
             callback(results);
             return;
         }

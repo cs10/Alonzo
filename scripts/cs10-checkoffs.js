@@ -32,8 +32,14 @@ var LA_ROOM = 'lab_assistant_check-offs';
 var TA_ROOM = 'lab_check-off_room';
 
 // Keys for data that key stored in robot.brain
+// TODO: Refactor data storage
+// TA_LAB_DATA
+// LA_SAFE_LAB_DATA
+// LA_SKETCHY_LAB_DATA
 var LA_DATA_KEY    = 'LA_DATA';
 var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
+
+//
 
 // Global-ish stuff for successful lab checkoff submissions.
 var successes;
@@ -67,7 +73,8 @@ module.exports = function(robot) {
     });
 
     // submit LA scores
-    robot.respond(/post la scores( for \d+)?/i, function(msg) {
+    robot.respond(/post la scores(?: for (\d+).*)?/i, function(msg) {
+        console.log(msg.match);
         if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
             return;
         }
@@ -340,6 +347,7 @@ function getSIDCount(labs) {
     There is one object for safe check-offs and one for sketchy checkoffs
 **/
 function reviewLAData(data) {
+    console.log(data);
     var safe = {};
     var sketchy = { labs: {}, msgs: [] };
 
@@ -358,8 +366,11 @@ function reviewLAData(data) {
         var obj = safe[lab];
 
         if (sketch) {
+            console.log('SKETCHY');
+            console.log(sketchy);
+            // TODO: wat
             obj = sketchy.labs[lab];
-            sketchy.msgs.append(checkoff);
+            sketchy.msgs.push(obj);
         }
 
         checkoff.sid.forEach(function(sid) {
