@@ -362,16 +362,16 @@ function reviewLAData(data) {
 
         if (!safe[lab] && !sketch) { safe[lab] = {}; }
 
-        if (!sketchy.labs[lab] && sketch) { sketchy[lab] = {}; }
+        if (!sketchy.labs[lab] && sketch) { sketchy.labs[lab] = {}; }
 
+        // object has the location to save the data to,
         var obj = safe[lab];
-
         if (sketch) {
             console.log('SKETCHY');
-            console.log(sketchy);
-            // TODO: wat
+            // Set our save location to the sketchy data
             obj = sketchy.labs[lab];
-            sketchy.msgs.push(obj);
+            console.log(obj);
+            sketchy.msgs.push(checkoff);
         }
 
         checkoff.sid.forEach(function(sid) {
@@ -393,6 +393,7 @@ function reviewLAData(data) {
     Or: Checked off during non-lab hours
     If a checkoff is sketchy, return an arry of warnings about why.
 **/
+// TODO: refactor all conditionals to be a single function.
 function isSketchy(co, assingments) {
     var results = [],
         date = new Date(co.time),
@@ -407,7 +408,7 @@ function isSketchy(co, assingments) {
     }
     // FIXME -- is late friday a saturday in UTC??
     if (day == 0 || day == 6) {
-        result.push('Check offs should happen during the week!');
+        results .push('Check offs should happen during the week!');
     }
 
     // FIXME -- this assumes the cache is valid.
