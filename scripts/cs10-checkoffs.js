@@ -17,6 +17,7 @@
 
 // This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses/');
+var moment = require('moment');
 
 // CONSTANTS
 var CACHE_HOURS = 12;
@@ -356,9 +357,7 @@ function reviewLAData(data) {
         var lab = checkoff.lab,
             sketch = isSketchy(checkoff);
 
-        // LEGACY before I placed a check on lab number this can be deleted
-        // once all the existing saved check offs are uploaded and cleared.
-        if (parseInt(lab) > 20 || parseInt(lab) < 2) { return; }
+        console.log(sketch);
 
         if (!safe[lab] && !sketch) { safe[lab] = {}; }
 
@@ -370,7 +369,6 @@ function reviewLAData(data) {
             console.log('SKETCHY');
             // Set our save location to the sketchy data
             obj = sketchy.labs[lab];
-            console.log(obj);
             sketchy.msgs.push(checkoff);
         }
 
@@ -396,7 +394,7 @@ function reviewLAData(data) {
 // TODO: refactor all conditionals to be a single function.
 function isSketchy(co, assingments) {
     var results = [],
-        date = new Date(co.time),
+        date = moment(co.time),
         day  = date.getUTCDay(),
         hour = date.getUTCHours(),
         oneWeek = 1000 * 60 * 60 * 24 * 7;
@@ -422,7 +420,7 @@ function isSketchy(co, assingments) {
     return results;
 }
 
-/* 
+/*
 A way of building a function and an a corresponding error message.
 If check passes → error is shown
 Each function takes in a checkoff object, and the bCourses assignment.
