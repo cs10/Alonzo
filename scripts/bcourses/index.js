@@ -4,6 +4,7 @@ var authToken = process.env.HUBOT_CANVAS_KEY;
 
 var bCoursesURL = 'https://bcourses.berkeley.edu';
 
+
 var cs10 = new Canvas(bCoursesURL, { token: authToken });
 
 /** COURSE AND ASSIGNMENT IDS

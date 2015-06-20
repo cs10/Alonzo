@@ -114,7 +114,7 @@ memeGenerator = (msg, imageName, text1, text2, callback) ->
       msg.http(res.headers.location).get() processResult
       return
     if res.statusCode > 300
-      msg.reply "Sorry, I couldn't generate that meme. Unexpected status from memecaption.com: #{res.statusCode}"
+      msg.reply "Sorry, I couldn't generate that meme. Unexpected status from memecaptian.com: #{res.statusCode}"
       return
     try
       result = JSON.parse(body)
