@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Download a Snap! Project</title>
     <meta name="robots" content="noindex,follow">
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
     <!-- Latest compiled and minified JavaScript -->
     <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
@@ -65,12 +66,6 @@
       </div>
     </div>
     <script type="text/javascript">
-    var buildTable = function(result, xhr, other) {
-        console.log(result);
-        console.log(xhr);
-        console.log(other);
-    };
-
     var projectAPICall = function(uname, pname) {
       // relative to chatbot host: https://alonzo.herokuapp.com
       var api = '/download-project';
@@ -78,17 +73,14 @@
       var user = encodeURIComponent(user);
       var proj = encodeURIComponent(proj);
 
-      var url = api + 'Username=' + uname + '&ProjectName=' + pname;;
-      $.ajax({
-        url: url,
-        cache: true,
-        crossDomain: true,
-        success: downloadProject,
-        error: function(a, b, c) { // TODO: Better error handling..
-          var table = $('#table-contents');
-          table.append($('<tr>').html($('<td>').html('Whoops, an error occured! Sorry!')));
-        }
-      });
+      var url = api + '?Username=' + uname + '&ProjectName=' + pname;
+
+      var win = window.open(url, "Downloading...");
+      setTimeout(function() {
+        win.close()
+      }, 750);
+      var a = $('<a>').attr('href', url).html('Download!');
+      a.trigger('click');
     }
 
     function getProj() {
@@ -96,7 +88,6 @@
                        $('#cloud-proj-name').val());
     }
 
-    $(document).ready(function() {});
     </script>
   </body>
 
