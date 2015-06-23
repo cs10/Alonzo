@@ -30,15 +30,13 @@
     "hubot-scripts": "github/hubot-scripts",
     "node-canvas-lms": "cs10/node-canvas-lms",
     "node-native-zip": "^1.1.0",
-    "node-zip": "^1.1.1",
     "redis": "0.8.4",
     "request": "^2.51.0",
     "soupselect": "0.2.0",
     "underscore": "1.7.0",
     "underscore.string": "2.3.0",
     "wolfram": "^0.3.1",
-    "xml2js": "^0.4.5",
-    "zip": "^1.2.0"
+    "xml2js": "^0.4.5"
   },
   "engines": {
     "iojs": "1.x.x",
