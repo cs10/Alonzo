@@ -16,7 +16,6 @@
     "url": "https://github.com/cs10/alonzo.git"
   },
   "dependencies": {
-    "bcrypt": "^0.8.3",
     "cheerio": "0.7.0",
     "cleverbot-node": "^0.1.8",
     "githubot": "^1.0.0-beta2",
@@ -32,7 +31,6 @@
     "hubot-scripts": "github/hubot-scripts",
     "node-canvas-lms": "cs10/node-canvas-lms",
     "node-native-zip": "^1.1.0",
-    "node-stringprep": "^0.7.0",
     "redis": "0.8.4",
     "request": "^2.51.0",
     "soupselect": "0.2.0",

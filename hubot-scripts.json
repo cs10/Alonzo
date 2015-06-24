@@ -1,9 +1,6 @@
 [
 "base64.coffee",
-"bluebottle.coffee",
 "cleverbot.coffee",
-"commitmessage.coffee",
-"cowsay.coffee",
 "gosling.coffee",
 "hashing.coffee",
 "redis-brain.coffee",
