@@ -25,10 +25,10 @@
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "^1.5.4",
     "hubot-hipchat": "^2.12.0",
-    "hubot-meme": "^1.0.2",
+    "hubot-meme": "^1.0.3",
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
-    "hubot-scripts": "github/hubot-scripts",
+    "hubot-scripts": "^2.16.0",
     "node-canvas-lms": "cs10/node-canvas-lms",
     "node-native-zip": "^1.1.0",
     "redis": "0.8.4",
@@ -40,6 +40,6 @@
     "xml2js": "^0.4.5"
   },
   "engines": {
-    "iojs": "1.x.x"
+    "node": "0.12.x"
   }
 }
