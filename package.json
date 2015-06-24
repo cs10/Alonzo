@@ -25,7 +25,7 @@
     "hubot-auth": "^1.2.0",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "cycomachead/hubot-group-alias",
-    "hubot-hipchat": "cycomachead/hubot-hipchat",
+    "hubot-hipchat": "^2.12.0",
     "hubot-meme": "^1.0.2",
     "hubot-plusplus": "cycomachead/hubot-plusplus",
     "hubot-pusheen": "0.0.1",
