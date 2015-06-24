@@ -40,6 +40,6 @@
     "xml2js": "^0.4.5"
   },
   "engines": {
-    "iojs": "2.x.x"
+    "iojs": "1.x.x"
   }
 }
