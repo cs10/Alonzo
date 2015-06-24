@@ -21,4 +21,3 @@ module.exports = (robot) ->
 
   robot.respond /room name/i, (msg) ->
     msg.send msg.message.room
-

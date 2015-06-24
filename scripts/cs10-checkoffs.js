@@ -27,6 +27,12 @@ var LATE_POINTS = cs10.labCheckOffLatePts;
 var MIN_LAB = 2;
 var MAX_LAB = 18;
 
+// A long regex to parse a lot of different check off commands.
+var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
+// A generic expression that matches all messages
+var containsSIDExp = /.*x?\d{5,}/gi;
+
+
 // Allowed rooms for doing / managing check offs
 var LA_ROOM = 'lab_assistant_check-offs';
 var TA_ROOM = 'lab_check-off_room';
@@ -155,6 +161,7 @@ function verifyCache(callback, args) {
     }
 }
 
+
 function cacheLabAssignments(callback, args) {
     var url   = cs10.baseURL + 'assignment_groups/' + cs10.labsID,
         query = {'include[]': 'assignments'};
@@ -233,7 +240,6 @@ function doLACheckoff(data, msg) {
         return;
     }
     // Post scores to bCourses
-
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
     msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
              ' for lab ' + data.lab  + '.');
@@ -437,4 +443,3 @@ var sketchyTests = {
         message: ''
     }
 };
-
