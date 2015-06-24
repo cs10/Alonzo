@@ -64,11 +64,12 @@ function getSlipDays(submissionTime, dueTime) {
 **/
 var STATE_GRADED = 'graded';
 function calculateSlipDays(sid, callback) {
-    var url     = cs10.baseURL + 'students/submissions',
+    var url = cs10.baseURL + 'students/submissions',
         options = {
-            'include[]' : ['assignment', 'submission_comments'],
+            'include[]' : ['submission_comments', 'assignment'],
             'student_ids[]' : cs10.normalizeSID(sid),
-            'assignment_ids[]' : cs10.slipDayAssignmentIDs
+            'assignment_ids[]' : cs10.slipDayAssignmentIDs,
+            grouped : true
         };
 
     cs10.get(url, options, function(error, response, body) {
@@ -90,27 +91,27 @@ function calculateSlipDays(sid, callback) {
             return;
         }
 
+        var submissions = body[0].submissions;
         // List of submissions contains only most recent submission
         // TODO: Check for muted assignments?
-        body.forEach(function(subm) {
+        submissions.forEach(function(subm) {
             state = subm.workflow_state;
             submitted = subm.submitted_at !== null;
             verified = false; // True IFF Reader explicitly left a comment
-            // TODO: Refactor this mess...
-            if (state === STATE_GRADED) { // Use Reader Comments or fallback
+            if (state == STATE_GRADED) { // Use Reader Comments or fallback
                 days = getReaderDays(subm.submission_comments);
-                if (days === -1 && submitted) {
+                if (days == -1 && submitted) {
+                    // TODO: Send readers a notifcation for an assignment
+                    // w/no slip days.
                     days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                } else if (submitted) {
-                    verified = true; // Good comment === verified
-                } else { // No submission & no comment. (Group Assignmet)
-                    days = 0;
+                } else if (days != -1) {
+                    // Reader Comments found. 
+                    verified = true;
                 }
-            } else if (subm.late) { // Calculate time based on submission
+            } else { // Calculate time based on submission
                 days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-            } else { // Not late...
-                days = 0;
             }
+            days = Math.max(0, days); // No negative slip days!
 
             var assignment = {
                 title: subm.assignment.name,
