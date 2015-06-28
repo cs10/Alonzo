@@ -11,7 +11,6 @@
 // Author:
 //  Michael Ball
 
-var request = require('request');
 var url = require('url');
 var qs = require('querystring');
 var zip = require('node-native-zip');
@@ -27,7 +26,8 @@ module.exports = function(robot) {
         // zip the project-text
         // respond w/ correct headers
 
-        request.get(baseURL + query, function(error, response, body) {
+        robot.http(baseURL + query).get()(
+            function(error, response, body) {
             var data = qs.parse(body);
             var fileName = qObj['Username'] + '--' + data['ProjectName'] +
             '--' + data['Updated'];
