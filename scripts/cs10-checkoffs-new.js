@@ -17,7 +17,7 @@
 var cs10 = require('./bcourses/');
 
 // CONSTANTS
-var CACHE_HOURS = 12;
+var CACHE_HOURS = 18;
 var FULL_POINTS = cs10.labCheckOffPoints;
 var LATE_POINTS = cs10.labCheckOffLatePts;
 
@@ -36,7 +36,12 @@ var LA_ROOM = 'lab_assistant_check-offs';
 var TA_ROOM = 'lab_check-off_room';
 
 // Keys for data that key stored in robot.brain
-var LA_DATA_KEY    = 'LA_DATA';
+// Data is stored in the brain in the following ways:
+// 1 "item" for LA data per lab, and 1 for TAs
+// 1 error object which stores all error messages
+var LA_BASE_KEY    = 'LA-CHECKOFF-';
+var TA_BASE_KEY    = 'TA-CHECKOFF-';
+var CHECKOFF_ERR   = 'CHECKOFF-ERRORS';
 var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
 
 // Global-ish stuff for successful lab checkoff submissions.
@@ -50,17 +55,23 @@ module.exports = function(robot) {
 };
 
 function processCheckOff(msg) {
-    var roomFn, parsed, errors;
+    var roomFn, parsed, errors, logPlace;
     switch (msg.message.room) {
     case LA_ROOM:
         roomFn = doLACheckoff;
+        logPlace = LA_BASE_KEY;
         break;
     case 'Shell': // Move this condition around for command line testing
     case TA_ROOM:
         roomFn = doTACheckoff;
+        logPlace = TA_BASE_KEY;
         break;
     default:
-        msg.send('Lab Check offs are not allowed from this room');
+        // don't send a warning message if the user likely wasn't trying
+        // to check anyone off.
+        if (msg.message.text.match(containsSIDExp)) {
+            msg.send('Lab Check offs are not allowed from this room');
+        }
         return;
     }
 
@@ -69,6 +80,7 @@ function processCheckOff(msg) {
     if (errors.length) {
         msg.send('Your check off was NOT saved!',
                  'ERROR: The following errors occurred.',
+                 'Please check what you typed or ask for help.',
                  errors.join('\n'));
         return;
     }
@@ -79,7 +91,7 @@ function processCheckOff(msg) {
 /* Proccess the regex match into a common formatted object */
 function extractMessage(text) {
     // Parse the following components out of a message.
-    var findSIDs = /x?\d{5,}/g,
+    var findSIDs = containsSIDExp,
         findLate = /late/i,
         findLab  = /\d{1,2}/;
 
@@ -92,9 +104,18 @@ function extractMessage(text) {
     return {
         lab: labNo[0],
         sids: SIDs,
-        isLate: isLate,
-        points: isLate ? LATE_POINTS : FULL_POINTS
+        isLate: isLate
     };
+}
+
+/**
+ *  Store the parsed message in the brain so it can be audited if need be.
+ *  Audits will be most necessary for "sketchy" lab check-offs.
+ *  @param {string} key - the location in the brain to store data.
+ *  @param {object} data - data to be saved in the brain.
+ */
+function auditLog(key, data) {
+    
 }
 
 // Return an array of error messages that prevent the checkoff from being saved.
