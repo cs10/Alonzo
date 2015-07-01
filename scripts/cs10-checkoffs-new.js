@@ -37,10 +37,9 @@ var TA_ROOM = 'lab_check-off_room';
 
 // Keys for data that key stored in robot.brain
 // Data is stored in the brain in the following ways:
-// 1 "item" for LA data per lab, and 1 for TAs
-// 1 error object which stores all error messages
-var LA_BASE_KEY    = 'LA-CHECKOFF-';
-var TA_BASE_KEY    = 'TA-CHECKOFF-';
+// "CHECKOFF-DATA-N" items for all parsable messages
+// 'CHECKOFF-ERRORS' for all messages which are likely checkoffs but errored
+var CHECKOFF_DATA  = 'CHECKOFF-DATA-';
 var CHECKOFF_ERR   = 'CHECKOFF-ERRORS';
 var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
 
@@ -112,10 +111,17 @@ function extractMessage(text) {
  *  Store the parsed message in the brain so it can be audited if need be.
  *  Audits will be most necessary for "sketchy" lab check-offs.
  *  @param {string} key - the location in the brain to store data.
+ *  @param {message} msg - Hubot's message object that has all the user info.
  *  @param {object} data - data to be saved in the brain.
  */
-function auditLog(key, data) {
-    
+function auditLog(key, msg, data) {
+    var toStore = {
+        room: msg.message.room,
+        msg: msg.message.text,
+        user: msg.message.user.name,
+        time: (new Date()).toString(),
+        parsed: data
+    };
 }
 
 // Return an array of error messages that prevent the checkoff from being saved.
@@ -131,6 +137,7 @@ function verifyErrors(parsed) {
 
     return errors;
 }
+
 // Cache
 // TODO: document wacky callback thingy
 function verifyCache(callback, args) {
@@ -166,14 +173,15 @@ function cacheLabAssignments(callback, args) {
 function doTACheckoff(data, msg) {
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
-    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
-        data.lab + '.');
-
     if (!assignments || !cacheIsValid(assignments)) {
+        msg.send('Refreshing lab assignments from bCourses...')
         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
         cacheLabAssignments(doTACheckoff, [data, msg]);
         return;
     }
+
+    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
+        data.lab + '.');
 
     var assnID = getAssignmentID(data.lab, assignments, msg);
 
@@ -302,67 +310,6 @@ function sendLAStats(ladata, msg) {
     msg.send(text);
 }
 
-// Bulk upload grades to bCourses
-function postGrades(ladata, msg) {
-    var grades = ladata.safe;
-    for (lab in grades) {
-        var assnID = getAssignmentID(lab, robot.brain.get(LAB_CACHE_KEY));
-        cs10.postMultipleGrades(assnID, grades[lab], msg);
-    }
-}
-
-// This takes in a processed labs object from review LA data.
-function getSIDCount(labs) {
-    var ontime = 0;
-    var late = 0;
-    for(num in labs) {
-        ontime += Object.keys(labs[num]).length || 0;
-        // late += labs[num].late.length || 0;
-    }
-    return {ontime: ontime, late: late};
-}
-
-/** Verify all the LA data for easy assignment posting
-    Each set of checkoffs creates:
-    <num>: { ontime: [], late: [] }
-    There is one object for safe check-offs and one for sketchy checkoffs
-**/
-function reviewLAData(data) {
-    var safe = {};
-    var sketchy = { labs: {}, msgs: [] };
-
-    data.forEach(function(checkoff) {
-        var lab = checkoff.lab,
-            sketch = isSketchy(checkoff);
-
-        // LEGACY before I placed a check on lab number this can be deleted
-        // once all the existing saved check offs are uploaded and cleared.
-        if (parseInt(lab) > 20 || parseInt(lab) < 2) { return; }
-
-        if (!safe[lab] && !sketch) { safe[lab] = {}; }
-
-        if (!sketchy.labs[lab] && sketch) { sketchy[lab] = {}; }
-
-        var obj = safe[lab];
-
-        if (sketch) {
-            obj = sketchy.labs[lab];
-            sketchy.msgs.append(checkoff);
-        }
-
-        checkoff.sid.forEach(function(sid) {
-            // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
-            // FIXME -- this should be removed sometime soon...
-            if (!sid || sid.length !== 20 && sid.length !== 8) {
-                return
-            }
-            sid = cs10.normalizeSID(sid);
-            obj[sid] = checkoff.points;
-        })
-    });
-
-    return { safe: safe, sketchy: sketchy };
-}
 
 /** Determine whether an LA checkoff is sketchy.
     "Sketchy" means: More than 1 week paste the due date,
