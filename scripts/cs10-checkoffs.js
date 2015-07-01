@@ -224,7 +224,6 @@ function doLACheckoff(data, msg) {
         lab: data.lab,
         late: data.isLate,
         sid: data.sids,
-        points: data.points,
         time: (new Date()).toString(),
         laname: msg.message.user.name
     };
