@@ -15,13 +15,15 @@ var cs10 = new Canvas(bCoursesURL, { token: authToken });
     To get this id...... TODO.
 **/
 // These are used in URL building, so strings are OK.
+// This is the bcourses course ID
+// https://bcourses.berkeley.edu/courses/<course>
 // Michael Sandbox: 1268501
-// Spring 2015: 1301472
-// Fall 2014: 1246916
-cs10.courseID = '1301472';
+cs10.courseID = '1348652';
+// This is the ID of the "labs" assignment group
+// Get the id from this URL:
+// https://bcourses.berkeley.edu/api/v1/courses/XXX/assignment_groups
 // Michael Sandbox: 1593713
-// cs10.labsID = '1702126' Spring 2015
-cs10.labsID = '1702126';
+cs10.labsID = '1794908';
 
 // This changes the default ID of a student to tell bCourses to use SIDs
 // The default are internal bCourses IDs, but no one knows those.
@@ -50,48 +52,37 @@ cs10.SWAP_IDS = { };
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays    = 3;
 cs10.numberLabs         = 18;
-cs10.labCheckOffPoints  = 2; // These could be changed as the course changes.
-cs10.labCheckOffLatePts = 1;
+// NOTE THE SUMMER DIFFERENCE HERE.
+cs10.labCheckOffPoints  = 4; // These could be changed as the course changes.
+cs10.labCheckOffLatePts = 2;
 
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
 // Use the bCourses API courses/X/assignments to get these IDs or the page URLs
+// https://bcourses.berkeley.edu/api/v1/courses/XXX/assignments
 cs10.slipDayAssignmentIDs = [
-    5919083, // Homework 1
-    5919084, // Homework 2
-    5919085, // Homework 3
-    5919087, // Midterm Project
-    5919089, // Explore Post Content
-    5919103, // Explore Post Artifact and Comments
-    5919088, // Final Project
+    6365043, // Homework 1
+    6365044, // Homework 2
+    6365045, // Homework 3
+    6365047, // Midterm Project
+    6365049, // Explore Post Content
+    6365042, // Explore Post Artifact and Comments
+    6365048, // Final Project
 ];
 
 // Note that these need to be internal canvas IDs as integers!
 // TODO: Future Query roles for TAs (also check for type teacher !!)
 // courses/X/search_users?enrollment_type=ta
+// courses/X/search_users?enrollment_type=teacher
 cs10.staffIDs = [
-    4877463, // The Man
-    4886975, // TAs
-    4862335, // Me
-    4881542,
-    4901643,
-    4891642,
-    4831377,
-    4907764,
-    4997192,
-    4900858,
-    4894982,
-    4899427,
-    4850975,
-    4904808,
-    5013924,
-    4970007, // Readers
-    4890943,
-    4908524,
-    5008226,
-    4901852,
-    5025344,
-    4897435
+    4862335, // me
+    4862322,
+    4886975,
+    4890943, //
+    4978136, //
+    4611784, //
+    5013924, //
+    5008226  //
 ];
 
 
