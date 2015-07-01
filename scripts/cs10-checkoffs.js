@@ -140,7 +140,7 @@ function extractMessage(text) {
 // Return an array of error messages that prevent the checkoff from being saved.
 function verifyErrors(parsed) {
     var errors = [];
-    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) {
+    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB || parsed.lab != 42) {
         errors.push('The lab number: ' + parsed.lab + ' is not a valid lab!');
         errors.push('Please specify the lab number before all student ids.');
     }
