@@ -81,12 +81,12 @@ module.exports = function(robot) {
         sendLAStats(laScores, msg);
         postGrades(laScores, msg);
     });
-    
-    robot.respond(/CLEAR ALL DATA/, function(msg) {
-        robot.brain.remove(LA_DATA_KEY);
-        robot.brain.save();
-        msg.send('Poof! All that data is GONE.');
-    });
+
+    // robot.respond(/CLEAR ALL DATA/, function(msg) {
+    //     robot.brain.remove(LA_DATA_KEY);
+    //     robot.brain.save();
+    //     msg.send('Poof! All that data is GONE.');
+    // });
 };
 
 function processCheckOff(msg) {
@@ -416,7 +416,7 @@ function isSketchy(co, assingments) {
     return results;
 }
 
-/* 
+/*
 A way of building a function and an a corresponding error message.
 If check passes → error is shown
 Each function takes in a checkoff object, and the bCourses assignment.
