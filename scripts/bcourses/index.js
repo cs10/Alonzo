@@ -51,8 +51,9 @@ cs10.SWAP_IDS = { };
 // Course Level Policies:
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays    = 3;
-cs10.numberLabs         = 18;
 // NOTE THE SUMMER DIFFERENCE HERE.
+cs10.firstLab           = 2;
+cs10.lastLab            = 7;
 cs10.labCheckOffPoints  = 4; // These could be changed as the course changes.
 cs10.labCheckOffLatePts = 2;
 

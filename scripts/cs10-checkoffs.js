@@ -8,9 +8,9 @@
 //   See bcourses
 //
 // Commands:
-//   hubot (late) check off <NUM> <SIDs> -- CS10: check off these students
-//   hubot show la data -- CS10: dumb the raw saved Lab Assistant check offs.
-//   hubot review la scores -- CS10: stats abput LA scores. Will punlish the safe scores to bCourses
+//   hubot (late) check off <NUM> <SIDs> -- CS10: input lab check offs for these students
+//   hubot show la data -- CS10: dump the raw saved Lab Assistant check offs.
+//   hubot review la scores -- CS10: stats about LA scores. Will punlish the safe scores to bCourses
 //
 // Author:
 //  Michael Ball
