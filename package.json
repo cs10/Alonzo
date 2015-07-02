@@ -29,7 +29,6 @@
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
     "hubot-pusheen": "0.0.1",
     "hubot-scripts": "^2.16.0",
-    "hubot-wolfram": "git://github.com/cycomachead/hubot-wolfram.git",
     "node-canvas-lms": "git://github.com/cs10/node-canvas-lms.git",
     "node-native-zip": "^1.1.0",
     "redis": "0.8.4",

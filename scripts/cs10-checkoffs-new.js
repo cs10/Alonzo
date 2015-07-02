@@ -85,7 +85,7 @@ function processCheckOff(msg) {
     }
 
     auditLog(CHECKOFF_DATA + parsed.lab, msg, parsed);
-    
+
     roomFn(parsed, msg);
 }
 
@@ -211,7 +211,7 @@ function auditLog(key, msg, data) {
     for (key in data) {
         toStore[key] = data[key];
     }
-    
+
     var brainData = robot.brain.get(key) || [];
     brainData.push(toStore);
     robot.brain.set(key, brainData);
