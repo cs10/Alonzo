@@ -24,7 +24,7 @@ module.exports = function(robot) {
     ];
     var query = 'course=' + courseIDs.join('&course=');
     var endpoint = '/course-enrollment-total?' + query;
-    robot.respond(/edx\s+(?:enrollment\s*)?update/, function(msg) {
+    robot.respond(/edx\s+(?:enrollment\s*)?update/i, function(msg) {
         msg.send('Checking BJCx Enrollment')
         robot.http(edXAPI + endpoint).get()(function(err, resp, body) {
             if (err) {
