@@ -1,5 +1,7 @@
 // Description:
 //  BJC edX Tools and notifcations.
+//  These require some edX server running, which has been built for CS10
+//  https://github.com/cs10/edx-api-server
 //
 // Dependencies:
 //   none
@@ -25,18 +27,19 @@ module.exports = function(robot) {
     var query = 'course=' + courseIDs.join('&course=');
     var endpoint = '/course-enrollment-total?' + query;
     robot.respond(/edx\s+(?:enrollment\s*)?update/i, function(msg) {
-        msg.send('Checking BJCx Enrollment')
+        msg.send('Alright, checking BJCx enrollment...');
         robot.http(edXAPI + endpoint).get()(function(err, resp, body) {
             if (err) {
                 msg.reply('Uh, oh! An error occurred: ', err);
                 return;
             }
             body = JSON.parse(body);
-            msg.send('Here are the latest enrollment numbers:')
-            courseIDs.forEach(function(id) {
+            var text = 'Here are the latest enrollment numbers:\n';
+            text += courseIDs.map(function(id) {
                 var short = id.split('/')[1];
-                msg.send(short + ':\t' + body[id]);
-            });
+                return short + ':\t' + body[id];
+            }).join('\n');
+            msg.send(text);
         });
     });
 
