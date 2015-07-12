@@ -4,5 +4,6 @@
     "hubot-google-hangouts",
     "hubot-meme",
     "hubot-pusheen",
-    "hubot-plusplus"
+    "hubot-plusplus",
+    "hubot-redis-brain"
 ]
