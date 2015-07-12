@@ -3,7 +3,6 @@
 "cleverbot.coffee",
 "gosling.coffee",
 "hashing.coffee",
-"redis-brain.coffee",
 "shipit.coffee",
 "xkcd.coffee"
 ]
