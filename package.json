@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "githubot": "^1.0.0",
-    "htmlparser": "1.7.6",
     "hubot": "^2.6.0",
     "hubot-auth": "^1.2.0",
     "hubot-google-hangouts": "^0.7.1",
