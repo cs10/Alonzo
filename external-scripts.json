@@ -8,5 +8,6 @@
     "hubot-redis-brain",
     "hubot-shipit",
     "hubot-thank-you",
+    "hubot-whiteboardcleaner",
     "hubot-xkcd"
 ]
