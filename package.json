@@ -27,7 +27,7 @@
     "hubot-pusheen": "0.0.1",
     "hubot-redis-brain": "0.0.3",
     "hubot-shipit": "^0.2.0",
-    "hubot-thank-you": "git@github.com:hubot-scripts/hubot-thank-you.git",
+    "hubot-thank-you": "git://github.com/hubot-scripts/hubot-thank-you.git",
     "hubot-whiteboardcleaner": "0.0.4",
     "hubot-xkcd": "0.0.3",
     "node-canvas-lms": "git://github.com/cs10/node-canvas-lms.git",
