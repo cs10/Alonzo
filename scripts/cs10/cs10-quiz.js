@@ -16,7 +16,7 @@
 
 var crypto = require('crypto');
 
-cs10 = require('./bcourses/');
+var cs10 = require('./bcourses/');
 
 // Resetting a password can only be done in the TA room
 var TA_ROOM = 'cs10_staff_room_(private)';
@@ -35,6 +35,7 @@ function getQuizID(quizNum, password, msg, call0, call1) {
         body.forEach(function(group) {
             if (group.name == "Reading Quizzes") {
                 group.assignments.forEach(function(assn) {
+                    // TODO: This is probably a sketchy to do...
                     if (assn.name.match(/\d+/)[0] == quizNum) {
                         call0(assn.quiz_id, password, msg, call1);
                     }
@@ -103,5 +104,5 @@ processQuizMessage = function(msg) {
 }
 
 module.exports = function(robot) {
-    robot.respond(/quiz\s*(\d+)\s*password\s*(\w+)/i, processQuizMessage);
+    robot.respond(/quiz\s*(\d+)\s*password\s*(\w+)/i, {id: 'cs10.quiz-pw'}, processQuizMessage);
 }

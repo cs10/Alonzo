@@ -50,16 +50,16 @@ var timeoutID;
 module.exports = function(robot) {
     // Loosely look for the phrase check off and the possibility of a number.
     var couldBeCheckOff = /check.*off.*x?\d{1,}/i;
-    robot.hear(couldBeCheckOff, processCheckOff);
+    robot.hear(couldBeCheckOff, {id: 'cs10.checkoff.check-off-all'}, processCheckOff);
 
     // Commands for managing LA check-off publishing
-    robot.respond(/show la data/i, function(msg) {
+    robot.respond(/show la data/i, {id: 'cs10.checkoff.la-data'}, function(msg) {
         if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
             msg.send('/code\n' + JSON.stringify(robot.brain.get(LA_DATA_KEY)));
         }
     });
 
-    robot.respond(/refresh\s*(bcourses)?\s*cache/i, function(msg) {
+    robot.respond(/refresh\s*(bcourses)?\s*cache/i, {id: 'cs10.checkoff.refresh-lab-cache'}, function(msg) {
         robot.brain.remove(LAB_CACHE_KEY);
         msg.send('Waiting on bCourses...');
         cacheLabAssignments(msg.send, ['Assignments Cache Refreshed']);
@@ -67,13 +67,13 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/review la (scores|data)/i, function(msg) {
+    robot.respond(/review la (scores|data)/i, , {id: 'cs10.checkoff.send-la-data'}, function(msg) {
         var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
         sendLAStats(laScores, msg);
     });
 
     // submit LA scores
-    robot.respond(/post la scores/i, function(msg) {
+    robot.respond(/post la scores/i, {id: 'cs10.checkoff.post-la-scores'}, function(msg) {
         if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
             return;
         }

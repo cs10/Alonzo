@@ -17,7 +17,7 @@
 cs10 = require('./bcourses/');
 
 module.exports = function(robot) {
-    robot.respond(/.*(links|forms).*/i, function(msg) {
+    robot.respond(/.*(links|forms).*/i, {id: 'cs10.links'}, function(msg) {
         var txt = '';
         txt += 'Late Assignments Form: http://bjc.link/sp15lateassignment\n';
         txt += 'LA Attendance: https://bcourses.berkeley.edu/courses/1301477/external_tools/36957\n';
@@ -27,7 +27,7 @@ module.exports = function(robot) {
         msg.send(txt);
     });
 
-    robot.respond(/\s*locker( combo)?/i, function(msg) {
+    robot.respond(/\s*locker( combo)?/i, , {id: 'cs10.locker'}, function(msg) {
         msg.send('11-29-15');
     });
 }
