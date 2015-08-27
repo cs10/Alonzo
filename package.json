@@ -21,6 +21,7 @@
     "hubot-auth": "^1.2.0",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-group-alias": "latest",
+    "hubot-heroku-keepalive": "^1.0.0",
     "hubot-hipchat": "latest",
     "hubot-meme": "latest",
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
