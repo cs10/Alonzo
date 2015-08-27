@@ -50,7 +50,7 @@ var expectedScores;
 var timeoutID;
 
 module.exports = function(robot) {
-    //robot.hear(checkOffMessage, processCheckOff);
+    //robot.hear(checkOffMessage, {id: 'cs10.check-off-new'}, processCheckOff);
 };
 
 function processCheckOff(msg) {
@@ -136,6 +136,7 @@ function doTACheckoff(data, msg) {
     }
 
     // FIXME -- check whether 1 or more scores.
+    // FIXME -- or async this
     successes = 0;
     failures = 0;
     expectedScores = data.sids.length;
