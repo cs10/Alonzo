@@ -1,19 +1,18 @@
-/**
- *  DESCRIPTION:
- *  Loads subdirectories in the scripts folder.
- *
- *  COMMANDS:
- *  None
- *
- *  URLs:
- *  None
- *
- *  DEPENDENCIES:
- *  None
- *
- *  AUTHOR:
- *  Michael Ball
- */
+// DESCRIPTION:
+//  Loads subdirectories in the scripts folder.
+//
+//  COMMANDS:
+//  None
+//
+//  URLs:
+//  None
+//
+//  DEPENDENCIES:
+//  None
+//
+//  AUTHOR:
+//  Michael Ball
+
 
 var fs = require('fs');
 var Path = require('path');

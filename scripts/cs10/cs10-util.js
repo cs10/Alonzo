@@ -27,7 +27,7 @@ module.exports = function(robot) {
         msg.send(txt);
     });
 
-    robot.respond(/\s*locker( combo)?/i, , {id: 'cs10.locker'}, function(msg) {
+    robot.respond(/\s*locker( combo)?/i, {id: 'cs10.locker'}, function(msg) {
         msg.send('11-29-15');
     });
 }

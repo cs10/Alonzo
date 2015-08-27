@@ -22,7 +22,7 @@ var cs10 = require('./bcourses/');
 
 module.exports = function(robot) {
     // Just a simple redirect to the CS10 site.
-    robot.respond(/slip[- ]?days\s*(\d+)/i, , {id: 'cs10.slip-days'}, function(msg) {
+    robot.respond(/slip[- ]?days\s*(\d+)/i, {id: 'cs10.slip-days'}, function(msg) {
         msg.send('http://cs10.org/sp15/slipdays/?' + msg.match[1]);
     });
 
@@ -105,7 +105,7 @@ function calculateSlipDays(sid, callback) {
                     // w/no slip days.
                     days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
                 } else if (days != -1) {
-                    // Reader Comments found. 
+                    // Reader Comments found.
                     verified = true;
                 }
             } else { // Calculate time based on submission

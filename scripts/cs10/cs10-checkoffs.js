@@ -67,7 +67,7 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/review la (scores|data)/i, , {id: 'cs10.checkoff.send-la-data'}, function(msg) {
+    robot.respond(/review la (scores|data)/i, {id: 'cs10.checkoff.send-la-data'}, function(msg) {
         var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
         sendLAStats(laScores, msg);
     });
