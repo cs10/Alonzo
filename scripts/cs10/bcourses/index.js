@@ -83,7 +83,7 @@ cs10.staffIDs = [
     4831377, // Carlos Flores
     4904171, // Janna Golden
     4907764, // Rachel Huang
-    4997192  // Adam Kuphaldt
+    4997192,  // Adam Kuphaldt
     4978136 // Lara McConnaughey
 ];
 
