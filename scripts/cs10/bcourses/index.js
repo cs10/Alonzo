@@ -76,14 +76,15 @@ cs10.slipDayAssignmentIDs = [
 // courses/X/search_users?enrollment_type=ta
 // courses/X/search_users?enrollment_type=teacher
 cs10.staffIDs = [
-    4862335, // me
-    4862322,
-    4886975,
-    4890943, //
-    4978136, //
-    4611784, //
-    5013924, //
-    5008226  //
+    4862335, // Michael Ball
+    4889648,// Yifat Amir
+    4901643,//Joseph Cawthorne
+    4890943, // Erik Dahlquist
+    4831377, // Carlos Flores
+    4904171, // Janna Golden
+    4907764, // Rachel Huang
+    4997192  // Adam Kuphaldt
+    4978136 // Lara McConnaughey
 ];
 
 
