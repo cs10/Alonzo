@@ -18,12 +18,12 @@ var cs10 = new Canvas(bCoursesURL, { token: authToken });
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course>
 // Michael Sandbox: 1268501
-cs10.courseID = '1348652';
+cs10.courseID = '1371647';
 // This is the ID of the "labs" assignment group
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/XXX/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = '1794908';
+cs10.labsID = '1846637';
 
 // This changes the default ID of a student to tell bCourses to use SIDs
 // The default are internal bCourses IDs, but no one knows those.
@@ -53,9 +53,9 @@ cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays    = 3;
 // NOTE THE SUMMER DIFFERENCE HERE.
 cs10.firstLab           = 2;
-cs10.lastLab            = 7;
-cs10.labCheckOffPoints  = 4; // These could be changed as the course changes.
-cs10.labCheckOffLatePts = 2;
+cs10.lastLab            = 18;
+cs10.labCheckOffPoints  = 2; // These could be changed as the course changes.
+cs10.labCheckOffLatePts = 1;
 
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
@@ -76,14 +76,15 @@ cs10.slipDayAssignmentIDs = [
 // courses/X/search_users?enrollment_type=ta
 // courses/X/search_users?enrollment_type=teacher
 cs10.staffIDs = [
-    4862335, // me
-    4862322,
-    4886975,
-    4890943, //
-    4978136, //
-    4611784, //
-    5013924, //
-    5008226  //
+    4862335, // Michael Ball
+    4889648,// Yifat Amir
+    4901643,//Joseph Cawthorne
+    4890943, // Erik Dahlquist
+    4831377, // Carlos Flores
+    4904171, // Janna Golden
+    4907764, // Rachel Huang
+    4997192  // Adam Kuphaldt
+    4978136 // Lara McConnaughey
 ];
 
 
