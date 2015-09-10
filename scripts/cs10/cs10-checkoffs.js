@@ -140,7 +140,8 @@ function extractMessage(text) {
 // Return an array of error messages that prevent the checkoff from being saved.
 function verifyErrors(parsed) {
     var errors = [];
-    if ((parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) && parsed.lab != 42) {
+    // NOTE: Lab "42" is a special lab code for an EC lab during the summer.
+    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) { // && parsed.lab != 42
         errors.push('The lab number: ' + parsed.lab + ' is not a valid lab!');
         errors.push('Please specify the lab number before all student ids.');
     }
@@ -195,7 +196,7 @@ function doTACheckoff(data, msg) {
     }
 
     var assnID = getAssignmentID(data.lab, assignments, msg);
-
+    console.log('LAB ASSIGNMENT ID: ', assnID);
     if (!assnID) {
         msg.send('Well, crap...I can\'t find lab ' + data.lab + '.\n' +
                  'Check to make sure you put in a correct lab number.\n' +
