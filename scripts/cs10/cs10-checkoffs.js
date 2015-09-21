@@ -82,6 +82,23 @@ module.exports = function(robot) {
         postGrades(laScores, msg);
     });
 
+    //see all the la data in it's raw form for debugging
+    robot.respond(/see all la data/i, {id: 'cs10.checkoff.see-la-data'}, function(msg) {
+        if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
+            return;
+        }
+        msg.send(JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+    });
+
+    //see the most recent checkoff for debugging
+    robot.respond(/see last checkoff/i, {id: 'cs10.checkoff.see-last-checkoff'}, function(msg) {
+        if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
+            return;
+        }
+        var data = robot.brain.get(LA_DATA_KEY);
+        msg.send(JSON.stringify(data[data.length-1]));
+    });
+
     // robot.respond(/CLEAR ALL DATA/, function(msg) {
     //     robot.brain.remove(LA_DATA_KEY);
     //     robot.brain.save();
@@ -103,9 +120,6 @@ function processCheckOff(msg) {
         msg.send('Lab Check offs are not allowed from this room');
         return;
     }
-
-    console.log(robot.brain.get(LA_DATA_KEY));
-    console.log(robot.brain.get(LAB_CACHE_KEY));
 
     parsed = extractMessage(msg.message.text);
     errors = verifyErrors(parsed);
@@ -225,6 +239,7 @@ function doTACheckoff(data, msg) {
 function doLACheckoff(data, msg) {
     var checkoff = {
         lab: data.lab,
+        points: data.points,
         late: data.isLate,
         sid: data.sids,
         time: (new Date()).toString(),
@@ -238,7 +253,7 @@ function doLACheckoff(data, msg) {
     robot.brain.set(LA_DATA_KEY, LA_DATA);
 
     var sketchy = isSketchy(checkoff);
-    if (sketchy.length === 0) {
+    if (!sketchy.length) {
 
         var scores = 'score' + (data.sids.length === 1 ? '' : 's');
         msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
@@ -253,8 +268,8 @@ function doLACheckoff(data, msg) {
 }
 
 function postSignleAssignment(assnID, sid, score, msg) {
-var scoreForm = 'submission[posted_grade]=' + score,
-    url = cs10.baseURL + 'assignments/' + assnID + '/submissions/' + sid;
+    var scoreForm = 'submission[posted_grade]=' + score,
+        url = cs10.baseURL + 'assignments/' + assnID + '/submissions/' + sid;
 
     cs10.put(url, '', scoreForm, verifyScoreSubmission(sid, score, msg));
 }
@@ -361,30 +376,28 @@ function reviewLAData(data) {
         var lab = checkoff.lab,
             sketch = isSketchy(checkoff);
 
-        // LEGACY before I placed a check on lab number this can be deleted
-        // once all the existing saved check offs are uploaded and cleared.
-        if (parseInt(lab) > 20 || parseInt(lab) < 2) { return; }
-
         if (!safe[lab] && !sketch) { safe[lab] = {}; }
 
-        if (!sketchy.labs[lab] && sketch) { sketchy[lab] = {}; }
+        if (!sketchy.labs[lab] && sketch) { sketchy.labs[lab] = {}; }
 
         var obj = safe[lab];
 
         if (sketch) {
             obj = sketchy.labs[lab];
-            sketchy.msgs.append(checkoff);
+            sketchy.msgs.push(checkoff);
         }
 
-        checkoff.sid.forEach(function(sid) {
-            // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
-            // FIXME -- this should be removed sometime soon...
-            if (!sid || sid.length !== 20 && sid.length !== 8) {
-                return
-            }
-            sid = cs10.normalizeSID(sid);
-            obj[sid] = checkoff.points;
-        })
+        if (!checkoff.uploaded) {
+            checkoff.sid.forEach(function(sid) {
+                // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
+                // FIXME -- this should be removed sometime soon...
+                if (!sid || sid.length !== 20 && sid.length !== 8) {
+                    return
+                }
+                sid = cs10.normalizeSID(sid);
+                obj[sid] = checkoff.points;
+            })
+        }
     });
 
     return { safe: safe, sketchy: sketchy };
@@ -423,7 +436,7 @@ var sketchyTests = {
             var d = new Date(co.time),
                 hour = d.getHours();
 
-            if (hour < 8 || hour > 7) {
+            if (hour < 8 || hour > 20) {
                 return false;
             }
 
