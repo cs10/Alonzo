@@ -21,3 +21,9 @@ module.exports = (robot) ->
 
   robot.respond /room name/i, (msg) ->
     msg.send msg.message.room
+
+  robot.hear /@all/i, (msg) ->
+    room = msg.message.room
+    # TODO: Get users in a room.
+    msg.reply('Please be careful when using @all.',
+              'Perhaps you want to message a group like readers or TAs?')

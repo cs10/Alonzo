@@ -60,7 +60,7 @@ module.exports = function(robot) {
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, {id: 'cs10.checkoff.la-data'}, function(msg) {
         if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
-            msg.send('/code\n' + JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+            msg.send('/code', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
         }
     });
 
@@ -92,16 +92,18 @@ module.exports = function(robot) {
     //     if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
     //         return;
     //     }
-    //     msg.send(JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+    //     msg.send('/code', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
     // });
 
     //see the most recent checkoff for debugging
     robot.respond(/see last checkoff/i, {id: 'cs10.checkoff.see-last-checkoff'}, function(msg) {
+        var data, last;
         if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
             return;
         }
-        var data = robot.brain.get(LA_DATA_KEY);
-        msg.send(JSON.stringify(data[data.length-1]));
+        data = robot.brain.get(LA_DATA_KEY);
+        last = data[data.length - 1];
+        msg.send('/code', JSON.stringify(last));
     });
 
     // robot.respond(/CLEAR ALL DATA/, function(msg) {
@@ -162,7 +164,8 @@ function extractMessage(text) {
 // Return an array of error messages that prevent the checkoff from being saved.
 function verifyErrors(parsed) {
     var errors = [];
-    if ((parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) && parsed.lab != 42) {
+    // NOTE: Lab "42" is a special lab code for an EC lab during the summer.
+    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) { // && parsed.lab != 42
         errors.push('The lab number: ' + parsed.lab + ' is not a valid lab!');
         errors.push('Please specify the lab number before all student ids.');
     }
@@ -280,7 +283,7 @@ function doLACheckoff(data, msg) {
     }
     msg.send('ERROR: You\'re being sketchy right now...\n',
                  sketchy.join('\n'),
-                 'This checkoff will not be uploaded to Bcourses. :(');
+                 'This checkoff will not be uploaded to bCourses. :(');
 
 }
 
@@ -456,14 +459,14 @@ function reviewLAData(data) {
 }
 
 /** Determine whether an LA checkoff is sketchy.
-    "Sketchy" means: More than 1 week paste the due date,
-    Or: Checked off during non-lab hours
-    If a checkoff is sketchy, return an arry of warnings about why.
+ *  "Sketchy" means that something about the check off isn't normal.
+ *  The conditions are defined below in sketchyTests.
+ *  If a checkoff is sketchy, return an arry of warnings about why.
 **/
 function isSketchy(co, assignments) {
     var results = [];
     for (var checkName in sketchyTests) {
-        if(sketchyTests.hasOwnProperty(checkName)) {
+        if (sketchyTests.hasOwnProperty(checkName)) {
             var test = sketchyTests[checkName];
             if (!test.test(co, assignments)) {
                 results.push(test.message);
@@ -474,16 +477,19 @@ function isSketchy(co, assignments) {
     return results;
 };
 
-/*
-A way of building a function and an a corresponding error message.
-If check passes → error is shown
-Each function takes in a checkoff object, and the bCourses assignment.
-{ }
-bCourses:
+/** A way of building a function and an a corresponding error message.
+ *  If check passes → error is shown
+ *  The tests are a map of name: {test-object}
+ *  A test object has two keys inside:
+ *  A `test`: call a function with checkoff data, and a bCourses assignment
+ *      A test should return a boolean based on a signle case it is testing.
+ *      FYI: User access control is assumed to be handled by Room Admins.
+ *  A `message`: A human-reader error shown IFF the test case fales.
 */
 
 var sketchyTests = {
     isDuringDayTime: {
+        message: 'Check offs should happen during lab or office hours! (9am-8pm)',
         test: function(co, assn) {
             var d = new Date(co.time),
                 hour = d.getHours();
@@ -493,41 +499,43 @@ var sketchyTests = {
             }
 
             return true;
-        },
-        message: 'Check offs should happen during lab or office hours! (9am-8pm)'
+        }
     },
     isDuringWeek: {
+        message: 'Check offs should happen during the week! (Mon-Fri)',
         test: function(co, assn) {
             var d = new Date(co.time),
                 day = d.getDay();
 
-            if (day==0 || day==6) {
+            if (day == 0 || day == 6) {
                 return false;
             }
 
             return true;
-        },
-        message: 'Check offs should happen during the week!'
+        }
     },
     isOnTime: {
+        message: 'This lab checkoff is past due!\nOnly TAs can give full credit now.',
         test: function(co, assn) {
             var date = new Date(co.time),
+                // TODO: Shouldn't this be in `assn`
                 assignments = robot.brain.get(LAB_CACHE_KEY),
                 dueDate = findLabByNum(co.lab, assignments.labs).due_at;
 
                 dueDate = new Date(dueDate);
 
             if (!co.late && date - dueDate > SECS_ALLOWED_LATE) {
+                console.log('On time check.... ', JSON.stringify(assn));
                 return false;
             }
 
             return true;
-        },
-        message: 'This checkoff is past due!'
+        }
     },
     hasValidSIDs: {
-        //TODO: implement SID caching
+        // TODO: implement SID caching
+        // TODO: Shouldn't the message say which SIDs? Need to fix the API.
+        message: 'This checkoff has SIDs that can\'t be found in bCourses.',
         test: function(co, assn) { return true; },
-        message: ''
     }
 };

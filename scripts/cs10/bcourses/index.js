@@ -18,12 +18,12 @@ var cs10 = new Canvas(bCoursesURL, { token: authToken });
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course>
 // Michael Sandbox: 1268501
-cs10.courseID = '1371647';
+cs10.courseID = 1371647;
 // This is the ID of the "labs" assignment group
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/XXX/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = '1846637';
+cs10.labsID = 1846637;
 
 // This changes the default ID of a student to tell bCourses to use SIDs
 // The default are internal bCourses IDs, but no one knows those.
