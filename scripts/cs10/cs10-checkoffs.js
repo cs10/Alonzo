@@ -22,10 +22,15 @@ var cs10 = require('./bcourses/');
 var CACHE_HOURS = 12;
 var FULL_POINTS = cs10.labCheckOffPoints;
 var LATE_POINTS = cs10.labCheckOffLatePts;
+// How late a checkoff is allowed to be
+var oneWeek = 1000 * 60 * 60 * 24 * 7;
+var SECS_ALLOWED_LATE = oneWeek;
 
 // Lab Numbers that people can be checked off for.
 var MIN_LAB = 2;
 var MAX_LAB = 18;
+
+
 
 // A long regex to parse a lot of different check off commands.
 var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
@@ -508,12 +513,11 @@ var sketchyTests = {
         test: function(co, assn) {
             var date = new Date(co.time),
                 assignments = robot.brain.get(LAB_CACHE_KEY),
-                dueDate = findLabByNum(co.lab, assignments.labs).due_at,
-                oneWeek = 1000 * 60 * 60 * 24 * 7;
+                dueDate = findLabByNum(co.lab, assignments.labs).due_at;
 
                 dueDate = new Date(dueDate);
 
-            if (!co.late && date - dueDate > oneWeek) {
+            if (!co.late && date - dueDate > SECS_ALLOWED_LATE) {
                 return false;
             }
 
