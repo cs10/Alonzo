@@ -82,6 +82,23 @@ module.exports = function(robot) {
         postGrades(laScores, msg);
     });
 
+    //see all the la data in it's raw form for debugging
+    // robot.respond(/see all la data/i, {id: 'cs10.checkoff.see-la-data'}, function(msg) {
+    //     if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
+    //         return;
+    //     }
+    //     msg.send(JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+    // });
+
+    //see the most recent checkoff for debugging
+    robot.respond(/see last checkoff/i, {id: 'cs10.checkoff.see-last-checkoff'}, function(msg) {
+        if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
+            return;
+        }
+        var data = robot.brain.get(LA_DATA_KEY);
+        msg.send(JSON.stringify(data[data.length-1]));
+    });
+
     // robot.respond(/CLEAR ALL DATA/, function(msg) {
     //     robot.brain.remove(LA_DATA_KEY);
     //     robot.brain.save();
@@ -92,10 +109,10 @@ module.exports = function(robot) {
 function processCheckOff(msg) {
     var roomFn, parsed, errors;
     switch (msg.message.room) {
+    case 'Shell': // Move this condition around for command line testing
     case LA_ROOM:
         roomFn = doLACheckoff;
         break;
-    case 'Shell': // Move this condition around for command line testing
     case TA_ROOM:
         roomFn = doTACheckoff;
         break;
@@ -223,10 +240,12 @@ function doTACheckoff(data, msg) {
 function doLACheckoff(data, msg) {
     var checkoff = {
         lab: data.lab,
+        points: data.points,
         late: data.isLate,
         sid: data.sids,
         time: (new Date()).toString(),
-        laname: msg.message.user.name
+        laname: msg.message.user.name,
+        uploaded: false
     };
 
     //save checkoff to robot brain
@@ -235,8 +254,7 @@ function doLACheckoff(data, msg) {
     robot.brain.set(LA_DATA_KEY, LA_DATA);
 
     var sketchy = isSketchy(checkoff);
-
-    if (sketchy.length == 0) {
+    if (!sketchy.length) {
 
         var scores = 'score' + (data.sids.length === 1 ? '' : 's');
         msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
@@ -251,8 +269,8 @@ function doLACheckoff(data, msg) {
 }
 
 function postSignleAssignment(assnID, sid, score, msg) {
-var scoreForm = 'submission[posted_grade]=' + score,
-    url = cs10.baseURL + 'assignments/' + assnID + '/submissions/' + sid;
+    var scoreForm = 'submission[posted_grade]=' + score,
+        url = cs10.baseURL + 'assignments/' + assnID + '/submissions/' + sid;
 
     cs10.put(url, '', scoreForm, verifyScoreSubmission(sid, score, msg));
 }
@@ -359,30 +377,28 @@ function reviewLAData(data) {
         var lab = checkoff.lab,
             sketch = isSketchy(checkoff);
 
-        // LEGACY before I placed a check on lab number this can be deleted
-        // once all the existing saved check offs are uploaded and cleared.
-        if (parseInt(lab) > 20 || parseInt(lab) < 2) { return; }
-
         if (!safe[lab] && !sketch) { safe[lab] = {}; }
 
-        if (!sketchy.labs[lab] && sketch) { sketchy[lab] = {}; }
+        if (!sketchy.labs[lab] && sketch) { sketchy.labs[lab] = {}; }
 
         var obj = safe[lab];
 
         if (sketch) {
             obj = sketchy.labs[lab];
-            sketchy.msgs.append(checkoff);
+            sketchy.msgs.push(checkoff);
         }
 
-        checkoff.sid.forEach(function(sid) {
-            // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
-            // FIXME -- this should be removed sometime soon...
-            if (!sid || sid.length !== 20 && sid.length !== 8) {
-                return
-            }
-            sid = cs10.normalizeSID(sid);
-            obj[sid] = checkoff.points;
-        })
+        if (!checkoff.uploaded) {
+            checkoff.sid.forEach(function(sid) {
+                // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
+                // FIXME -- this should be removed sometime soon...
+                if (!sid || sid.length !== 20 && sid.length !== 8) {
+                    return
+                }
+                sid = cs10.normalizeSID(sid);
+                obj[sid] = checkoff.points;
+            })
+        }
     });
 
     return { safe: safe, sketchy: sketchy };
@@ -393,17 +409,19 @@ function reviewLAData(data) {
     Or: Checked off during non-lab hours
     If a checkoff is sketchy, return an arry of warnings about why.
 **/
-function isSketchy(co, assingments) {
+function isSketchy(co, assignments) {
     var results = [];
-
-    for (var test in sketchyTests) {
-        if (!test.test(co, assignments)) {
-            results.push(test.msg);
+    for (var checkName in sketchyTests) {
+        if(sketchyTests.hasOwnProperty(checkName)) {
+            var test = sketchyTests[checkName];
+            if (!test.test(co, assignments)) {
+                results.push(test.message);
+            }
         }
     }
 
     return results;
-}
+};
 
 /*
 A way of building a function and an a corresponding error message.
@@ -415,12 +433,11 @@ bCourses:
 
 var sketchyTests = {
     isDuringDayTime: {
-        // PST, checkoffs should be between 9am - 8pm
         test: function(co, assn) {
-            var d = new Date(),
+            var d = new Date(co.time),
                 hour = d.getHours();
 
-            if (hour < 8 || hour > 7) {
+            if (hour < 8 || hour > 20) {
                 return false;
             }
 
@@ -430,10 +447,10 @@ var sketchyTests = {
     },
     isDuringWeek: {
         test: function(co, assn) {
-            var d = new Date(),
+            var d = new Date(co.time),
                 day = d.getDay();
 
-            if (d==0 || d==6) {
+            if (day==0 || day==6) {
                 return false;
             }
 
@@ -443,7 +460,8 @@ var sketchyTests = {
     },
     isOnTime: {
         test: function(co, assn) {
-            var assignments = robot.brain.get(LAB_CACHE_KEY),
+            var date = new Date(co.time),
+                assignments = robot.brain.get(LAB_CACHE_KEY),
                 dueDate = findLabByNum(co.lab, assignments.labs).due_at,
                 oneWeek = 1000 * 60 * 60 * 24 * 7;
 
