@@ -83,12 +83,12 @@ module.exports = function(robot) {
     });
 
     //see all the la data in it's raw form for debugging
-    robot.respond(/see all la data/i, {id: 'cs10.checkoff.see-la-data'}, function(msg) {
-        if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
-            return;
-        }
-        msg.send(JSON.stringify(robot.brain.get(LA_DATA_KEY)));
-    });
+    // robot.respond(/see all la data/i, {id: 'cs10.checkoff.see-la-data'}, function(msg) {
+    //     if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
+    //         return;
+    //     }
+    //     msg.send(JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+    // });
 
     //see the most recent checkoff for debugging
     robot.respond(/see last checkoff/i, {id: 'cs10.checkoff.see-last-checkoff'}, function(msg) {
