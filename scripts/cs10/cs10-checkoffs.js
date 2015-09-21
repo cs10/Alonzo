@@ -229,20 +229,24 @@ function doLACheckoff(data, msg) {
         laname: msg.message.user.name
     };
 
+    //save checkoff to robot brain
+    var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
+    LA_DATA.push(checkoff);
+    robot.brain.set(LA_DATA_KEY, LA_DATA);
+
     var sketchy = isSketchy(checkoff);
-    if (sketchy) {
-        msg.send('ERROR: You\'re being sketchy right now...\n',
-                 sketchy.join('\n'),
-                 'This checkoff will not be saved. :(');
-        var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
-        LA_DATA.push(checkoff);
-        robot.brain.set(LA_DATA_KEY, LA_DATA);
+
+    if (sketchy.length == 0) {
+
+        var scores = 'score' + (data.sids.length === 1 ? '' : 's');
+        msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
+                 ' for lab ' + data.lab  + '.');
         return;
+
     }
-    // Post scores to bCourses
-    var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-    msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
-             ' for lab ' + data.lab  + '.');
+    msg.send('ERROR: You\'re being sketchy right now...\n',
+                 sketchy.join('\n'),
+                 'This checkoff will not be uploaded. :(');
 
 }
 
@@ -390,30 +394,14 @@ function reviewLAData(data) {
     If a checkoff is sketchy, return an arry of warnings about why.
 **/
 function isSketchy(co, assingments) {
-    var results = [],
-        date = new Date(co.time),
-        day  = date.getUTCDay(),
-        hour = date.getUTCHours(),
-        oneWeek = 1000 * 60 * 60 * 24 * 7;
-    // NOTE: Heroku server time is in UTC
-    // PST, checkoffs should be between 9am - 8pm FIXME -- CONFIG THIS
-    // This means, in UTC GOOD check offs are <=5, >=17 hours
-    if (hour > 6 || hour < 17) {
-        results.push('Check offs should happen during lab or office hours!');
-    }
-    // FIXME -- is late friday a saturday in UTC??
-    if (day == 0 || day == 6) {
-        result.push('Check offs should happen during the week!');
+    var results = [];
+
+    for (var test in sketchyTests) {
+        if (!test.test(co, assignments)) {
+            results.push(test.msg);
+        }
     }
 
-    // FIXME -- this assumes the cache is valid.
-    var assignments = robot.brain.get(LAB_CACHE_KEY),
-        dueDate = findLabByNum(co.lab, assignments.labs).due_at;
-        dueDate = new Date(dueDate);
-
-    if (!co.late && date - dueDate > oneWeek) {
-        results.push('This checkoff is past due!');
-    }
     return results;
 }
 
@@ -427,19 +415,51 @@ bCourses:
 
 var sketchyTests = {
     isDuringDayTime: {
-        test: function(co, assn) {},
-        message: ''
+        // PST, checkoffs should be between 9am - 8pm
+        test: function(co, assn) {
+            var d = new Date(),
+                hour = d.getHours();
+
+            if (hour < 8 || hour > 7) {
+                return false;
+            }
+
+            return true;
+        },
+        message: 'Check offs should happen during lab or office hours! (9am-8pm)'
     },
     isDuringWeek: {
-        test: function(co, assn) {},
-        message: ''
+        test: function(co, assn) {
+            var d = new Date(),
+                day = d.getDay();
+
+            if (d==0 || d==6) {
+                return false;
+            }
+
+            return true;
+        },
+        message: 'Check offs should happen during the week!'
     },
     isOnTime: {
-        test: function(co, assn) {},
-        message: ''
+        test: function(co, assn) {
+            var assignments = robot.brain.get(LAB_CACHE_KEY),
+                dueDate = findLabByNum(co.lab, assignments.labs).due_at,
+                oneWeek = 1000 * 60 * 60 * 24 * 7;
+
+                dueDate = new Date(dueDate);
+
+            if (!co.late && date - dueDate > oneWeek) {
+                return false;
+            }
+
+            return true;
+        },
+        message: 'This checkoff is past due!'
     },
     hasValidSIDs: {
-        test: function(co, assn) {},
+        //TODO: implement SID caching
+        test: function(co, assn) { return true; },
         message: ''
     }
 };
