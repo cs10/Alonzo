@@ -55,7 +55,7 @@ module.exports = function(robot) {
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, {id: 'cs10.checkoff.la-data'}, function(msg) {
         if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
-            msg.send('/json', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+            msg.send('/code', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
         }
     });
 
@@ -87,7 +87,7 @@ module.exports = function(robot) {
     //     if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
     //         return;
     //     }
-    //     msg.send('/json', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+    //     msg.send('/code', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
     // });
 
     //see the most recent checkoff for debugging
@@ -98,7 +98,7 @@ module.exports = function(robot) {
         }
         data = robot.brain.get(LA_DATA_KEY);
         last = data[data.length - 1];
-        msg.send('/json', JSON.stringify(last));
+        msg.send('/code', JSON.stringify(last));
     });
 
     // robot.respond(/CLEAR ALL DATA/, function(msg) {
@@ -278,7 +278,7 @@ function doLACheckoff(data, msg) {
     }
     msg.send('ERROR: You\'re being sketchy right now...\n',
                  sketchy.join('\n'),
-                 'This checkoff will not be uploaded to Bcourses. :(');
+                 'This checkoff will not be uploaded to bCourses. :(');
 
 }
 
