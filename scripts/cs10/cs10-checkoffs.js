@@ -202,19 +202,97 @@ function cacheLabAssignments(callback, args) {
 }
 
 // FIXME -- protect against infinite loops!!
-function doTACheckoff(data, msg) {
-    var assignments = robot.brain.get(LAB_CACHE_KEY);
+// function doTACheckoff(data, msg) {
+//     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
+//     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
+//         data.lab + '.');
+
+//     if (!assignments || !cacheIsValid(assignments)) {
+//         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
+//         cacheLabAssignments(doTACheckoff, [data, msg]);
+//         return;
+//     }
+
+//     var assnID = getAssignmentID(data.lab, assignments, msg);
+
+//     if (!assnID) {
+//         msg.send('Well, crap...I can\'t find lab ' + data.lab + '.\n' +
+//                  'Check to make sure you put in a correct lab number.\n' +
+//                  cs10.gradebookURL);
+//         return;
+//     }
+
+//     // FIXME -- check whether 1 or more scores.
+//     successes = 0;
+//     failures = 0;
+//     expectedScores = data.sids.length;
+//     data.sids.forEach(function(sid) {
+//         postSignleAssignment(assnID, sid, data.points, msg);
+//     });
+
+//     // wait till all requests are complete...hopefully.
+//     // Or send a message after 30 seconds
+//     timeoutID = setTimeout(function() {
+//         var scores = successes + ' score' + (successes == 1 ? '' : 's');
+//         msg.send('After 30 seconds: ' + scores + ' successfully submitted.');
+//     }, 30 * 1000);
+// }
+
+function doTACheckoff(data, msg) {
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
         data.lab + '.');
 
+    uploadCheckoff(doTACheckoff, data, msg);
+}
+
+function doLACheckoff(data, msg) {
+    var checkoff = {
+        lab: data.lab,
+        points: data.points,
+        late: data.isLate,
+        sid: data.sids,
+        time: (new Date()).toString(),
+        laname: msg.message.user.name,
+        uploaded: false
+    };
+
+    //save checkoff to robot brain
+    var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
+    LA_DATA.push(checkoff);
+    robot.brain.set(LA_DATA_KEY, LA_DATA);
+
+    var sketchy = isSketchy(checkoff);
+    if (!sketchy.length) {
+
+        msg.send('LA: Checking Off ' + data.sids.length + ' students for lab ' +
+        data.lab + '.');
+
+        uploadCheckoff(doLACheckoff, data, msg);
+
+        var scores = 'score' + (data.sids.length === 1 ? '' : 's');
+        msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
+                 ' for lab ' + data.lab  + '.');
+        return;
+
+    }
+    msg.send('ERROR: You\'re being sketchy right now...\n',
+                 sketchy.join('\n'),
+                 'This checkoff will not be uploaded to Bcourses. :(');
+
+}
+
+function uploadCheckoff(roomFn, data, msg) {
+    var assignments = robot.brain.get(LAB_CACHE_KEY);
+
     if (!assignments || !cacheIsValid(assignments)) {
         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
-        cacheLabAssignments(doTACheckoff, [data, msg]);
+        cacheLabAssignments(roomFn, [data, msg]);
         return;
     }
 
     var assnID = getAssignmentID(data.lab, assignments, msg);
+
     if (!assnID) {
         msg.send('Well, crap...I can\'t find lab ' + data.lab + '.\n' +
                  'Check to make sure you put in a correct lab number.\n' +
@@ -238,36 +316,6 @@ function doTACheckoff(data, msg) {
     }, 30 * 1000);
 }
 
-function doLACheckoff(data, msg) {
-    var checkoff = {
-        lab: data.lab,
-        points: data.points,
-        late: data.isLate,
-        sid: data.sids,
-        time: (new Date()).toString(),
-        laname: msg.message.user.name,
-        uploaded: false
-    };
-
-    //save checkoff to robot brain
-    var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
-    LA_DATA.push(checkoff);
-    robot.brain.set(LA_DATA_KEY, LA_DATA);
-
-    var sketchy = isSketchy(checkoff);
-    if (!sketchy.length) {
-
-        var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-        msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
-                 ' for lab ' + data.lab  + '.');
-        return;
-
-    }
-    msg.send('ERROR: You\'re being sketchy right now...\n',
-                 sketchy.join('\n'),
-                 'This checkoff will not be uploaded. :(');
-
-}
 
 function postSignleAssignment(assnID, sid, score, msg) {
     var scoreForm = 'submission[posted_grade]=' + score,
@@ -473,7 +521,7 @@ var sketchyTests = {
                 dueDate = new Date(dueDate);
 
                 console.log('On time check.... ', JSON.stringify(assn));
-            
+
             // TODO: CONFIGURE ONE WEEK TIME.
             if (!co.late && date - dueDate > oneWeek) {
                 return false;
