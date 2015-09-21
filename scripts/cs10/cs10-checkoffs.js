@@ -92,10 +92,10 @@ module.exports = function(robot) {
 function processCheckOff(msg) {
     var roomFn, parsed, errors;
     switch (msg.message.room) {
+    case 'Shell': // Move this condition around for command line testing
     case LA_ROOM:
         roomFn = doLACheckoff;
         break;
-    case 'Shell': // Move this condition around for command line testing
     case TA_ROOM:
         roomFn = doTACheckoff;
         break;
@@ -103,6 +103,9 @@ function processCheckOff(msg) {
         msg.send('Lab Check offs are not allowed from this room');
         return;
     }
+
+    console.log(robot.brain.get(LA_DATA_KEY));
+    console.log(robot.brain.get(LAB_CACHE_KEY));
 
     parsed = extractMessage(msg.message.text);
     errors = verifyErrors(parsed);
@@ -225,7 +228,8 @@ function doLACheckoff(data, msg) {
         late: data.isLate,
         sid: data.sids,
         time: (new Date()).toString(),
-        laname: msg.message.user.name
+        laname: msg.message.user.name,
+        uploaded: false
     };
 
     //save checkoff to robot brain
@@ -234,8 +238,7 @@ function doLACheckoff(data, msg) {
     robot.brain.set(LA_DATA_KEY, LA_DATA);
 
     var sketchy = isSketchy(checkoff);
-
-    if (sketchy.length == 0) {
+    if (sketchy.length === 0) {
 
         var scores = 'score' + (data.sids.length === 1 ? '' : 's');
         msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
@@ -392,17 +395,19 @@ function reviewLAData(data) {
     Or: Checked off during non-lab hours
     If a checkoff is sketchy, return an arry of warnings about why.
 **/
-function isSketchy(co, assingments) {
+function isSketchy(co, assignments) {
     var results = [];
-
-    for (var test in sketchyTests) {
-        if (!test.test(co, assignments)) {
-            results.push(test.msg);
+    for (var checkName in sketchyTests) {
+        if(sketchyTests.hasOwnProperty(checkName)) {
+            var test = sketchyTests[checkName];
+            if (!test.test(co, assignments)) {
+                results.push(test.message);
+            }
         }
     }
 
     return results;
-}
+};
 
 /*
 A way of building a function and an a corresponding error message.
@@ -414,9 +419,8 @@ bCourses:
 
 var sketchyTests = {
     isDuringDayTime: {
-        // PST, checkoffs should be between 9am - 8pm
         test: function(co, assn) {
-            var d = new Date(),
+            var d = new Date(co.time),
                 hour = d.getHours();
 
             if (hour < 8 || hour > 7) {
@@ -429,10 +433,10 @@ var sketchyTests = {
     },
     isDuringWeek: {
         test: function(co, assn) {
-            var d = new Date(),
+            var d = new Date(co.time),
                 day = d.getDay();
 
-            if (d==0 || d==6) {
+            if (day==0 || day==6) {
                 return false;
             }
 
@@ -442,7 +446,8 @@ var sketchyTests = {
     },
     isOnTime: {
         test: function(co, assn) {
-            var assignments = robot.brain.get(LAB_CACHE_KEY),
+            var date = new Date(co.time),
+                assignments = robot.brain.get(LAB_CACHE_KEY),
                 dueDate = findLabByNum(co.lab, assignments.labs).due_at,
                 oneWeek = 1000 * 60 * 60 * 24 * 7;
 
