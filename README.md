@@ -45,14 +45,14 @@ Alonzo is designed to be deployed on Heroku and connected to HipChat. The initia
 3. If you have just cloned the repo, you should make sure to `npm install`.
 4. Make a free Herkou account and get access to the Herkou app named 'alonzo'. Talk to the head TA to get access.
 5. In your local copy of this repo add a remote as follows (this will allow you to push to Herkou in the next step):
-	```
-	heroku git:remote -a alonzo
-	```
+    ```
+    heroku git:remote -a alonzo
+    ```
 6. To update alonzo on Herkou (this pushes live to the chatbot!):
-	```bash
-	git push heroku master
-	heroku logs # make sure nothing broke!
-	```
+       ```bash
+       git push heroku master
+       heroku logs # make sure nothing broke!
+       ```
 7. Also push to this repo so that your changes get saved here.
 8. All of the CS10 config values can be found in the file `.env [Alonzo]` (in a separate, secret, repo). The values are on Heroku or other places. You should be able to find where it is, if you have access. :) **If you want to test alonzo locally you'll need to copy this file into the root directory of this repo and name it `.env`.**
 
