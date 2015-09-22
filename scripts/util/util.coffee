@@ -24,4 +24,4 @@ module.exports = (robot) ->
   robot.hear /@all/i, (msg) ->
     room = msg.message.room
     # TODO: Get users in a room.
-    msg.reply('Please be careful when using `at all`.')
+    msg.reply('Please be careful when using `@ all`.')
