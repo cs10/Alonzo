@@ -28,6 +28,6 @@ module.exports = function(robot) {
     });
 
     robot.respond(/\s*locker( combo)?/i, {id: 'cs10.locker'}, function(msg) {
-        msg.send('11-29-15');
+        msg.send(process.env.LOCKER_COMBO);
     });
 }
