@@ -62,13 +62,13 @@ cs10.labCheckOffLatePts = 1;
 // Use the bCourses API courses/X/assignments to get these IDs or the page URLs
 // https://bcourses.berkeley.edu/api/v1/courses/XXX/assignments
 cs10.slipDayAssignmentIDs = [
-    6365043, // Homework 1
-    6365044, // Homework 2
-    6365045, // Homework 3
-    6365047, // Midterm Project
-    6365049, // Explore Post Content
-    6365042, // Explore Post Artifact and Comments
-    6365048, // Final Project
+    6644471, // Homework 1
+    6644472, // Homework 2
+    6930656, // Homework 3
+    6644475, // Midterm Project
+    //TODO: this is tricky to get if it's a discussion -- must use the API
+    6644470, // Explore Post Content
+    6644476, // Final Project
 ];
 
 // Note that these need to be internal canvas IDs as integers!
@@ -77,8 +77,8 @@ cs10.slipDayAssignmentIDs = [
 // courses/X/search_users?enrollment_type=teacher
 cs10.staffIDs = [
     4862335, // Michael Ball
-    4889648,// Yifat Amir
-    4901643,//Joseph Cawthorne
+    4889648, // Yifat Amir
+    4901643, // Joseph Cawthorne
     4890943, // Erik Dahlquist
     4831377, // Carlos Flores
     4904171, // Janna Golden
