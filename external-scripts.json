@@ -3,6 +3,7 @@
     "hubot-group-alias",
     "hubot-google-hangouts",
     "hubot-meme",
+    "hubot-piazza",
     "hubot-pusheen",
     "hubot-plusplus",
     "hubot-redis-brain",
