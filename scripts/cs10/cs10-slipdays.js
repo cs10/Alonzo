@@ -21,13 +21,12 @@
 var cs10 = require('./bcourses/');
 
 module.exports = function(robot) {
-    // Just a simple redirect to the CS10 site.
-    robot.respond(/slip[- ]?days\s*(\d+)/i, {id: 'cs10.slip-days'}, function(msg) {
+    // redirect to the CS10 site.
+    robot.respond(/slip days\s*(\d+)/i, {id: 'cs10.slip-days'}, function(msg) {
         msg.send('http://cs10.org/sp15/slipdays/?' + msg.match[1]);
     });
 
     robot.router.get('/slipdays/:sid', function(req, res) {
-        res.type('text/json');
         res.setHeader('Content-Type', 'text/json');
         // Damn you CORS....
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -66,10 +65,12 @@ var STATE_GRADED = 'graded';
 function calculateSlipDays(sid, callback) {
     var url = cs10.baseURL + 'students/submissions',
         options = {
-            'include[]' : ['submission_comments', 'assignment', 'assignment_overrides'],
+            'include[]' : ['submission_comments', 'assignment'],
             'student_ids[]' : cs10.normalizeSID(sid),
             'assignment_ids[]' : cs10.slipDayAssignmentIDs,
-            // 'as_user_id' : cs10.normalizeSID(sid),
+            // parameters of the assingment object...they dont work
+            // 'override_assignment_dates' : false,
+            // 'all_dates' : true,
             grouped : true
         };
 
@@ -86,7 +87,6 @@ function calculateSlipDays(sid, callback) {
             if (body.errors.constructor != Array) {
                 body.errors = [ body.errors ];
             }
-            console.log(body.errors);
             body.errors.forEach(function(err) {
                 results.errors.push(err.message);
             });
@@ -97,37 +97,32 @@ function calculateSlipDays(sid, callback) {
         var submissions = body[0].submissions;
         // List of submissions contains only most recent submission
         submissions.forEach(function(subm) {
-            var days, verified, submitted, state, assignment, dispDays;
+            var days, verified, submitted, state, assignment, displayDays;
             state = subm.workflow_state;
             submitted = subm.submitted_at !== null;
             verified = false; // True IFF Reader explicitly left a comment
             
             if (state === STATE_GRADED) { // Use Reader Comments, if avail.
                 days = getReaderDays(subm.submission_comments);
-                dispDays = days;
+                displayDays = days;
                 verified = days != -1;
             }
             
             if (!verified) { // Use time of submission
-                subm.assignment.description = '';
-                console.log('Submission: ', subm);
-                console.log(subm.submitted_at, '\n\n', subm.assignment.due_at);
                 days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                dispDays = days;
-                console.log(days);
+                displayDays = days;
                 if (subm.assignment.has_overrides) {
-                    dispDays = 'Unknown!';
+                    displayDays = 'Unknown!';
                     results.errors.push('Could not calculate days for ' +
                         subm.assignment.name);
                 }
             }
-            
             // No submissions result in days<0.
             days = Math.max(0, days);
 
             assignment = {
                 title: subm.assignment.name,
-                slipDays: dispDays,
+                slipDays: displayDays,
                 verified: verified,
                 url: subm.preview_url,
                 submitted: submitted
@@ -150,7 +145,6 @@ function getReaderDays(comments) {
     comments = comments.filter(commentIsAuthorized);
     // It's possible multiple readers may comment.
     // The last comment with a valid day found will be used for slip days
-    // TODO: Explictly verify the last comment is the most recent.
     comments.forEach(function(comment) {
         tempDay = extractSlipDays(comment.comment);
         if (tempDay !== -1) {
