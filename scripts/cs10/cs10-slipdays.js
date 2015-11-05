@@ -66,24 +66,27 @@ var STATE_GRADED = 'graded';
 function calculateSlipDays(sid, callback) {
     var url = cs10.baseURL + 'students/submissions',
         options = {
-            'include[]' : ['submission_comments', 'assignment'],
+            'include[]' : ['submission_comments', 'assignment', 'assignment_overrides'],
             'student_ids[]' : cs10.normalizeSID(sid),
             'assignment_ids[]' : cs10.slipDayAssignmentIDs,
+            // 'as_user_id' : cs10.normalizeSID(sid),
             grouped : true
         };
 
     cs10.get(url, options, function(error, response, body) {
-        var days, verified, submitted,
-            results = {
+        var results = {
                 totalDays: 0,
                 daysRemaining: cs10.allowedSlipDays,
                 assignments: [], // Assignment object described below
-                errors: null
+                errors: []
             };
 
         if (!body || body.errors) {
-            results.errors = [];
             results.errors.push('Oh, Snap! Something went wrong. :(');
+            if (body.errors.constructor != Array) {
+                body.errors = [ body.errors ];
+            }
+            console.log(body.errors);
             body.errors.forEach(function(err) {
                 results.errors.push(err.message);
             });
@@ -93,29 +96,38 @@ function calculateSlipDays(sid, callback) {
 
         var submissions = body[0].submissions;
         // List of submissions contains only most recent submission
-        // TODO: Check for muted assignments?
         submissions.forEach(function(subm) {
+            var days, verified, submitted, state, assignment, dispDays;
             state = subm.workflow_state;
             submitted = subm.submitted_at !== null;
             verified = false; // True IFF Reader explicitly left a comment
-            if (state == STATE_GRADED) { // Use Reader Comments or fallback
+            
+            if (state === STATE_GRADED) { // Use Reader Comments, if avail.
                 days = getReaderDays(subm.submission_comments);
-                if (days == -1 && submitted) {
-                    // TODO: Send readers a notifcation for an assignment
-                    // w/no slip days.
-                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                } else if (days != -1) {
-                    // Reader Comments found.
-                    verified = true;
-                }
-            } else { // Calculate time based on submission
-                days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+                dispDays = days;
+                verified = days != -1;
             }
-            days = Math.max(0, days); // No negative slip days!
+            
+            if (!verified) { // Use time of submission
+                subm.assignment.description = '';
+                console.log('Submission: ', subm);
+                console.log(subm.submitted_at, '\n\n', subm.assignment.due_at);
+                days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+                dispDays = days;
+                console.log(days);
+                if (subm.assignment.has_overrides) {
+                    dispDays = 'Unknown!';
+                    results.errors.push('Could not calculate days for ' +
+                        subm.assignment.name);
+                }
+            }
+            
+            // No submissions result in days<0.
+            days = Math.max(0, days);
 
-            var assignment = {
+            assignment = {
                 title: subm.assignment.name,
-                slipDays: days,
+                slipDays: dispDays,
                 verified: verified,
                 url: subm.preview_url,
                 submitted: submitted
@@ -124,7 +136,7 @@ function calculateSlipDays(sid, callback) {
             results.totalDays      += days;
             results.daysRemaining  -= days;
             results.assignments.push(assignment);
-        })
+        });
 
         callback(results);
     });
