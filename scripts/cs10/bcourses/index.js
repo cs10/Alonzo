@@ -72,19 +72,31 @@ cs10.slipDayAssignmentIDs = [
 ];
 
 // Note that these need to be internal canvas IDs as integers!
-// TODO: Future Query roles for TAs (also check for type teacher !!)
-// courses/X/search_users?enrollment_type=ta
-// courses/X/search_users?enrollment_type=teacher
+// TODO: Future Query roles for TAs (types "ta" and "teacher")
+// /courses/X/users?enrollment_type[]=ta&enrollment_type[]=teacher
 cs10.staffIDs = [
-    4862335, // Michael Ball
-    4889648, // Yifat Amir
-    4901643, // Joseph Cawthorne
-    4890943, // Erik Dahlquist
+    4611784,
     4831377, // Carlos Flores
+    4862335, // Michael Ball
+    4886975,
+    4889648, // Yifat Amir
+    4890943, // Erik Dahlquist
+    4894982,
+    4900858,
+    4901643, // Joseph Cawthorne
+    4901852,
     4904171, // Janna Golden
+    4904808,
     4907764, // Rachel Huang
-    4997192,  // Adam Kuphaldt
-    4978136 // Lara McConnaughey
+    4908524,
+    4944680,
+    4978136, // Lara McConnaughey
+    4997192, // Adam Kuphaldt
+    5008226,
+    5013193,
+    5013924,
+    5025344,
+    5028746
 ];
 
 
