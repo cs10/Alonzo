@@ -8,7 +8,6 @@
 //   See bcourses
 //
 // Commands:
-//   hubot (late) check off <NUM> <SIDs> -- CS10: check off these students
 //
 // Author:
 //  Michael Ball

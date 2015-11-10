@@ -1,17 +1,8 @@
 // DESCRIPTION:
-//  Loads subdirectories in the scripts folder.
+// Loads subdirectories in the scripts folder.
 //
-//  COMMANDS:
-//  None
-//
-//  URLs:
-//  None
-//
-//  DEPENDENCIES:
-//  None
-//
-//  AUTHOR:
-//  Michael Ball
+// AUTHOR:
+// Michael Ball
 
 
 var fs = require('fs');
@@ -22,7 +13,6 @@ module.exports = function (robot) {
         dirs = fs.readdirSync('./scripts');
 
     dirs.forEach(function (dir) {
-        // TODO: Better checking of file needed.
         if (dir.indexOf('.') == -1) {
             scriptsPath = Path.resolve(".", "scripts/", dir)
             robot.load(scriptsPath);

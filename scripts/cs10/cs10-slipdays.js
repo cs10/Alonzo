@@ -23,7 +23,7 @@ var cs10 = require('./bcourses/');
 module.exports = function(robot) {
     // redirect to the CS10 site.
     robot.respond(/slip days\s*(\d+)/i, {id: 'cs10.slip-days'}, function(msg) {
-        msg.send('http://cs10.org/sp15/slipdays/?' + msg.match[1]);
+        msg.send('http://cs10.org/fa15/slipdays/?' + msg.match[1]);
     });
 
     robot.router.get('/slipdays/:sid', function(req, res) {
