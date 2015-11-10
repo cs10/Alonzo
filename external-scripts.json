@@ -9,6 +9,7 @@
     "hubot-redis-brain",
     "hubot-shipit",
     "hubot-thank-you",
+    "hubot-wikipedia",
     "hubot-whiteboardcleaner",
     "hubot-xkcd"
 ]

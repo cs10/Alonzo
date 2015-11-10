@@ -31,6 +31,7 @@
     "hubot-shipit": "^0.2.0",
     "hubot-thank-you": "git://github.com/hubot-scripts/hubot-thank-you.git",
     "hubot-whiteboardcleaner": "0.0.4",
+    "hubot-wikipedia": "0.0.2",
     "hubot-xkcd": "0.0.3",
     "node-canvas-lms": "git://github.com/cs10/node-canvas-lms.git",
     "node-native-zip": "^1.1.0",
