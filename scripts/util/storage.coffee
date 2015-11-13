@@ -35,7 +35,8 @@ module.exports = (robot) ->
       item = item.slice('_private.'.length) # trim the item strig to find.
       output = Util.inspect data._private[item], false, 4
       res.send 'You will get a private message with your answer!'
-      # Note - send if supposed to take a user ID, but this doesn't work?
+      # Send a PM. NOTE: Totally HipChat specific.
+      # TODO: make this response middleware with a PM function.
       reply_to = '121233_USERID@chat.hipchat.com'.replace('USERID', res.message.user.id)
       env = res.envelope
       env.room = undefined
