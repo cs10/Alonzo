@@ -14,7 +14,7 @@
 // Author:
 //  Michael Ball
 
-cs10 = require('./bcourses/');
+cs10 = require('./bcourses-config.js');
 
 module.exports = function(robot) {
     robot.respond(/.*(links|forms).*/i, {id: 'cs10.links'}, function(msg) {

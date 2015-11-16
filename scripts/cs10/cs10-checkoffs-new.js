@@ -2,7 +2,7 @@
 //   Handle lab check offs in hipchat. No more paper needed! :D
 //
 // Dependencies:
-//   bcourses library see ./bcourses/index.js
+//   bcourses library see ./bcourses-config.js
 //
 // Configuration:
 //   See bcourses
@@ -13,7 +13,7 @@
 //  Michael Ball
 
 // This sets up all the bCourses interface stuff
-var cs10 = require('./bcourses/');
+var cs10 = require('./bcourses-config.js');
 
 // CONSTANTS
 var CACHE_HOURS = 18;

@@ -3,7 +3,7 @@
 //   Exposes: /slipdays/:studentID/:json? as a web endpoint
 //
 // Dependencies:
-//   bcourses library see ./bcourses/index.js
+//   bcourses library see ./bcourses-config.js
 //
 // Configuration:
 //   See bcourses
@@ -18,7 +18,7 @@
 //  Michael Ball
 
 // This sets up all the bCourses interface stuff
-var cs10 = require('./bcourses/');
+var cs10 = require('./bcourses-config.js');
 
 module.exports = function(robot) {
     // redirect to the CS10 site.
