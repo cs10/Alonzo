@@ -25,6 +25,9 @@ cs10.courseID = 1371647;
 // Michael Sandbox: 1593713
 cs10.labsID = 1846637;
 
+//Key for redis cache for an array of staff ids.
+cs10.STAFF_CACHE_KEY = "STAFF_IDS";
+
 // This changes the default ID of a student to tell bCourses to use SIDs
 // The default are internal bCourses IDs, but no one knows those.
 // See https://bcourses.berkeley.edu/doc/api/file.object_ids.html
@@ -73,30 +76,29 @@ cs10.slipDayAssignmentIDs = [
 // Note that these need to be internal canvas IDs as integers!
 // TODO: Future Query roles for TAs (types "ta" and "teacher")
 // /courses/X/users?enrollment_type[]=ta&enrollment_type[]=teacher
-cs10.staffIDs = [
-    4611784,
-    4831377, // Carlos Flores
-    4862335, // Michael Ball
-    4886975,
-    4889648, // Yifat Amir
-    4890943, // Erik Dahlquist
-    4894982,
-    4900858,
-    4901643, // Joseph Cawthorne
-    4901852,
-    4904171, // Janna Golden
-    4904808,
-    4907764, // Rachel Huang
-    4908524,
-    4944680,
-    4978136, // Lara McConnaughey
-    4997192, // Adam Kuphaldt
-    5008226,
-    5013193,
-    5013924,
-    5025344,
-    5028746
-];
+cs10.staffIDs = null;
+    // 4611784,
+    // 4831377, // Carlos Flores
+    // 4862335, // Michael Ball
+    // 4886975,
+    // 4889648, // Yifat Amir
+    // 4890943, // Erik Dahlquist
+    // 4894982,
+    // 4900858,
+    // 4901643, // Joseph Cawthorne
+    // 4901852,
+    // 4904171, // Janna Golden
+    // 4904808,
+    // 4907764, // Rachel Huang
+    // 4908524,
+    // 4944680,
+    // 4978136, // Lara McConnaughey
+    // 4997192, // Adam Kuphaldt
+    // 5008226,
+    // 5013193,
+    // 5013924,
+    // 5025344,
+    // 5028746
 
 // Trim an SID and check of extenstion students
 // This must called whenever a SID is used to make sure its the proper format
@@ -136,12 +138,33 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
     })
 }
 
+//Refreshes the current list of staff IDs
+cs10.refreshStaffIDs = function(cb) {
+    var params = {per_page: '100'};
+    cs10.get('/courses/' + cs10.courseID + '/users?enrollment_type[]=ta&enrollment_type[]=teacher', params, function(err, resp, staffInfo) {
+        if (err != null || staffInfo == null) {
+            cb("there was a problem");
+            return;
+        }
+        var staffIDs = [];
+        for (var i = 0; i < staffInfo.length; i++) {
+            staffIDs.push(staffInfo[i].id);
+        }
+        robot.brain.set(cs10.STAFF_CACHE_KEY, staffIDs);
+        cs10.staffIDs = staffIDs;
+        cb(null);
+    })
+}
+
 // Note this is probably non-standard, but it works!
 
 // Hubot's default module.exports so the config file can access robot properties
 // DO NOT add any listeners here!
 module.exports = function (robot) {
-    console.log('robot... ', robot);
+    var staffIDs = robot.brain.get(cs10.STAFF_CACHE_KEY);
+    if (staffIDs == null) {
+        cs10.refreshStaffIDs(function(err) { return; });
+    }
 }
 
 // extend the exports so there can be easy to access functions and properties
