@@ -98,7 +98,6 @@ cs10.staffIDs = [
     5028746
 ];
 
-
 // Trim an SID and check of extenstion students
 // This must called whenever a SID is used to make sure its the proper format
 cs10.normalizeSID = function(sid) {
