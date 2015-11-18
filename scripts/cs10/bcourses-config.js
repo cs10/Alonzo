@@ -136,6 +136,15 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
     })
 }
 
-// Note that all variable which you want to share with other scripts must be
-// a member of the CS10 object.
-module.exports = cs10;
+// Note this is probably non-standard, but it works!
+
+// Hubot's default module.exports so the config file can access robot properties
+// DO NOT add any listeners here!
+module.exports = function (robot) {
+    console.log('robot... ', robot);
+}
+
+// extend the exports so there can be easy to access functions and properties
+for (key in cs10) {
+    module.exports[key] = cs10[key];
+}
