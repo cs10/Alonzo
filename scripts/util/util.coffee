@@ -12,7 +12,6 @@
 #
 
 
-
 child_process = require('child_process')
 module.exports = (robot) ->
   robot.respond /calendar( me)?/i, (msg) ->
@@ -25,5 +24,4 @@ module.exports = (robot) ->
   robot.hear /@all/i, (msg) ->
     room = msg.message.room
     # TODO: Get users in a room.
-    msg.reply('Please be careful when using @all.',
-              'Perhaps you want to message a group like readers or TAs?')
+    msg.reply('Please be careful when using `@ all`.')

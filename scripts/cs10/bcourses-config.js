@@ -51,7 +51,6 @@ cs10.SWAP_IDS = { };
 // Course Level Policies:
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays    = 3;
-// NOTE THE SUMMER DIFFERENCE HERE.
 cs10.firstLab           = 2;
 cs10.lastLab            = 18;
 cs10.labCheckOffPoints  = 2; // These could be changed as the course changes.
@@ -62,29 +61,41 @@ cs10.labCheckOffLatePts = 1;
 // Use the bCourses API courses/X/assignments to get these IDs or the page URLs
 // https://bcourses.berkeley.edu/api/v1/courses/XXX/assignments
 cs10.slipDayAssignmentIDs = [
-    6365043, // Homework 1
-    6365044, // Homework 2
-    6365045, // Homework 3
-    6365047, // Midterm Project
-    6365049, // Explore Post Content
-    6365042, // Explore Post Artifact and Comments
-    6365048, // Final Project
+    6644471, // Homework 1
+    6644472, // Homework 2
+    6930656, // Homework 3
+    6644475, // Midterm Project
+    //TODO: this is tricky to get if it's a discussion -- must use the API
+    6644470, // Explore Post Content
+    6644476, // Final Project
 ];
 
 // Note that these need to be internal canvas IDs as integers!
-// TODO: Future Query roles for TAs (also check for type teacher !!)
-// courses/X/search_users?enrollment_type=ta
-// courses/X/search_users?enrollment_type=teacher
+// TODO: Future Query roles for TAs (types "ta" and "teacher")
+// /courses/X/users?enrollment_type[]=ta&enrollment_type[]=teacher
 cs10.staffIDs = [
-    4862335, // Michael Ball
-    4889648,// Yifat Amir
-    4901643,//Joseph Cawthorne
-    4890943, // Erik Dahlquist
+    4611784,
     4831377, // Carlos Flores
+    4862335, // Michael Ball
+    4886975,
+    4889648, // Yifat Amir
+    4890943, // Erik Dahlquist
+    4894982,
+    4900858,
+    4901643, // Joseph Cawthorne
+    4901852,
     4904171, // Janna Golden
+    4904808,
     4907764, // Rachel Huang
-    4997192,  // Adam Kuphaldt
-    4978136 // Lara McConnaughey
+    4908524,
+    4944680,
+    4978136, // Lara McConnaughey
+    4997192, // Adam Kuphaldt
+    5008226,
+    5013193,
+    5013924,
+    5025344,
+    5028746
 ];
 
 

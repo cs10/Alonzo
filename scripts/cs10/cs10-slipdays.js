@@ -3,7 +3,7 @@
 //   Exposes: /slipdays/:studentID/:json? as a web endpoint
 //
 // Dependencies:
-//   bcourses library see ./bcourses/index.js
+//   bcourses library see ./bcourses-config.js
 //
 // Configuration:
 //   See bcourses
@@ -18,16 +18,15 @@
 //  Michael Ball
 
 // This sets up all the bCourses interface stuff
-var cs10 = require('./bcourses/');
+var cs10 = require('./bcourses-config.js');
 
 module.exports = function(robot) {
-    // Just a simple redirect to the CS10 site.
-    robot.respond(/slip[- ]?days\s*(\d+)/i, {id: 'cs10.slip-days'}, function(msg) {
-        msg.send('http://cs10.org/sp15/slipdays/?' + msg.match[1]);
+    // redirect to the CS10 site.
+    robot.respond(/slip days\s*(\d+)/i, {id: 'cs10.slip-days'}, function(msg) {
+        msg.send('http://cs10.org/fa15/slipdays/?' + msg.match[1]);
     });
 
     robot.router.get('/slipdays/:sid', function(req, res) {
-        res.type('text/json');
         res.setHeader('Content-Type', 'text/json');
         // Damn you CORS....
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -69,21 +68,25 @@ function calculateSlipDays(sid, callback) {
             'include[]' : ['submission_comments', 'assignment'],
             'student_ids[]' : cs10.normalizeSID(sid),
             'assignment_ids[]' : cs10.slipDayAssignmentIDs,
+            // parameters of the assingment object...they dont work
+            // 'override_assignment_dates' : false,
+            // 'all_dates' : true,
             grouped : true
         };
 
     cs10.get(url, options, function(error, response, body) {
-        var days, verified, submitted,
-            results = {
+        var results = {
                 totalDays: 0,
                 daysRemaining: cs10.allowedSlipDays,
                 assignments: [], // Assignment object described below
-                errors: null
+                errors: []
             };
 
         if (!body || body.errors) {
-            results.errors = [];
             results.errors.push('Oh, Snap! Something went wrong. :(');
+            if (body.errors.constructor != Array) {
+                body.errors = [ body.errors ];
+            }
             body.errors.forEach(function(err) {
                 results.errors.push(err.message);
             });
@@ -93,29 +96,33 @@ function calculateSlipDays(sid, callback) {
 
         var submissions = body[0].submissions;
         // List of submissions contains only most recent submission
-        // TODO: Check for muted assignments?
         submissions.forEach(function(subm) {
+            var days, verified, submitted, state, assignment, displayDays;
             state = subm.workflow_state;
             submitted = subm.submitted_at !== null;
             verified = false; // True IFF Reader explicitly left a comment
-            if (state == STATE_GRADED) { // Use Reader Comments or fallback
+            
+            if (state === STATE_GRADED) { // Use Reader Comments, if avail.
                 days = getReaderDays(subm.submission_comments);
-                if (days == -1 && submitted) {
-                    // TODO: Send readers a notifcation for an assignment
-                    // w/no slip days.
-                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                } else if (days != -1) {
-                    // Reader Comments found.
-                    verified = true;
-                }
-            } else { // Calculate time based on submission
-                days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+                displayDays = days;
+                verified = days != -1;
             }
-            days = Math.max(0, days); // No negative slip days!
+            
+            if (!verified) { // Use time of submission
+                days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
+                displayDays = days;
+                if (subm.assignment.has_overrides) {
+                    displayDays = 'Unknown!';
+                    results.errors.push('Could not calculate days for ' +
+                        subm.assignment.name);
+                }
+            }
+            // No submissions result in days<0.
+            days = Math.max(0, days);
 
-            var assignment = {
+            assignment = {
                 title: subm.assignment.name,
-                slipDays: days,
+                slipDays: displayDays,
                 verified: verified,
                 url: subm.preview_url,
                 submitted: submitted
@@ -124,7 +131,7 @@ function calculateSlipDays(sid, callback) {
             results.totalDays      += days;
             results.daysRemaining  -= days;
             results.assignments.push(assignment);
-        })
+        });
 
         callback(results);
     });
@@ -138,7 +145,6 @@ function getReaderDays(comments) {
     comments = comments.filter(commentIsAuthorized);
     // It's possible multiple readers may comment.
     // The last comment with a valid day found will be used for slip days
-    // TODO: Explictly verify the last comment is the most recent.
     comments.forEach(function(comment) {
         tempDay = extractSlipDays(comment.comment);
         if (tempDay !== -1) {

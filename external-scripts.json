@@ -3,11 +3,13 @@
     "hubot-group-alias",
     "hubot-google-hangouts",
     "hubot-meme",
+    "hubot-piazza",
     "hubot-pusheen",
     "hubot-plusplus",
     "hubot-redis-brain",
     "hubot-shipit",
     "hubot-thank-you",
+    "hubot-wikipedia",
     "hubot-whiteboardcleaner",
     "hubot-xkcd"
 ]
