@@ -101,13 +101,13 @@ function calculateSlipDays(sid, callback) {
             state = subm.workflow_state;
             submitted = subm.submitted_at !== null;
             verified = false; // True IFF Reader explicitly left a comment
-            
+
             if (state === STATE_GRADED) { // Use Reader Comments, if avail.
                 days = getReaderDays(subm.submission_comments);
                 displayDays = days;
                 verified = days != -1;
             }
-            
+
             if (!verified) { // Use time of submission
                 days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
                 displayDays = days;
