@@ -39,9 +39,20 @@ var TA_ROOM = 'lab_check-off_room';
 // Data is stored in the brain in the following ways:
 // "CHECKOFF-DATA-N" items for all parsable messages
 // 'CHECKOFF-ERRORS' for all messages which are likely checkoffs but errored
-var CHECKOFF_DATA  = 'CHECKOFF-DATA-';
+var CHECKOFF_DATA  = 'CHECKOFF-DATA';
 var CHECKOFF_ERR   = 'CHECKOFF-ERRORS';
 var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
+
+/**
+ * HOW CHECKOFF DATA IS ORGANIZED (Andy's Idea)
+ * Data is organized by lab
+ *
+ * CHECKOFF-DATA = {
+    lab1 : {c1, c2, ...},
+    lab2 : {c3, c4, ...},
+    ...
+ }
+ */
 
 // Global-ish stuff for successful lab checkoff submissions.
 var successes;

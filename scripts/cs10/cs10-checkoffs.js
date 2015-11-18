@@ -207,43 +207,6 @@ function cacheLabAssignments(callback, args) {
 }
 
 // FIXME -- protect against infinite loops!!
-// function doTACheckoff(data, msg) {
-//     var assignments = robot.brain.get(LAB_CACHE_KEY);
-
-//     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
-//         data.lab + '.');
-
-//     if (!assignments || !cacheIsValid(assignments)) {
-//         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
-//         cacheLabAssignments(doTACheckoff, [data, msg]);
-//         return;
-//     }
-
-//     var assnID = getAssignmentID(data.lab, assignments, msg);
-
-//     if (!assnID) {
-//         msg.send('Well, crap...I can\'t find lab ' + data.lab + '.\n' +
-//                  'Check to make sure you put in a correct lab number.\n' +
-//                  cs10.gradebookURL);
-//         return;
-//     }
-
-//     // FIXME -- check whether 1 or more scores.
-//     successes = 0;
-//     failures = 0;
-//     expectedScores = data.sids.length;
-//     data.sids.forEach(function(sid) {
-//         postSignleAssignment(assnID, sid, data.points, msg);
-//     });
-
-//     // wait till all requests are complete...hopefully.
-//     // Or send a message after 30 seconds
-//     timeoutID = setTimeout(function() {
-//         var scores = successes + ' score' + (successes == 1 ? '' : 's');
-//         msg.send('After 30 seconds: ' + scores + ' successfully submitted.');
-//     }, 30 * 1000);
-// }
-
 function doTACheckoff(data, msg) {
     msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
         data.lab + '.');
