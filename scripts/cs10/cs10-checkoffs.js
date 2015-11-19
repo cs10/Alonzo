@@ -64,7 +64,8 @@ module.exports = function(robot) {
         }
     });
 
-    robot.respond(/refresh\s*(bcourses)?\s*cache/i, {id: 'cs10.checkoff.refresh-lab-cache'}, function(msg) {
+    robot.respond(/refresh\s*(bcourses)?\s*cache/i,
+                {id: 'cs10.checkoff.refresh-lab-cache'}, function(msg) {
         robot.brain.remove(LAB_CACHE_KEY);
         msg.send('Waiting on bCourses...');
         cacheLabAssignments(msg.send, ['Assignments Cache Refreshed']);
@@ -175,6 +176,8 @@ function verifyErrors(parsed) {
 
     return errors;
 }
+
+
 // Cache
 // TODO: document wacky callback thingy
 function verifyCache(callback, args) {

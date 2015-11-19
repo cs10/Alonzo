@@ -140,8 +140,11 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
 
 //Refreshes the current list of staff IDs
 cs10.refreshStaffIDs = function(cb) {
-    var params = {per_page: '100'};
-    cs10.get('/courses/' + cs10.courseID + '/users?enrollment_type[]=ta&enrollment_type[]=teacher', params, function(err, resp, staffInfo) {
+    var params = {
+        per_page: '100',
+        enrollment_type: ['ta', 'teacher']
+    };
+    cs10.get('/courses/' + cs10.courseID + '/users', params, function(err, resp, staffInfo) {
         if (err != null || staffInfo == null) {
             cb("there was a problem");
             return;
