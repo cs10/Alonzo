@@ -68,7 +68,9 @@ module.exports = function(robot) {
                 {id: 'cs10.checkoff.refresh-lab-cache'}, function(msg) {
         robot.brain.remove(LAB_CACHE_KEY);
         msg.send('Waiting on bCourses...');
-        cacheLabAssignments(msg.send, ['Assignments Cache Refreshed']);
+
+        //anonymous function because msg.send.apply is broken in hubot
+        cacheLabAssignments(function(msgText) { msg.send(msgText); }, ['Assignments Cache Refreshed']);
     });
 
     // Command Review LA data
@@ -258,7 +260,7 @@ function uploadCheckoff(roomFn, data, msg) {
 
     if (!assignments || !cacheIsValid(assignments)) {
         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
-        cacheLabAssignments(roomFn, [data, msg]);
+        cacheLabAssignments(function(data, msg) { roomFn(data, msg); }, [data, msg]);
         return;
     }
 
