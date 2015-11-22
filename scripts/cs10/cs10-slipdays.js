@@ -26,11 +26,12 @@ module.exports = function(robot) {
         msg.send('http://cs10.org/fa15/slipdays/?' + msg.match[1]);
     });
 
-    robot.respond(/check slip days\s*(\d+)/i, {id: 'cs10.check-slip-days'}, function(msg) {
-        calculateSlipDays(msg.match[1], function(data) {
-            console.log(data);
-        });    
-    });
+    //use this to check if the slip day tracker is working
+    // robot.respond(/check slip days\s*(\d+)/i, {id: 'cs10.check-slip-days'}, function(msg) {
+    //     calculateSlipDays(msg.match[1], function(data) {
+    //         console.log(data);
+    //     });    
+    // });
 
     robot.router.get('/slipdays/:sid', function(req, res) {
         res.setHeader('Content-Type', 'text/json');
