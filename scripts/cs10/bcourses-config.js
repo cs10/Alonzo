@@ -73,33 +73,6 @@ cs10.slipDayAssignmentIDs = [
     6644476, // Final Project
 ];
 
-// Note that these need to be internal canvas IDs as integers!
-// TODO: Future Query roles for TAs (types "ta" and "teacher")
-// /courses/X/users?enrollment_type[]=ta&enrollment_type[]=teacher
-cs10.staffIDs = null;
-    // 4611784,
-    // 4831377, // Carlos Flores
-    // 4862335, // Michael Ball
-    // 4886975,
-    // 4889648, // Yifat Amir
-    // 4890943, // Erik Dahlquist
-    // 4894982,
-    // 4900858,
-    // 4901643, // Joseph Cawthorne
-    // 4901852,
-    // 4904171, // Janna Golden
-    // 4904808,
-    // 4907764, // Rachel Huang
-    // 4908524,
-    // 4944680,
-    // 4978136, // Lara McConnaughey
-    // 4997192, // Adam Kuphaldt
-    // 5008226,
-    // 5013193,
-    // 5013924,
-    // 5025344,
-    // 5028746
-
 // Trim an SID and check of extenstion students
 // This must called whenever a SID is used to make sure its the proper format
 cs10.normalizeSID = function(sid) {
@@ -154,9 +127,13 @@ cs10.refreshStaffIDs = function(cb) {
             staffIDs.push(staffInfo[i].id);
         }
         robot.brain.set(cs10.STAFF_CACHE_KEY, staffIDs);
-        cs10.staffIDs = staffIDs;
         cb(null);
     })
+}
+
+//use this function to get staff IDs
+cs10.getStaffIDs = function() {
+    return robot.brain.get(cs10.STAFF_CACHE_KEY);
 }
 
 // Note this is probably non-standard, but it works!
@@ -164,6 +141,8 @@ cs10.refreshStaffIDs = function(cb) {
 // Hubot's default module.exports so the config file can access robot properties
 // DO NOT add any listeners here!
 module.exports = function (robot) {
+
+    //refresh the staff IDs whenever this module is loaded
     var staffIDs = robot.brain.get(cs10.STAFF_CACHE_KEY);
     if (staffIDs == null) {
         cs10.refreshStaffIDs(function(err) { return; });

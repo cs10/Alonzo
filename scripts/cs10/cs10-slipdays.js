@@ -26,6 +26,12 @@ module.exports = function(robot) {
         msg.send('http://cs10.org/fa15/slipdays/?' + msg.match[1]);
     });
 
+    robot.respond(/check slip days\s*(\d+)/i, {id: 'cs10.check-slip-days'}, function(msg) {
+        calculateSlipDays(msg.match[1], function(data) {
+            console.log(data);
+        });    
+    });
+
     robot.router.get('/slipdays/:sid', function(req, res) {
         res.setHeader('Content-Type', 'text/json');
         // Damn you CORS....
@@ -160,7 +166,7 @@ function getReaderDays(comments) {
     someone implemented a cache.
 **/
 function commentIsAuthorized(comment) {
-    return cs10.staffIDs.indexOf(comment.author_id) !== -1;
+    return cs10.getStaffIDs().indexOf(comment.author_id) !== -1;
 }
 
 // parse comment (just a string) then return slip days or -1
