@@ -207,7 +207,7 @@ module.exports = function(robot) {
         if (!isValidRoom(msg)) {
             return;
         }
-        msg.send('/code', cs10Cache.staffIDs().cacheVal);
+        msg.send(`/code${cs10Cache.staffIDs().cacheVal}`);
     });
 
     robot.respond(/refresh staff\s*(ids)?\s*(cache)?/i, {id: 'cs10.caching.refresh-staff-ids'}, function(msg) {
@@ -247,7 +247,7 @@ module.exports = function(robot) {
         var groups = cs10Cache.studentGroups(),
             grpStr = 'Current Student Groups:\n';
         for (var g_name in groups.cacheVal) {
-            grpStr += `${g_name} - bcourses_id: ${groups[g_name]}\n`
+            grpStr += `${g_name} - bcourses_id: ${groups.cacheVal[g_name]}\n`
         }
         grpStr += `Cache last updated on: ${(new Date(groups.time)).toDateString()}`;
         msg.send(grpStr);
