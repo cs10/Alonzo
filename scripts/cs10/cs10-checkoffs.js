@@ -212,7 +212,7 @@ function doLACheckoff(data, msg) {
     robot.brain.set(cs10Cache.LA_DATA_KEY, LA_DATA);
 
     var sketchy = isSketchy(checkoff);
-    if (!sketchy.length) {
+    if (sketchy.length) {
         msg.send('ERROR: You\'re being sketchy right now...\n',
                  sketchy.join('\n'),
                  'This checkoff will not be uploaded to bCourses. :(');
