@@ -79,14 +79,14 @@ cs10.slipDayAssignmentIDs = [
 // Trim an SID and check off extenstion students
 // This must called whenever a SID is used to make sure its the proper format
 cs10.normalizeSID = function(sid) {
-     sid = sid.trim().replace('X', '');
-     if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
-         sid = cs10.SWAP_IDS[sid];
-     }
-     if (sid.indexOf(cs10.uid) !== -1) {
-         return sid;
-     }
-     return cs10.uid + sid;
+    sid = sid.trim().replace('X', '');
+    if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
+        sid = cs10.SWAP_IDS[sid];
+    }
+    if (sid.indexOf(cs10.uid) !== -1) {
+        return sid;
+    }
+    return cs10.uid + sid;
 }
 
 
