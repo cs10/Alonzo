@@ -19,6 +19,8 @@
 
 // This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses-config.js');
+//stuff for caching
+var cs10Cache = require('./cs10-caching.js');
 
 module.exports = function(robot) {
     // redirect to the CS10 site.
@@ -26,12 +28,12 @@ module.exports = function(robot) {
         msg.send('http://cs10.org/fa15/slipdays/?' + msg.match[1]);
     });
 
-    //use this to check if the slip day tracker is working
-    // robot.respond(/check slip days\s*(\d+)/i, {id: 'cs10.check-slip-days'}, function(msg) {
-    //     calculateSlipDays(msg.match[1], function(data) {
-    //         console.log(data);
-    //     });    
-    // });
+    //use this to check if the slip day tracker is working and if a TA wants to check from hipchat
+    robot.respond(/check slip days\s*(\d+)/i, {id: 'cs10.check-slip-days'}, function(msg) {
+        calculateSlipDays(msg.match[1], function(data) {
+            console.log(data);
+        });
+    });
 
     robot.router.get('/slipdays/:sid', function(req, res) {
         res.setHeader('Content-Type', 'text/json');
@@ -167,7 +169,7 @@ function getReaderDays(comments) {
     someone implemented a cache.
 **/
 function commentIsAuthorized(comment) {
-    return cs10.getStaffIDs().indexOf(comment.author_id) !== -1;
+    return cs10Cache.staffIDs().cacheVal.indexOf(comment.author_id) !== -1;
 }
 
 // parse comment (just a string) then return slip days or -1

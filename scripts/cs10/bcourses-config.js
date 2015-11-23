@@ -25,8 +25,11 @@ cs10.courseID = 1371647;
 // Michael Sandbox: 1593713
 cs10.labsID = 1846637;
 
-//Key for redis cache for an array of staff ids.
-cs10.STAFF_CACHE_KEY = "STAFF_IDS";
+/**
+ * These are room names that are particularly useful
+ */
+cs10.LA_ROOM = 'lab_assistant_check-offs';
+cs10.TA_ROOM = 'lab_check-off_room';
 
 // This changes the default ID of a student to tell bCourses to use SIDs
 // The default are internal bCourses IDs, but no one knows those.
@@ -73,7 +76,7 @@ cs10.slipDayAssignmentIDs = [
     6644476, // Final Project
 ];
 
-// Trim an SID and check of extenstion students
+// Trim an SID and check off extenstion students
 // This must called whenever a SID is used to make sure its the proper format
 cs10.normalizeSID = function(sid) {
      sid = sid.trim().replace('X', '');
@@ -111,42 +114,11 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
     })
 }
 
-//Refreshes the current list of staff IDs
-cs10.refreshStaffIDs = function(cb) {
-    var params = {
-        per_page: '100',
-        enrollment_type: ['ta', 'teacher']
-    };
-    cs10.get('/courses/' + cs10.courseID + '/users', params, function(err, resp, staffInfo) {
-        if (err != null || staffInfo == null) {
-            cb("there was a problem");
-            return;
-        }
-        var staffIDs = [];
-        for (var i = 0; i < staffInfo.length; i++) {
-            staffIDs.push(staffInfo[i].id);
-        }
-        robot.brain.set(cs10.STAFF_CACHE_KEY, staffIDs);
-        cb(null);
-    })
-}
-
-//use this function to get staff IDs
-cs10.getStaffIDs = function() {
-    return robot.brain.get(cs10.STAFF_CACHE_KEY);
-}
-
 // Note this is probably non-standard, but it works!
 
 // Hubot's default module.exports so the config file can access robot properties
 // DO NOT add any listeners here!
 module.exports = function (robot) {
-
-    //refresh the staff IDs whenever this module is loaded
-    var staffIDs = robot.brain.get(cs10.STAFF_CACHE_KEY);
-    if (staffIDs == null) {
-        cs10.refreshStaffIDs(function(err) { return; });
-    }
 }
 
 // extend the exports so there can be easy to access functions and properties

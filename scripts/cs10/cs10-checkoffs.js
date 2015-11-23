@@ -3,6 +3,7 @@
 //
 // Dependencies:
 //   bcourses library see ./bcourses-config.js
+//   cs10 Caching see ./cs10-caching.js
 //
 // Configuration:
 //   See bcourses
@@ -17,9 +18,10 @@
 
 // This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses-config.js');
+//stuff for caching
+var cs10Cache = require('./cs10-caching.js');
 
 // CONSTANTS
-var CACHE_HOURS = 12;
 var FULL_POINTS = cs10.labCheckOffPoints;
 var LATE_POINTS = cs10.labCheckOffLatePts;
 // How late a checkoff is allowed to be
@@ -30,27 +32,21 @@ var SECS_ALLOWED_LATE = oneWeek;
 var MIN_LAB = 2;
 var MAX_LAB = 18;
 
-
-
 // A long regex to parse a lot of different check off commands.
 var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
 // A generic expression that matches all messages
 var containsSIDExp = /.*x?\d{5,}/gi;
-
-
-// Allowed rooms for doing / managing check offs
-var LA_ROOM = 'lab_assistant_check-offs';
-var TA_ROOM = 'lab_check-off_room';
-
-// Keys for data that key stored in robot.brain
-var LA_DATA_KEY    = 'LA_DATA';
-var LAB_CACHE_KEY  = 'LAB_ASSIGNMENTS';
 
 // Global-ish stuff for successful lab checkoff submissions.
 var successes;
 var failures;
 var expectedScores;
 var timeoutID;
+
+//check that this is a valid room
+function isValidRoom(msg) {
+    return msg.message.room === TA_ROOM || msg.message.room === 'Shell';
+}
 
 module.exports = function(robot) {
     // Loosely look for the phrase check off and the possibility of a number.
@@ -59,58 +55,58 @@ module.exports = function(robot) {
 
     // Commands for managing LA check-off publishing
     robot.respond(/show la data/i, {id: 'cs10.checkoff.la-data'}, function(msg) {
-        if (msg.message.room === TA_ROOM || msg.message.room === 'Shell') {
-            msg.send('/code', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+        if (!isValidRoom(msg)) {
+            return;
         }
-    });
-
-    robot.respond(/refresh\s*(bcourses)?\s*cache/i,
-                {id: 'cs10.checkoff.refresh-lab-cache'}, function(msg) {
-        robot.brain.remove(LAB_CACHE_KEY);
-        msg.send('Waiting on bCourses...');
-
-        //anonymous function because msg.send.apply is broken in hubot
-        cacheLabAssignments(function(msgText) { msg.send(msgText); }, ['Assignments Cache Refreshed']);
+        msg.send('/code', JSON.stringify(cs10Cache.laData()));
     });
 
     // Command Review LA data
     // Output total, num sketchy
     robot.respond(/review la (scores|data)/i, {id: 'cs10.checkoff.send-la-data'}, function(msg) {
-        var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
+        if (!isValidRoom(msg)) {
+            return;
+        }
+        var laScores = reviewLAData(cs10Cache.laData());
         sendLAStats(laScores, msg);
     });
 
     // submit LA scores
     robot.respond(/post la scores/i, {id: 'cs10.checkoff.post-la-scores'}, function(msg) {
-        if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
+        if (!isValidRoom(msg)) {
             return;
         }
-        var laScores = reviewLAData(robot.brain.get(LA_DATA_KEY));
+        var laScores = reviewLAData(cs10Cache.laData());
         sendLAStats(laScores, msg);
         postGrades(laScores, msg);
     });
 
-    //see all the la data in it's raw form for debugging
+    // See the most recent checkoff for debugging
+    robot.respond(/see last checkoff/i, {id: 'cs10.checkoff.see-last-checkoff'}, function(msg) {
+        if (!isValidRoom(msg)) {
+            return;
+        }
+        var data = cs10Cache.laData(),
+            last = data[data.length - 1];
+        msg.send('/code', JSON.stringify(last));
+    });
+
+    /**
+     * See all the la data in it's raw form for debugging
+     */
     // robot.respond(/see all la data/i, {id: 'cs10.checkoff.see-la-data'}, function(msg) {
     //     if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
     //         return;
     //     }
-    //     msg.send('/code', JSON.stringify(robot.brain.get(LA_DATA_KEY)));
+    //     msg.send('/code', JSON.stringify(cs10Cache.laData()));
     // });
-
-    //see the most recent checkoff for debugging
-    robot.respond(/see last checkoff/i, {id: 'cs10.checkoff.see-last-checkoff'}, function(msg) {
-        var data, last;
-        if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
-            return;
-        }
-        data = robot.brain.get(LA_DATA_KEY);
-        last = data[data.length - 1];
-        msg.send('/code', JSON.stringify(last));
-    });
-
+    
+    /**
+     * Clear all the la data. Only uncomment temporarily. 
+     * Note that changes made to storage locally do not persist.
+     */
     // robot.respond(/CLEAR ALL DATA/, function(msg) {
-    //     robot.brain.remove(LA_DATA_KEY);
+    //     robot.brain.remove(cs10.LA_DATA_KEY);
     //     robot.brain.save();
     //     msg.send('Poof! All that data is GONE.');
     // });
@@ -120,10 +116,10 @@ function processCheckOff(msg) {
     var roomFn, parsed, errors;
     switch (msg.message.room) {
     case 'Shell': // Move this condition around for command line testing
-    case LA_ROOM:
+    case cs10.LA_ROOM:
         roomFn = doLACheckoff;
         break;
-    case TA_ROOM:
+    case cs10.TA_ROOM:
         roomFn = doTACheckoff;
         break;
     default:
@@ -183,32 +179,12 @@ function verifyErrors(parsed) {
 // Cache
 // TODO: document wacky callback thingy
 function verifyCache(callback, args) {
-    var cached = robot.brain.get(LAB_CACHE_KEY);
-    if (cacheIsValid(cached)) {
+    var cached = cs10Cache.labAssignments();
+    if (cs10Cache.cacheIsValid(cached)) {
         callback.apply(null, args);
     } else {
-        cacheLabAssignments(callback, args);
+        cs10Cache.cacheLabAssignments(callback, args);
     }
-}
-
-
-function cacheLabAssignments(callback, args) {
-    var url   = cs10.baseURL + 'assignment_groups/' + cs10.labsID,
-        query = {'include[]': 'assignments'};
-
-    cs10.get(url, query, function(error, response, body) {
-        var assignments = body.assignments;
-        var data = {};
-
-        data.time = (new Date()).toString();
-        data.labs = assignments;
-
-        robot.brain.set(LAB_CACHE_KEY, data);
-
-        if (callback) {
-            callback.apply(null, args);
-        }
-    });
 }
 
 // FIXME -- protect against infinite loops!!
@@ -231,36 +207,41 @@ function doLACheckoff(data, msg) {
     };
 
     //save checkoff to robot brain
-    var LA_DATA = robot.brain.get(LA_DATA_KEY) || [];
+    var LA_DATA = cs10Cache.laData() || [];
     LA_DATA.push(checkoff);
-    robot.brain.set(LA_DATA_KEY, LA_DATA);
+    robot.brain.set(cs10Cache.LA_DATA_KEY, LA_DATA);
 
     var sketchy = isSketchy(checkoff);
     if (!sketchy.length) {
-
-        msg.send('LA: Checking Off ' + data.sids.length + ' students for lab ' +
-        data.lab + '.');
-
-        uploadCheckoff(doLACheckoff, data, msg);
-
-        var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-        msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
-                 ' for lab ' + data.lab  + '.');
-        return;
-
-    }
-    msg.send('ERROR: You\'re being sketchy right now...\n',
+        msg.send('ERROR: You\'re being sketchy right now...\n',
                  sketchy.join('\n'),
                  'This checkoff will not be uploaded to bCourses. :(');
+        return;
+    }
 
+    msg.send('LA: Checking Off ' + data.sids.length + ' students for lab ' +
+        data.lab + '.');
+
+    uploadCheckoff(doLACheckoff, data, msg);
+
+    var scores = 'score' + (data.sids.length === 1 ? '' : 's');
+    msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
+             ' for lab ' + data.lab  + '.');
+    
 }
 
 function uploadCheckoff(roomFn, data, msg) {
-    var assignments = robot.brain.get(LAB_CACHE_KEY);
+    var assignments = cs10Cache.labAssignments();
 
-    if (!assignments || !cacheIsValid(assignments)) {
+    if (!cs10Cache.cacheIsValid(assignments)) {
         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
-        cacheLabAssignments(function(data, msg) { roomFn(data, msg); }, [data, msg]);
+        cs10Cache.cacheLabAssignments(function(respObj) {
+            if (respObj.error) {
+                msg.send("There was a problem updating the cache. Your checkoff was not uploaded :(");
+                return;
+            }
+            roomFn(data, msg); 
+        });
         return;
     }
 
@@ -325,14 +306,6 @@ function verifyScoreSubmission(sid, points, msg) {
     };
 }
 
-function cacheIsValid(assignments) {
-    var labsExist = assignments.labs ? assignments.labs.length > 0 : false;
-    var date = assignments.time;
-    var diff = (new Date()) - (new Date(date));
-    return labsExist && diff / (1000 * 60 * 60) < CACHE_HOURS;
-}
-
-
 // Return the bCourses lab object matching the CS10 lab number
 // All labs are named "<#>. <Lab Title>"
 function findLabByNum(num, labs) {
@@ -349,7 +322,7 @@ function findLabByNum(num, labs) {
 }
 
 function getAssignmentID(num, assignments) {
-    var lab = findLabByNum(num, assignments.labs);
+    var lab = findLabByNum(num, assignments.cacheVal);
     return lab.id || false;
 }
 
@@ -370,7 +343,7 @@ function sendLAStats(ladata, msg) {
 function postGrades(ladata, msg) {
     var grades = ladata.safe;
     for (lab in grades) {
-        var assnID = getAssignmentID(lab, robot.brain.get(LAB_CACHE_KEY));
+        var assnID = getAssignmentID(lab, cs10Cache.labAssignments());
         cs10.postMultipleGrades(assnID, grades[lab], msg);
     }
 }
@@ -446,13 +419,13 @@ function isSketchy(co, assignments) {
 };
 
 /** A way of building a function and an a corresponding error message.
- *  If check passes → error is shown
+ *  If test fails → error is shown
  *  The tests are a map of name: {test-object}
  *  A test object has two keys inside:
  *  A `test`: call a function with checkoff data, and a bCourses assignment
  *      A test should return a boolean based on a signle case it is testing.
  *      FYI: User access control is assumed to be handled by Room Admins.
- *  A `message`: A human-reader error shown IFF the test case fales.
+ *  A `message`: A human-reader error shown IFF the test case fails.
 */
 
 var sketchyTests = {
@@ -487,8 +460,8 @@ var sketchyTests = {
         test: function(co, assn) {
             var date = new Date(co.time),
                 // TODO: Shouldn't this be in `assn`
-                assignments = robot.brain.get(LAB_CACHE_KEY),
-                dueDate = findLabByNum(co.lab, assignments.labs).due_at;
+                assignments = cs10Cache.labAssignments(),
+                dueDate = findLabByNum(co.lab, assignments.cacheVal).due_at;
 
                 dueDate = new Date(dueDate);
 
