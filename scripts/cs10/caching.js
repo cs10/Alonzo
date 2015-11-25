@@ -81,13 +81,13 @@ function createCacheObj(data) {
 /**
  * A general caching function
  *
- * @param url {=string} the url endpoint for cache data from bcourses
- * @param params {=object} query parameters
- * @param key {=string} a cache key
- * @param proccessFunc {=func(body)} a one argument function that process the reponse body
- * @param errMsg {=string} message passed to cb if the query fails
- * @param sucMsg {=string} message passed to cb if the query succeeds
- * @param cb {=func(err, resp)} the callback function. err and resp will have a msg attribute
+ * @param url {string} the url endpoint for cache data from bcourses
+ * @param params {object} query parameters
+ * @param key {string} a cache key
+ * @param proccessFunc {func(body)} a one argument function that process the reponse body
+ * @param errMsg {string} message passed to cb if the query fails
+ * @param sucMsg {string} message passed to cb if the query succeeds
+ * @param cb {func(err, resp)} the callback function. err and resp will have a msg attribute
  */
 function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cb) {
     cs10.get(url, params, function(err, resp, body) {
