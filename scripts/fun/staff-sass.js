@@ -26,7 +26,7 @@ module.exports = function(robot) {
         var name = msg.match[1];
         msg.send(`@${name} you should check out the collection of chatbot commands:`);
         msg.send('http://alonzo.herokuapp.com/Alonzo/help');
-        msg.send(`So you can stop being such a n${msg.match[2]}b....`);
+        msg.send(`So you can stop being such a n${msg.match[4]}b....`);
     });
 
     //add more terms here for alonzo to respond with '@user That's what she said'
