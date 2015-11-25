@@ -62,7 +62,7 @@ cs10Cache.laData = function() {
  * Expects two objects (error, resp) which will each have a msg attribute
  * Should only be called from a scope  where msg can be bound
  */
-function genericErrorCB(msg, errror, resp) {
+function genericErrorCB(msg, error, resp) {
     if (error) {
         msg.send(error.msg);
         return;
@@ -220,8 +220,8 @@ function isValidRoom(msg) {
 module.exports = function(robot) {
 
     // Weirdness because the brain loads after the scripts. 
-    // Set a 5 second timeout and then refresh the cache
-    setTimeout(cs10Cache.refreshCache, 5000, function(error, resp) {
+    // Set a 10 second timeout and then refresh the cache
+    setTimeout(cs10Cache.refreshCache, 10000, function(error, resp) {
         if (error) {
             robot.logger.error(error.msg);
             return;
@@ -231,7 +231,7 @@ module.exports = function(robot) {
 
     // This is mostly for debugging as it currently does not show names mapped to ids.
     // TODO: Store names and ids in cache
-    robot.respond(/show cached staff\s*(ids)?/i, {
+    robot.respond(/show\s*(cached)?\s*staff\s*(ids)?/i, {
         id: 'cs10.caching.show-staff-ids'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -240,7 +240,7 @@ module.exports = function(robot) {
         msg.send(`/code${cs10Cache.staffIDs().cacheVal}`);
     });
 
-    robot.respond(/refresh staff\s*(ids)?\s*(cache)?/i, {
+    robot.respond(/refresh\s*staff\s*(ids)?\s*(cache)?/i, {
         id: 'cs10.caching.refresh-staff-ids'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -250,7 +250,7 @@ module.exports = function(robot) {
         cs10Cache.cacheStaffIDs(genericErrorCB.bind(null, msg));
     });
 
-    robot.respond(/show cached labs/i, {
+    robot.respond(/show\s*(cached)?\s*labs/i, {
         id: 'cs10.caching.show-labs'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -265,7 +265,7 @@ module.exports = function(robot) {
         msg.send(labStr);
     });
 
-    robot.respond(/refresh lab cache/i, {
+    robot.respond(/refresh\s*lab(s)?\s*(cache)?/i, {
         id: 'cs10.caching.refresh-labs'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -291,7 +291,7 @@ module.exports = function(robot) {
         msg.send(grpStr);
     });
 
-    robot.respond(/refresh groups/i, {
+    robot.respond(/refresh\s*groups\s*(cache)?/i, {
         id: 'cs10.caching.refresh-groups'
     }, function(msg) {
         if (!isValidRoom(msg)) {

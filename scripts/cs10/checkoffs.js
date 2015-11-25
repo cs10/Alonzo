@@ -125,10 +125,10 @@ module.exports = function(robot) {
 function processCheckOff(msg) {
     var roomFn, parsed, errors;
     switch (msg.message.room) {
-        case 'Shell': // Move this condition around for command line testing
         case cs10.LA_ROOM:
             roomFn = doLACheckoff;
             break;
+        case 'Shell': // Move this condition around for command line testing
         case cs10.TA_ROOM:
             roomFn = doTACheckoff;
             break;
@@ -145,9 +145,15 @@ function processCheckOff(msg) {
             errors.join('\n'));
         return;
     }
-    // Verify Cache Here
-    if (!cs10.cacheIsValid(csCache.labAssignments())) {
 
+    if (!cs10Cache.cacheIsValid(cs10Cache.labAssignments())) {
+        cs10Cache.cacheLabAssignments(function(error, resp) {
+            if (error) {
+                msg.send('Could not check off lab.\n The cache is invalid and could not be refreshed.');
+                return;
+            }
+            roomFun(parsed, msg)
+        });
     } else {
         roomFn(parsed, msg);
     }
@@ -179,7 +185,7 @@ function verifyErrors(parsed) {
     var errors = [];
     // NOTE: Lab "42" is a special lab code for an EC lab during the summer.
     if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) { // && parsed.lab != 42
-        errors.push('The lab number: ' + parsed.lab + ' is not a valid lab!');
+        errors.push(`The lab number: ${parsed.lab} is not a valid lab!`);
         errors.push('Please specify the lab number before all student ids.');
     }
     if (parsed.sids.length < 1) {
@@ -203,8 +209,7 @@ function verifyCache(callback, args) {
 
 // FIXME -- protect against infinite loops!!
 function doTACheckoff(data, msg) {
-    msg.send('TA: Checking Off ' + data.sids.length + ' students for lab ' +
-        data.lab + '.');
+    msg.send(`TA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
 
     uploadCheckoff(doTACheckoff, data, msg);
 }
@@ -233,14 +238,12 @@ function doLACheckoff(data, msg) {
         return;
     }
 
-    msg.send('LA: Checking Off ' + data.sids.length + ' students for lab ' +
-        data.lab + '.');
+    msg.send(`LA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
 
     uploadCheckoff(doLACheckoff, data, msg);
 
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-    msg.send('LA: Saved ' + data.sids.length + ' student ' + scores +
-        ' for lab ' + data.lab + '.');
+    msg.send(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
 
 }
 
@@ -262,7 +265,7 @@ function uploadCheckoff(roomFn, data, msg) {
     var assnID = getAssignmentID(data.lab, assignments, msg);
 
     if (!assnID) {
-        msg.send('Well, crap...I can\'t find lab ' + data.lab + '.\n' +
+        msg.send(`Well, crap...I can\'t find lab ${data.lab} .\n` +
             'Check to make sure you put in a correct lab number.\n' +
             cs10.gradebookURL);
         return;
@@ -279,15 +282,15 @@ function uploadCheckoff(roomFn, data, msg) {
     // wait till all requests are complete...hopefully.
     // Or send a message after 30 seconds
     timeoutID = setTimeout(function() {
-        var scores = successes + ' score' + (successes == 1 ? '' : 's');
-        msg.send('After 30 seconds: ' + scores + ' successfully submitted.');
+        var scores = `${successes} score${(successes == 1 ? '' : 's')}`;
+        msg.send(`After 30 seconds: ${scores} successfully submitted.`);
     }, 30 * 1000);
 }
 
 
 function postSignleAssignment(assnID, sid, score, msg) {
     var scoreForm = 'submission[posted_grade]=' + score,
-        url = cs10.baseURL + 'assignments/' + assnID + '/submissions/' + sid;
+        url = `${cs10.baseURL}assignments/${assnID}/submissions/${sid}`;
 
     cs10.put(url, '', scoreForm, verifyScoreSubmission(sid, score, msg));
 }
@@ -346,11 +349,10 @@ function getAssignmentID(num, assignments) {
 function sendLAStats(ladata, msg) {
     var safe = getSIDCount(ladata.safe);
     var text = 'LA Data Processed:\n';
-    text += 'Found Safe Check offs for: ' + Object.keys(ladata.safe).join(' ') +
-        ' labs.\n';
+    text += `Found Safe Check offs for: ${Object.keys(ladata.safe).join(' ')} labs.\n`;
     text += 'Found Sketchy Check offs for: ' +
         (Object.keys(ladata.sketchy.labs).join(' ') || 'no') + ' labs.\n';
-    text += 'Total of ' + safe.ontime + ' good on time checkoffs, ' +
+    text += `Total of ${safe.ontime} good on time checkoffs, ` +
         safe.late + ' late check offs.\n';
     msg.send(text);
 }

@@ -27,14 +27,15 @@ module.exports = function(robot) {
     robot.respond(/slip days\s*(\d+)/i, {
         id: 'cs10.slip-days'
     }, function(msg) {
-        msg.send('http://cs10.org/fa15/slipdays/?' + msg.match[1]);
+        msg.send(`http://cs10.org/fa15/slipdays/?${msg.match[1]}`);
     });
 
     //use this to check if the slip day tracker is working and if a TA wants to check from hipchat
     robot.respond(/check slip days\s*(\d+)/i, {
         id: 'cs10.check-slip-days'
     }, function(msg) {
-        calculateSlipDays(msg.match[1], function(data) {
+        var sid = msg.match[1];
+        calculateSlipDays(sid, function(data) {
             console.log(data);
         });
     });
@@ -77,7 +78,7 @@ function getSlipDays(submissionTime, dueTime) {
 var STATE_GRADED = 'graded';
 
 function calculateSlipDays(sid, callback) {
-    var url = cs10.baseURL + 'students/submissions',
+    var url = `${cs10.baseURL}students/submissions`,
         options = {
             'include[]': ['submission_comments', 'assignment'],
             'student_ids[]': cs10.normalizeSID(sid),

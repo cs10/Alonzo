@@ -22,7 +22,7 @@ module.exports = function(robot) {
     }, function(msg) {
         var txt = [
             'Late Assignments Form: http://bjc.link/lateformfa15',
-            'Grade book:' + cs10.gradebookURL + '',
+            `Grade book: ${cs10.gradebookURL}`,
             'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
             'Contacts Sheet: http://bjc.link/cs10contacts',
             'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'

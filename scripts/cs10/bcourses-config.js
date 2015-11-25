@@ -39,10 +39,10 @@ cs10.TA_ROOM = 'lab_check-off_room';
 cs10.uid = 'sis_user_id:';
 
 // all endpoints are based of the course, at least for our usage
-cs10.baseURL = '/courses/' + cs10.courseID + '/';
+cs10.baseURL = `/courses/${cs10.courseID}/`;
 
 // Shortcut for use in chat error messages
-cs10.gradebookURL = bCoursesURL + cs10.baseURL + 'gradebook';
+cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 /** Mapping of extenstion student IDs to bCourses IDs
     If there are no extenstion students, leave this empty
@@ -99,10 +99,10 @@ cs10.normalizeSID = function(sid) {
 
  **/
 cs10.postMultipleGrades = function(assnID, grades, msg) {
-    var url = cs10.baseURL + 'assignments/' + assnID + '/submissions/update_grades';
+    var url = `${cs10.baseURL}assignments/${assnID}/submissions/update_grades`;
     var form = {};
     for (sid in grades) {
-        form['grade_data[' + sid + '][posted_grade]'] = grades[sid];
+        form[`grade_data[${sid}][posted_grade]`] = grades[sid];
     }
     cs10.post(url, '', form, function(error, response, body) {
         var notify = msg ? msg.send : console.log;
