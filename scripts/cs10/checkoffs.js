@@ -19,7 +19,7 @@
 // This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses-config.js');
 //stuff for caching
-var cs10Cache = require('./cs10-caching.js');
+var cs10Cache = require('./caching.js');
 
 // CONSTANTS
 var FULL_POINTS = cs10.labCheckOffPoints;
@@ -51,10 +51,14 @@ function isValidRoom(msg) {
 module.exports = function(robot) {
     // Loosely look for the phrase check off and the possibility of a number.
     var couldBeCheckOff = /check.*off.*x?\d{1,}/i;
-    robot.hear(couldBeCheckOff, {id: 'cs10.checkoff.check-off-all'}, processCheckOff);
+    robot.hear(couldBeCheckOff, {
+        id: 'cs10.checkoff.check-off-all'
+    }, processCheckOff);
 
     // Commands for managing LA check-off publishing
-    robot.respond(/show la data/i, {id: 'cs10.checkoff.la-data'}, function(msg) {
+    robot.respond(/show la data/i, {
+        id: 'cs10.checkoff.la-data'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -63,7 +67,9 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/review la (scores|data)/i, {id: 'cs10.checkoff.send-la-data'}, function(msg) {
+    robot.respond(/review la (scores|data)/i, {
+        id: 'cs10.checkoff.send-la-data'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -72,7 +78,9 @@ module.exports = function(robot) {
     });
 
     // submit LA scores
-    robot.respond(/post la scores/i, {id: 'cs10.checkoff.post-la-scores'}, function(msg) {
+    robot.respond(/post la scores/i, {
+        id: 'cs10.checkoff.post-la-scores'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -82,7 +90,9 @@ module.exports = function(robot) {
     });
 
     // See the most recent checkoff for debugging
-    robot.respond(/see last checkoff/i, {id: 'cs10.checkoff.see-last-checkoff'}, function(msg) {
+    robot.respond(/see last checkoff/i, {
+        id: 'cs10.checkoff.see-last-checkoff'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -100,7 +110,7 @@ module.exports = function(robot) {
     //     }
     //     msg.send('/code', JSON.stringify(cs10Cache.laData()));
     // });
-    
+
     /**
      * Clear all the la data. Only uncomment temporarily. 
      * Note that changes made to storage locally do not persist.
@@ -115,28 +125,32 @@ module.exports = function(robot) {
 function processCheckOff(msg) {
     var roomFn, parsed, errors;
     switch (msg.message.room) {
-    case 'Shell': // Move this condition around for command line testing
-    case cs10.LA_ROOM:
-        roomFn = doLACheckoff;
-        break;
-    case cs10.TA_ROOM:
-        roomFn = doTACheckoff;
-        break;
-    default:
-        msg.send('Lab Check offs are not allowed from this room');
-        return;
+        case 'Shell': // Move this condition around for command line testing
+        case cs10.LA_ROOM:
+            roomFn = doLACheckoff;
+            break;
+        case cs10.TA_ROOM:
+            roomFn = doTACheckoff;
+            break;
+        default:
+            msg.send('Lab Check offs are not allowed from this room');
+            return;
     }
 
     parsed = extractMessage(msg.message.text);
     errors = verifyErrors(parsed);
     if (errors.length) {
         msg.send('Your check off was NOT saved!',
-                 'ERROR: The following errors occurred.',
-                 errors.join('\n'));
+            'ERROR: The following errors occurred.',
+            errors.join('\n'));
         return;
     }
     // Verify Cache Here
-    roomFn(parsed, msg);
+    if (!cs10.cacheIsValid(csCache.labAssignments())) {
+
+    } else {
+        roomFn(parsed, msg);
+    }
 }
 
 /* Proccess the regex match into a common formatted object */
@@ -144,11 +158,11 @@ function extractMessage(text) {
     // Parse the following components out of a message.
     var findSIDs = /x?\d{5,}/g,
         findLate = /late/i,
-        findLab  = /\d{1,2}/;
+        findLab = /\d{1,2}/;
 
-    var labNo  = text.match(findLab) || [0],
+    var labNo = text.match(findLab) || [0],
         isLate = text.match(findLate) != null,
-        SIDs   = text.match(findSIDs);
+        SIDs = text.match(findSIDs);
 
     SIDs = SIDs.map(cs10.normalizeSID);
 
@@ -214,8 +228,8 @@ function doLACheckoff(data, msg) {
     var sketchy = isSketchy(checkoff);
     if (sketchy.length) {
         msg.send('ERROR: You\'re being sketchy right now...\n',
-                 sketchy.join('\n'),
-                 'This checkoff will not be uploaded to bCourses. :(');
+            sketchy.join('\n'),
+            'This checkoff will not be uploaded to bCourses. :(');
         return;
     }
 
@@ -225,9 +239,9 @@ function doLACheckoff(data, msg) {
     uploadCheckoff(doLACheckoff, data, msg);
 
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-    msg.send('LA: Saved ' + data.sids.length + ' student '+ scores +
-             ' for lab ' + data.lab  + '.');
-    
+    msg.send('LA: Saved ' + data.sids.length + ' student ' + scores +
+        ' for lab ' + data.lab + '.');
+
 }
 
 function uploadCheckoff(roomFn, data, msg) {
@@ -240,7 +254,7 @@ function uploadCheckoff(roomFn, data, msg) {
                 msg.send("There was a problem updating the cache. Your checkoff was not uploaded :(");
                 return;
             }
-            roomFn(data, msg); 
+            roomFn(data, msg);
         });
         return;
     }
@@ -249,8 +263,8 @@ function uploadCheckoff(roomFn, data, msg) {
 
     if (!assnID) {
         msg.send('Well, crap...I can\'t find lab ' + data.lab + '.\n' +
-                 'Check to make sure you put in a correct lab number.\n' +
-                 cs10.gradebookURL);
+            'Check to make sure you put in a correct lab number.\n' +
+            cs10.gradebookURL);
         return;
     }
 
@@ -318,7 +332,9 @@ function findLabByNum(num, labs) {
         }
         return false;
     });
-    return result || { id: 0 };
+    return result || {
+        id: 0
+    };
 }
 
 function getAssignmentID(num, assignments) {
@@ -331,11 +347,11 @@ function sendLAStats(ladata, msg) {
     var safe = getSIDCount(ladata.safe);
     var text = 'LA Data Processed:\n';
     text += 'Found Safe Check offs for: ' + Object.keys(ladata.safe).join(' ') +
-            ' labs.\n';
+        ' labs.\n';
     text += 'Found Sketchy Check offs for: ' +
-            (Object.keys(ladata.sketchy.labs).join(' ') || 'no') + ' labs.\n';
+        (Object.keys(ladata.sketchy.labs).join(' ') || 'no') + ' labs.\n';
     text += 'Total of ' + safe.ontime + ' good on time checkoffs, ' +
-            safe.late + ' late check offs.\n';
+        safe.late + ' late check offs.\n';
     msg.send(text);
 }
 
@@ -352,11 +368,14 @@ function postGrades(ladata, msg) {
 function getSIDCount(labs) {
     var ontime = 0;
     var late = 0;
-    for(num in labs) {
+    for (num in labs) {
         ontime += Object.keys(labs[num]).length || 0;
         // late += labs[num].late.length || 0;
     }
-    return {ontime: ontime, late: late};
+    return {
+        ontime: ontime,
+        late: late
+    };
 }
 
 /** Verify all the LA data for easy assignment posting
@@ -366,15 +385,22 @@ function getSIDCount(labs) {
 **/
 function reviewLAData(data) {
     var safe = {};
-    var sketchy = { labs: {}, msgs: [] };
+    var sketchy = {
+        labs: {},
+        msgs: []
+    };
 
     data.forEach(function(checkoff) {
         var lab = checkoff.lab,
             sketch = isSketchy(checkoff);
 
-        if (!safe[lab] && !sketch) { safe[lab] = {}; }
+        if (!safe[lab] && !sketch) {
+            safe[lab] = {};
+        }
 
-        if (!sketchy.labs[lab] && sketch) { sketchy.labs[lab] = {}; }
+        if (!sketchy.labs[lab] && sketch) {
+            sketchy.labs[lab] = {};
+        }
 
         var obj = safe[lab];
 
@@ -396,14 +422,17 @@ function reviewLAData(data) {
         }
     });
 
-    return { safe: safe, sketchy: sketchy };
+    return {
+        safe: safe,
+        sketchy: sketchy
+    };
 }
 
 /** Determine whether an LA checkoff is sketchy.
  *  "Sketchy" means that something about the check off isn't normal.
  *  The conditions are defined below in sketchyTests.
  *  If a checkoff is sketchy, return an arry of warnings about why.
-**/
+ **/
 function isSketchy(co, assignments) {
     var results = [];
     for (var checkName in sketchyTests) {
@@ -426,7 +455,7 @@ function isSketchy(co, assignments) {
  *      A test should return a boolean based on a signle case it is testing.
  *      FYI: User access control is assumed to be handled by Room Admins.
  *  A `message`: A human-reader error shown IFF the test case fails.
-*/
+ */
 
 var sketchyTests = {
     isDuringDayTime: {
@@ -463,7 +492,7 @@ var sketchyTests = {
                 assignments = cs10Cache.labAssignments(),
                 dueDate = findLabByNum(co.lab, assignments.cacheVal).due_at;
 
-                dueDate = new Date(dueDate);
+            dueDate = new Date(dueDate);
 
             if (!co.late && date - dueDate > SECS_ALLOWED_LATE) {
                 console.log('On time check.... ', JSON.stringify(assn));
@@ -477,6 +506,8 @@ var sketchyTests = {
         // TODO: implement SID caching
         // TODO: Shouldn't the message say which SIDs? Need to fix the API.
         message: 'This checkoff has SIDs that can\'t be found in bCourses.',
-        test: function(co, assn) { return true; },
+        test: function(co, assn) {
+            return true;
+        },
     }
 };

@@ -17,7 +17,9 @@
 cs10 = require('./bcourses-config.js');
 
 module.exports = function(robot) {
-    robot.respond(/.*(links|forms).*/i, {id: 'cs10.links'}, function(msg) {
+    robot.respond(/.*(links|forms).*/i, {
+        id: 'cs10.links'
+    }, function(msg) {
         var txt = [
             'Late Assignments Form: http://bjc.link/lateformfa15',
             'Grade book:' + cs10.gradebookURL + '',
@@ -29,7 +31,9 @@ module.exports = function(robot) {
         msg.send(txt.join('\n'));
     });
 
-    robot.respond(/\s*locker( combo)?/i, {id: 'cs10.locker'}, function(msg) {
+    robot.respond(/\s*locker( combo)?/i, {
+        id: 'cs10.locker'
+    }, function(msg) {
         msg.send(process.env.LOCKER_COMBO);
     });
 }

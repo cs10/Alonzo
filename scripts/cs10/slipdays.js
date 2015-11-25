@@ -20,16 +20,20 @@
 // This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses-config.js');
 //stuff for caching
-var cs10Cache = require('./cs10-caching.js');
+var cs10Cache = require('./caching.js');
 
 module.exports = function(robot) {
     // redirect to the CS10 site.
-    robot.respond(/slip days\s*(\d+)/i, {id: 'cs10.slip-days'}, function(msg) {
+    robot.respond(/slip days\s*(\d+)/i, {
+        id: 'cs10.slip-days'
+    }, function(msg) {
         msg.send('http://cs10.org/fa15/slipdays/?' + msg.match[1]);
     });
 
     //use this to check if the slip day tracker is working and if a TA wants to check from hipchat
-    robot.respond(/check slip days\s*(\d+)/i, {id: 'cs10.check-slip-days'}, function(msg) {
+    robot.respond(/check slip days\s*(\d+)/i, {
+        id: 'cs10.check-slip-days'
+    }, function(msg) {
         calculateSlipDays(msg.match[1], function(data) {
             console.log(data);
         });
@@ -53,7 +57,7 @@ module.exports = function(robot) {
 
 function getSlipDays(submissionTime, dueTime) {
     var threshold = 1000 * 60 * cs10.gracePeriodMinutes,
-        oneDay    = 1000 * 60 * 60 * 24,
+        oneDay = 1000 * 60 * 60 * 24,
         d1 = new Date(submissionTime),
         d2 = new Date(dueTime);
 
@@ -68,33 +72,34 @@ function getSlipDays(submissionTime, dueTime) {
 
 
 /** Iterate over all the assignments that slip days count towards:
-
-**/
+ 
+ **/
 var STATE_GRADED = 'graded';
+
 function calculateSlipDays(sid, callback) {
     var url = cs10.baseURL + 'students/submissions',
         options = {
-            'include[]' : ['submission_comments', 'assignment'],
-            'student_ids[]' : cs10.normalizeSID(sid),
-            'assignment_ids[]' : cs10.slipDayAssignmentIDs,
+            'include[]': ['submission_comments', 'assignment'],
+            'student_ids[]': cs10.normalizeSID(sid),
+            'assignment_ids[]': cs10.slipDayAssignmentIDs,
             // parameters of the assingment object...they dont work
             // 'override_assignment_dates' : false,
             // 'all_dates' : true,
-            grouped : true
+            grouped: true
         };
 
     cs10.get(url, options, function(error, response, body) {
         var results = {
-                totalDays: 0,
-                daysRemaining: cs10.allowedSlipDays,
-                assignments: [], // Assignment object described below
-                errors: []
-            };
+            totalDays: 0,
+            daysRemaining: cs10.allowedSlipDays,
+            assignments: [], // Assignment object described below
+            errors: []
+        };
 
         if (!body || body.errors) {
             results.errors.push('Oh, Snap! Something went wrong. :(');
             if (body.errors.constructor != Array) {
-                body.errors = [ body.errors ];
+                body.errors = [body.errors];
             }
             body.errors.forEach(function(err) {
                 results.errors.push(err.message);
@@ -137,8 +142,8 @@ function calculateSlipDays(sid, callback) {
                 submitted: submitted
             };
 
-            results.totalDays      += days;
-            results.daysRemaining  -= days;
+            results.totalDays += days;
+            results.daysRemaining -= days;
             results.assignments.push(assignment);
         });
 

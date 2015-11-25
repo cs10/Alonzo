@@ -1,10 +1,12 @@
 // Use the Canvas API library, written just for CS10
-var Canvas    = require('node-canvas-lms');
+var Canvas = require('node-canvas-lms');
 var authToken = process.env.HUBOT_CANVAS_KEY;
 
 var bCoursesURL = 'https://bcourses.berkeley.edu';
 
-var cs10 = new Canvas(bCoursesURL, { token: authToken });
+var cs10 = new Canvas(bCoursesURL, {
+    token: authToken
+});
 
 /** COURSE AND ASSIGNMENT IDS
     Update these each semester!!
@@ -52,14 +54,14 @@ cs10.gradebookURL = bCoursesURL + cs10.baseURL + 'gradebook';
     TODO: Consider making this a config for privacy reasons
     However, these IDs don't actually reveal anything.
 **/
-cs10.SWAP_IDS = { };
+cs10.SWAP_IDS = {};
 
 // Course Level Policies:
 cs10.gracePeriodMinutes = 15;
-cs10.allowedSlipDays    = 3;
-cs10.firstLab           = 2;
-cs10.lastLab            = 18;
-cs10.labCheckOffPoints  = 2; // These could be changed as the course changes.
+cs10.allowedSlipDays = 3;
+cs10.firstLab = 2;
+cs10.lastLab = 18;
+cs10.labCheckOffPoints = 2; // These could be changed as the course changes.
 cs10.labCheckOffLatePts = 1;
 
 // Internal bCourses assignment IDs, as intergers
@@ -118,8 +120,7 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
 
 // Hubot's default module.exports so the config file can access robot properties
 // DO NOT add any listeners here!
-module.exports = function (robot) {
-}
+module.exports = function(robot) {}
 
 // extend the exports so there can be easy to access functions and properties
 for (key in cs10) {

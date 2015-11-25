@@ -51,118 +51,146 @@ cs10Cache.studentGroups = function() {
     return robot.brain.get(cs10Cache.STUD_GROUP_CACHE_KEY);
 }
 cs10Cache.labAssignments = function() {
-    return robot.brain.get(cs10Cache.LAB_CACHE_KEY);
-}
-//TODO: implement cache object style for la data
+        return robot.brain.get(cs10Cache.LAB_CACHE_KEY);
+    }
+    //TODO: implement cache object style for la data
 cs10Cache.laData = function() {
     return robot.brain.get(cs10Cache.LA_DATA_KEY);
 }
 
 /**
- * Expects the respObj to have an error and msg attribute
+ * Expects two objects (error, resp) which will each have a msg attribute
  * Should only be called from a scope  where msg can be bound
  */
-function genericErrorCB(msg, respObj) {
-    if (!respObj.error) {
-        msg.send(respObj.msg);
+function genericErrorCB(msg, errror, resp) {
+    if (error) {
+        msg.send(error.msg);
         return;
     }
-    // Maybe do other things for error here 
-    msg.send(respObj.msg);
+    msg.send(resp.msg);
 }
 /**
  * Give this data and it will put a time stamp on it. Hooray.
  */
 function createCacheObj(data) {
-    return {time: (new Date()).toString(), cacheVal: data}
+    return {
+        time: (new Date()).toString(),
+        cacheVal: data
+    }
 }
+/**
+ * A general caching function
+ *
+ * @param url {=string} the url endpoint for cache data from bcourses
+ * @param params {=object} query parameters
+ * @param key {=string} a cache key
+ * @param proccessFunc {=func(body)} a one argument function that process the reponse body
+ * @param errMsg {=string} message passed to cb if the query fails
+ * @param sucMsg {=string} message passed to cb if the query succeeds
+ * @param cb {=func(err, resp)} the callback function. err and resp will have a msg attribute
+ */
+function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cb) {
+    cs10.get(url, params, function(err, resp, body) {
+
+        if (err || !body) {
+            if (cb) {
+                cb({
+                    msg: errMsg
+                }, null);
+            }
+            return;
+        }
+
+        robot.brain.set(key, createCacheObj(processFunc(body)));
+
+        if (cb) {
+            cb(null, {
+                msg: sucMsg
+            });
+        }
+    });
+}
+
 /**
  * Caches the current list of staff IDs
  *
- * errCB - a one argument function that should accept an object as a parameter
+ * cb - a function of (error, resp) or null
  */
-cs10Cache.cacheStaffIDs = function(errCB) {
+cs10Cache.cacheStaffIDs = function(cb) {
     var url = `/courses/${cs10.courseID}/users`,
         params = {
             'per_page': '100',
             'enrollment_type[]': ['ta', 'teacher']
-        };
-    
-    cs10.get(url, params, function(err, resp, staffInfo) {
-        if (err || !staffInfo) {
-            if (errCB) {
-                errCB({error: true, msg: 'There was a problem caching staff IDs :('});
-            }
-            return;
-        }
+        },
+        errMsg = 'There ws a problem caching staff IDs :(',
+        sucMsg = 'Successfully cached staff IDs! :)',
+        key = cs10Cache.STAFF_CACHE_KEY;
 
+    var staffIDProcessor = function(body) {
         var staffIDs = [];
-        for (var i = 0; i < staffInfo.length; i++) {
-            staffIDs.push(staffInfo[i].id);
+        for (var i = 0; i < body.length; i++) {
+            staffIDs.push(body[i].id);
         }
-        robot.brain.set(cs10Cache.STAFF_CACHE_KEY, createCacheObj(staffIDs));
+        return staffIDs;
+    }
 
-        if (errCB) {
-            errCB({error: false, msg: 'Successfully cached staff IDs! :)'});
-        }
-    })
+    cacheObject(url, params, key, staffIDProcessor, errMsg, sucMsg, cb);
 }
+
 /**
  * Caches the current list of assignment groups
  *
- * errCB - a one argument function that should accept an object as a parameter
+ * cb - a function of (error, resp) or null
  */
-cs10Cache.cacheStudGroups = function(errCB) {
+cs10Cache.cacheStudGroups = function(cb) {
     var url = `/courses/${cs10.courseID}/group_categories`;
-    cs10.get(url, '', function(err, resp, categories) {
-        if (err || !categories) {
-            if (errCB) {
-                errCB({error: true, msg: 'There was a problem caching assignment groups :('});
-            }
-            return;
-        }
+    var errMsg = 'There was a problem caching assignment groups :(',
+        sucMsg = 'Successfully cached student groups! :)',
+        key = cs10Cache.STUD_GROUP_CACHE_KEY;
+
+    var studGroupsProcessor = function(body) {
         var groups = {}
-        categories.forEach(function(cat) {
+        body.forEach(function(cat) {
             groups[cat.name] = cat.id;
         });
-        robot.brain.set(cs10Cache.STUD_GROUP_CACHE_KEY, createCacheObj(groups));
+        return groups;
+    }
 
-        if (errCB) {
-            errCB({error: false, msg: 'Successfully cached student groups! :)'})
-        }
-    });
+    cacheObject(url, '', key, studGroupsProcessor, errMsg, sucMsg, cb);
 }
+
 /**
- * Caches lab assignmentst and the time at which they were cached
+ * Caches lab assignments and the time at which they were cached
  *
- * errCB - a one argument function that should accept an object as a parameter
+ * cb - a function of (error, resp) or null
  */
-cs10Cache.cacheLabAssignments = function(errCB) {
-    var url   = `${cs10.baseURL}assignment_groups/${cs10.labsID}`,
-        query = {'include[]': 'assignments'};
+cs10Cache.cacheLabAssignments = function(cb) {
+    var url = `${cs10.baseURL}assignment_groups/${cs10.labsID}`,
+        params = {
+            'include[]': 'assignments'
+        },
+        errMsg = 'There was a problem caching lab assignments :(',
+        sucMsg = 'Successfully cached lab assignments! :)',
+        key = cs10Cache.LAB_CACHE_KEY;
 
-    cs10.get(url, query, function(err, response, body) {
-        if (err || !body) {
-            if (errCB) {
-                errCB({error: true, msg: 'There was a problem caching lab assignments :('});
-            }
-            return;
-        }
+    var labAssignmentProcessor = function(body) {
+        return body.assignments;
+    }
 
-        robot.brain.set(cs10Cache.LAB_CACHE_KEY, createCacheObj(body.assignments));
-
-        if (errCB) {
-            errCB({error: false, msg: 'Successfully cached lab assignments! :)'})
-        }
-    });
+    cacheObject(url, params, key, labAssignmentProcessor, errMsg, sucMsg, cb);
 }
-//Checks if a cache is valid.
+
+/**
+ * Checks if a cacheObj is valid
+ * Expects a cache object to be of the form {time: NUM, data: SOME_DATA_THING}
+ */
 cs10Cache.cacheIsValid = function(cacheObj) {
     var exists = cacheObj && cacheObj.cacheVal;
     var date = cacheObj.time;
     var diff = (new Date()) - (new Date(date));
     return exists && diff / (1000 * 60 * 60) < cs10Cache.CACHE_HOURS;
 }
+
 /**
  * Refreshes course dependent cache objects.
  *
@@ -174,12 +202,12 @@ cs10Cache.cacheIsValid = function(cacheObj) {
  * - Stduent groups
  * - Lab assignments
  * 
- * errCB - a one argument function that should accept an object as a parameter
+ * cb - a function of (error, resp) or null
  */
-cs10Cache.refreshCache = function(errCB) {
-    cs10Cache.cacheStaffIDs(errCB);
-    cs10Cache.cacheStudGroups(errCB);
-    cs10Cache.cacheLabAssignments(errCB);
+cs10Cache.refreshCache = function(cb) {
+    cs10Cache.cacheStaffIDs(cb);
+    cs10Cache.cacheStudGroups(cb);
+    cs10Cache.cacheLabAssignments(cb);
 }
 
 //Caching is allowed everywhere except the LA room
@@ -192,25 +220,29 @@ function isValidRoom(msg) {
 module.exports = function(robot) {
 
     // Weirdness because the brain loads after the scripts. 
-    // Set a 10 second timeout and then refresh the cache
-    setTimeout(cs10Cache.refreshCache, 10000, function(respObj) {
-        if (respObj.error) {
-            robot.logger.error(respObj.msg);
+    // Set a 5 second timeout and then refresh the cache
+    setTimeout(cs10Cache.refreshCache, 5000, function(error, resp) {
+        if (error) {
+            robot.logger.error(error.msg);
             return;
         }
-        robot.logger.info(respObj.msg)
+        robot.logger.info(resp.msg)
     });
 
     // This is mostly for debugging as it currently does not show names mapped to ids.
     // TODO: Store names and ids in cache
-    robot.respond(/show cached staff\s*(ids)?/i, {id: 'cs10.caching.show-staff-ids'}, function(msg) {
+    robot.respond(/show cached staff\s*(ids)?/i, {
+        id: 'cs10.caching.show-staff-ids'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
         msg.send(`/code${cs10Cache.staffIDs().cacheVal}`);
     });
 
-    robot.respond(/refresh staff\s*(ids)?\s*(cache)?/i, {id: 'cs10.caching.refresh-staff-ids'}, function(msg) {
+    robot.respond(/refresh staff\s*(ids)?\s*(cache)?/i, {
+        id: 'cs10.caching.refresh-staff-ids'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -218,7 +250,9 @@ module.exports = function(robot) {
         cs10Cache.cacheStaffIDs(genericErrorCB.bind(null, msg));
     });
 
-    robot.respond(/show cached labs/i, {id: 'cs10.caching.show-labs'}, function(msg) {
+    robot.respond(/show cached labs/i, {
+        id: 'cs10.caching.show-labs'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -231,7 +265,9 @@ module.exports = function(robot) {
         msg.send(labStr);
     });
 
-    robot.respond(/refresh lab cache/i, {id: 'cs10.caching.refresh-labs'}, function(msg) {
+    robot.respond(/refresh lab cache/i, {
+        id: 'cs10.caching.refresh-labs'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -239,7 +275,9 @@ module.exports = function(robot) {
         cs10Cache.cacheLabAssignments(genericErrorCB.bind(null, msg));
     });
 
-    robot.respond(/show\s*(cached)?\s*groups/i, {id: 'cs10.caching.show-groups'}, function(msg) {
+    robot.respond(/show\s*(cached)?\s*groups/i, {
+        id: 'cs10.caching.show-groups'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -253,7 +291,9 @@ module.exports = function(robot) {
         msg.send(grpStr);
     });
 
-    robot.respond(/refresh groups/i, {id: 'cs10.caching.refresh-groups'}, function(msg) {
+    robot.respond(/refresh groups/i, {
+        id: 'cs10.caching.refresh-groups'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -261,7 +301,9 @@ module.exports = function(robot) {
         cs10Cache.cacheStudGroups(genericErrorCB.bind(null, msg));
     });
 
-    robot.respond(/refresh\s*(bcourses)?\s*cache/i, {id: 'cs10.checkoff.refresh-lab-cache'}, function(msg) {
+    robot.respond(/refresh\s*(bcourses)?\s*cache/i, {
+        id: 'cs10.checkoff.refresh-lab-cache'
+    }, function(msg) {
         if (!isValidRoom(msg)) {
             return;
         }
@@ -269,6 +311,7 @@ module.exports = function(robot) {
         cs10Cache.refreshCache(genericErrorCB.bind(null, msg));
     });
 }
+
 /**
  * This exposes functions to the outside.
  * But since we also want some robot listening being done we do this down here.
@@ -276,4 +319,3 @@ module.exports = function(robot) {
 for (var key in cs10Cache) {
     module.exports[key] = cs10Cache[key];
 }
-
