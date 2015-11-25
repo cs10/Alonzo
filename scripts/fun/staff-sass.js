@@ -37,7 +37,7 @@ module.exports = function(robot) {
     robot.hear(new RegExp(`.*(${sheSaidKeywords.join('|')})`), {
         id: 'fun.staff-sass.what-she-said'
     }, function(msg) {
-        msg.send(`@${msg.message.user.name} that's what she said... ${makeFeminist()}`);
+        msg.send(`@${msg.message.user.mention_name} that's what she said... ${makeFeminist()}`);
     });
 }
 
