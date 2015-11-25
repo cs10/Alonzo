@@ -20,13 +20,13 @@
 
 module.exports = function(robot) {
 
-    robot.respond(/([a-zA-Z]+) (\s*(is a)?\s*n([o0O])+b)/i, {
+    robot.respond(/([a-zA-Z]+) (\s*(?:is a)?\s*n([o0O]+)b)/i, {
         id: 'fun.staff-sass.is-a-noob'
     }, function(msg) {
         var name = msg.match[1];
         msg.send(`@${name} you should check out the collection of chatbot commands:`);
         msg.send('http://alonzo.herokuapp.com/Alonzo/help');
-        msg.send(`So you can stop being such a n${msg.match[4]}b....`);
+        msg.send(`So you can stop being such a n${msg.match[3]}b....`);
     });
 
     //add more terms here for alonzo to respond with '@user That's what she said'
