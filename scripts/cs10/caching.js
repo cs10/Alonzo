@@ -41,7 +41,7 @@ cs10Cache.LA_DATA_KEY = 'LA_DATA';
  * There is a possibility that these values could be null initally, but, on loading,
  * Alonzo will referesh the cache.
  *
- * NOTE: All of these values return an object of {time: <cache-timestamp>, data: <actual-data>}
+ * NOTE: All of these values return an object of {time: <cache-timestamp>, cacheVal: <actual-data>}
  *       except for la data currently.
  */
 cs10Cache.staffIDs = function() {
@@ -51,9 +51,9 @@ cs10Cache.studentGroups = function() {
     return robot.brain.get(cs10Cache.STUD_GROUP_CACHE_KEY);
 }
 cs10Cache.labAssignments = function() {
-        return robot.brain.get(cs10Cache.LAB_CACHE_KEY);
-    }
-    //TODO: implement cache object style for la data
+    return robot.brain.get(cs10Cache.LAB_CACHE_KEY);
+}
+//TODO: implement cache object style for la data
 cs10Cache.laData = function() {
     return robot.brain.get(cs10Cache.LA_DATA_KEY);
 }

@@ -34,11 +34,13 @@ module.exports = function(robot) {
         'diameter', 'pound', 'enormous', 'massive',
         'fast(er)?', 'push', 'fist', 'ride'
     ];
-    robot.hear(new RegExp(`.*(${sheSaidKeywords.join('|')})`), {
+    robot.hear(new RegExp(`.*\b${sheSaidKeywords.join('|')}\b`), {
         id: 'fun.staff-sass.what-she-said'
     }, function(msg) {
         msg.send(`@${msg.message.user.mention_name} that's what she said... ${makeFeminist()}`);
     });
+
+    // robot.hear(/.*)
 }
 
 // Flips a coin to determine whether that's what she said should have the message:
