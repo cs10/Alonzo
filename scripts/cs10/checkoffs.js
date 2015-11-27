@@ -152,7 +152,7 @@ function processCheckOff(msg) {
                 msg.send('Could not check off lab.\n The cache is invalid and could not be refreshed.');
                 return;
             }
-            roomFun(parsed, msg)
+            roomFun(parsed, msg);
         });
     } else {
         roomFn(parsed, msg);
@@ -416,11 +416,11 @@ function reviewLAData(data) {
                 // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
                 // FIXME -- this should be removed sometime soon...
                 if (!sid || sid.length !== 20 && sid.length !== 8) {
-                    return
+                    return;
                 }
                 sid = cs10.normalizeSID(sid);
                 obj[sid] = checkoff.points;
-            })
+            });
         }
     });
 

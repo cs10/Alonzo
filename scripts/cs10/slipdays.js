@@ -24,29 +24,24 @@ var cs10Cache = require('./caching.js');
 
 module.exports = function(robot) {
     // redirect to the CS10 site.
-    robot.respond(/slip days\s*(\d+)/i, {
+    robot.respond(/(?:check\s*)slip days\s*(\d+)/i, {
         id: 'cs10.slip-days'
     }, function(msg) {
-        msg.send(`http://cs10.org/fa15/slipdays/?${msg.match[1]}`);
-    });
-
-    //use this to check if the slip day tracker is working and if a TA wants to check from hipchat
-    robot.respond(/check slip days\s*(\d+)/i, {
-        id: 'cs10.check-slip-days'
-    }, function(msg) {
         var sid = msg.match[1];
+        msg.send(`http://cs10.org/fa15/slipdays/?${sid}`);
         calculateSlipDays(sid, function(data) {
-            console.log(data);
+            msg.send(`/code\n${JSON.stringify(data)}`);
         });
     });
 
     robot.router.get('/slipdays/:sid', function(req, res) {
         res.setHeader('Content-Type', 'text/json');
-        // Damn you CORS....
+        // Damn you, CORS...
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Credentials', true);
         res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
-        res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+        res.setHeader('Access-Control-Allow-Headers',
+                    'Origin, X-Requested-With, Content-Type, Accept');
 
         calculateSlipDays(req.params.sid, function(data) {
             res.end(JSON.stringify(data));
@@ -73,7 +68,7 @@ function getSlipDays(submissionTime, dueTime) {
 
 
 /** Iterate over all the assignments that slip days count towards:
- 
+
  **/
 var STATE_GRADED = 'graded';
 

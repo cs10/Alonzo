@@ -239,7 +239,7 @@ var bjcLabels = function(topic) {
         labels.push('Lab - Lists');
     }
     return labels;
-}
+};
 
 // EDC Labels are based on U1..U6
 // topic files are all named nyc_bjc/#-xxxxx.topic
@@ -247,7 +247,7 @@ var edcLabels = function(topic) {
     var labels = [];
     labels.push('U' + topic[8]);
     return labels;
-}
+};
 
 var responsePage = function(gfSubmission) {
     return gfSubmission['merge_map']['page'];

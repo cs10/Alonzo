@@ -8,4 +8,4 @@ var cs10 = require('./bcourses-config.js');
 
 module.exports = function(robot) {
 
-}
+};

@@ -46,17 +46,17 @@ cs10Cache.LA_DATA_KEY = 'LA_DATA';
  */
 cs10Cache.staffIDs = function() {
     return robot.brain.get(cs10Cache.STAFF_CACHE_KEY);
-}
+};
 cs10Cache.studentGroups = function() {
     return robot.brain.get(cs10Cache.STUD_GROUP_CACHE_KEY);
-}
+};
 cs10Cache.labAssignments = function() {
         return robot.brain.get(cs10Cache.LAB_CACHE_KEY);
-    }
+    };
     //TODO: implement cache object style for la data
 cs10Cache.laData = function() {
     return robot.brain.get(cs10Cache.LA_DATA_KEY);
-}
+};
 
 /**
  * Expects two objects (error, resp) which will each have a msg attribute
@@ -76,7 +76,7 @@ function createCacheObj(data) {
     return {
         time: (new Date()).toString(),
         cacheVal: data
-    }
+    };
 }
 /**
  * A general caching function
@@ -132,10 +132,10 @@ cs10Cache.cacheStaffIDs = function(cb) {
             staffIDs.push(body[i].id);
         }
         return staffIDs;
-    }
+    };
 
     cacheObject(url, params, key, staffIDProcessor, errMsg, sucMsg, cb);
-}
+};
 
 /**
  * Caches the current list of assignment groups
@@ -149,15 +149,15 @@ cs10Cache.cacheStudGroups = function(cb) {
         key = cs10Cache.STUD_GROUP_CACHE_KEY;
 
     var studGroupsProcessor = function(body) {
-        var groups = {}
+        var groups = {};
         body.forEach(function(cat) {
             groups[cat.name] = cat.id;
         });
         return groups;
-    }
+    };
 
     cacheObject(url, '', key, studGroupsProcessor, errMsg, sucMsg, cb);
-}
+};
 
 /**
  * Caches lab assignments and the time at which they were cached
@@ -175,10 +175,10 @@ cs10Cache.cacheLabAssignments = function(cb) {
 
     var labAssignmentProcessor = function(body) {
         return body.assignments;
-    }
+    };
 
     cacheObject(url, params, key, labAssignmentProcessor, errMsg, sucMsg, cb);
-}
+};
 
 /**
  * Checks if a cacheObj is valid
@@ -189,7 +189,7 @@ cs10Cache.cacheIsValid = function(cacheObj) {
     var date = cacheObj.time;
     var diff = (new Date()) - (new Date(date));
     return exists && diff / (1000 * 60 * 60) < cs10Cache.CACHE_HOURS;
-}
+};
 
 /**
  * Refreshes course dependent cache objects.
@@ -208,7 +208,7 @@ cs10Cache.refreshCache = function(cb) {
     cs10Cache.cacheStaffIDs(cb);
     cs10Cache.cacheStudGroups(cb);
     cs10Cache.cacheLabAssignments(cb);
-}
+};
 
 //Caching is allowed everywhere except the LA room
 function isValidRoom(msg) {
@@ -226,7 +226,7 @@ module.exports = function(robot) {
             robot.logger.error(error.msg);
             return;
         }
-        robot.logger.info(resp.msg)
+        robot.logger.info(resp.msg);
     });
 
     // This is mostly for debugging as it currently does not show names mapped to ids.
@@ -259,7 +259,7 @@ module.exports = function(robot) {
         var labs = cs10Cache.labAssignments(),
             labStr = "";
         labs.cacheVal.forEach(function(lab) {
-            labStr += `${lab.name} - Due: ${(new Date(lab.due_at)).toDateString()}\n`
+            labStr += `${lab.name} - Due: ${(new Date(lab.due_at)).toDateString()}\n`;
         });
         labStr += `Cache last updated on: ${(new Date(labs.time)).toDateString()}`;
         msg.send(labStr);
@@ -285,7 +285,7 @@ module.exports = function(robot) {
         var groups = cs10Cache.studentGroups(),
             grpStr = 'Current Student Groups:\n';
         for (var g_name in groups.cacheVal) {
-            grpStr += `${g_name} - bcourses_id: ${groups.cacheVal[g_name]}\n`
+            grpStr += `${g_name} - bcourses_id: ${groups.cacheVal[g_name]}\n`;
         }
         grpStr += `Cache last updated on: ${(new Date(groups.time)).toDateString()}`;
         msg.send(grpStr);
@@ -310,7 +310,7 @@ module.exports = function(robot) {
         msg.send('Waiting on bCourses...');
         cs10Cache.refreshCache(genericErrorCB.bind(null, msg));
     });
-}
+};
 
 /**
  * This exposes functions to the outside.

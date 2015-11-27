@@ -18,7 +18,7 @@
 // Author:
 //  Andrew Schmitt
 
-module.exports = function(robot) {
+module.exports = function (robot) {
 
     robot.respond(/([a-zA-Z]+) (\s*(?:is a)?\s*n([o0O]+)b)/i, {
         id: 'fun.staff-sass.is-a-noob'
@@ -39,7 +39,7 @@ module.exports = function(robot) {
     }, function(msg) {
         msg.send(`@${msg.message.user.mention_name} that's what she said... ${makeFeminist()}`);
     });
-}
+};
 
 // Flips a coin to determine whether that's what she said should have the message:
 // "And he respected it!" appended to the end. This is not meant to be offensive. Just funny
