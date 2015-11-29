@@ -10,11 +10,8 @@ git config --global user.email "andy@cs10.org"
 
 # The first and only commit to this new Git repo contains all the
 # files present with the commit message "Deploy to GitHub Pages".
-# Change the timezone to PST and push with the time in our message
-sudo timedatectl set-timezone PST
-time=$(date +"%r")
 git add .
-git commit -m "[ci skip] Deploy via Travis CI at: ${time}"
+git commit -m "[ci skip] Deploy via Travis CI"
 
 # Force push from the current repo's master branch to the remote
 # repo's master branch. We redirect any output to
