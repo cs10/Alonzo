@@ -118,9 +118,9 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
 
 // Note this is probably non-standard, but it works!
 
-// Hubot's default module.exports so the config file can access robot properties
+// Hubot's default module.exports so the config file can `robot` properties
 // DO NOT add any listeners here!
-module.exports = function(robot) {};
+module.exports = function(robot) { };
 
 // extend the exports so there can be easy to access functions and properties
 for (key in cs10) {

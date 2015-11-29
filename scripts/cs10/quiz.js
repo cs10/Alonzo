@@ -35,23 +35,15 @@ function getIDSetPW(quizNum, password, resp) {
         options = { 'include' : 'assignments' };
 
     cs10.get(url, options, function(error, response, body) {
-        var assn;
-        assn = body.filter(function (g) {
-            return g.name === RQ_GROUP_NAME;
-        })[0].filter(function (assign) {
+        /*
+            body is a list of assignment groups which have an assignments list
+        */
+        var assn = body.filter(function (grp) {
+            return grp.name === RQ_GROUP_NAME;
+        })[0].assignments.filter(function (assign) {
             return /\d+/.exec(assign.name)[0] === quizNum;
-        });
+        })[0];
         setQuizPassword(assn.quiz_id, password, resp, autoResetCallback);
-
-        // body.forEach(function(group) {
-        //     if (group.name == "Reading Quizzes") {
-        //         group.assignments.forEach(function(assn) {
-        //             if (assn.name.match(/\d+/)[0] == quizNum) {
-        //                 cbSetPW(assn.quiz_id, password, msg, cbAutoReset);
-        //             }
-        //         });
-        //     }
-        // });
     });
 }
 
@@ -73,16 +65,16 @@ function md5(text) {
 }
 
 function autoResetCallback(quizID, password, msg) {
-    return function(error, response, body) {
+    return function (error, response, body) {
         if (error || !body || body.errors || body.access_code != password) {
-            msg.send("There was a problem setting the password.");
+            msg.send('There was a problem setting the password.');
             if (body.access_code) {
                 msg.send(`The current password is: ${body.access_code}`);
             }
         } else {
             var qz = msg.match[1];
             prevQuizPW[quizID] = password;
-            msg.send(`Password for quiz ${qz} updated successfully!`);
+            msg.send(`Quiz ${qz} password updated successfully!`);
             msg.send(`New password: ${password}`);
             msg.send("Will update to random password in 30 minutes.");
             storedResetID[qz] = setTimeout(function() {
@@ -97,7 +89,7 @@ function autoResetCallback(quizID, password, msg) {
 
 function simpleResetCallback(quizID, password, msg) {
     return function(error, response, body) {
-        if (error || !body || body.errors || body.access_code != password) {
+        if (error || !body || body.errors || body.access_code !== password) {
             msg.send(`There was a problem resetting the password for quiz ${msg.match[1]}.`);
             if (body.access_code) {
                 msg.send(`The current password is: ${body.access_code}`);
@@ -110,7 +102,7 @@ function simpleResetCallback(quizID, password, msg) {
 
 
 function processQuizMessage(resp) {
-    if (resp.message.room != TA_ROOM && resp.message.room != 'Shell') {
+    if (resp.message.room !== TA_ROOM && resp.message.room !== 'Shell') {
         resp.send('You\'re not allowed to set quiz passwords in this room.');
         return;
     }

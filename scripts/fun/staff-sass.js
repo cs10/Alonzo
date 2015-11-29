@@ -22,22 +22,25 @@ module.exports = function (robot) {
 
     robot.respond(/([a-zA-Z]+) (\s*(?:is a)?\s*n([o0O]+)b)/i, {
         id: 'fun.staff-sass.is-a-noob'
-    }, function(msg) {
-        var name = msg.match[1];
-        msg.send(`@${name} you should check out the collection of chatbot commands:`);
-        msg.send('http://alonzo.herokuapp.com/Alonzo/help');
-        msg.send(`So you can stop being such a n${msg.match[3]}b....`);
+    }, function(resp) {
+        var name = resp.match[1];
+        resp.send(`@${name} you should check out the collection of chatbot commands:`);
+        resp.send('http://alonzo.herokuapp.com/Alonzo/help');
+        resp.send(`So you can stop being such a n${msg.match[3]}b....`);
     });
 
-    //add more terms here for alonzo to respond with '@user That's what she said'
+    //add more terms here for alonzo to respond with
+    // '@user That's what she said'
     var sheSaidKeywords = ['huge', 'giant', 'girth',
         'diameter', 'pound', 'enormous', 'massive',
         'fast(er)?', 'push', 'fist', 'ride'
     ];
     robot.hear(new RegExp(`.*(${sheSaidKeywords.join('|')})`), {
         id: 'fun.staff-sass.what-she-said'
-    }, function(msg) {
-        msg.send(`@${msg.message.user.mention_name} that's what she said... ${makeFeminist()}`);
+    }, function(resp) {
+        if (resp.message.user.mention_name) {
+            resp.send(`@${resp.message.user.mention_name} that's what she said... ${makeFeminist()}`);
+        }
     });
 };
 
