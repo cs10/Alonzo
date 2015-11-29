@@ -39,7 +39,7 @@ module.exports = function (robot) {
         'fast(er)?', 'push', 'fist', 'ride'
     ],
         sheSaidRE = new RegExp(`.*\b${sheSaidKeywords.join('|\b')}`);
-    
+
     robot.hear(sheSaidRE, {
         id: 'fun.staff-sass.what-she-said'
     }, function(resp) {

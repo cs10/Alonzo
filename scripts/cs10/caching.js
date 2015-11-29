@@ -218,10 +218,11 @@ cs10Cache.refreshCache = function(cb) {
     cs10Cache.cacheLabAssignments(cb);
 };
 
-//Caching is allowed everywhere except the LA room
+// Caching is allowed everywhere except the LA room
 function isValidRoom(msg) {
     return msg.message.room !== cs10.LA_ROOM;
 }
+
 /**
  * This exports the robot functionality for the caching module
  */
@@ -229,6 +230,7 @@ module.exports = function(robot) {
 
     // Weirdness because the brain loads after the scripts.
     // Set a 10 second timeout and then refresh the cache
+    // TODO: Fix this....
     setTimeout(cs10Cache.refreshCache, 10 * 1000, function(error, resp) {
         if (error) {
             robot.logger.error(error.msg);
