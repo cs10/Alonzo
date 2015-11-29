@@ -1,4 +1,6 @@
 #!/bin/bash
 
-#run test scripts
+# Run test scripts
 ./tests/tests.sh
+
+# Run other things?
