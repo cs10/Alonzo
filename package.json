@@ -35,7 +35,6 @@
     "hubot-xkcd": "0.0.3",
     "node-canvas-lms": "git://github.com/cs10/node-canvas-lms.git",
     "node-native-zip": "^1.1.0",
-    "wolfram": "^0.3.2",
     "xml2js": "^0.4.5"
   },
   "engines": {

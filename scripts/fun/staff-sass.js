@@ -35,7 +35,7 @@ module.exports = function (robot) {
         'diameter', 'pound', 'enormous', 'massive',
         'fast(er)?', 'push', 'fist', 'ride'
     ];
-    robot.hear(new RegExp(`.*(${sheSaidKeywords.join('|')})`), {
+    robot.hear(new RegExp(`.*${sheSaidKeywords.join('|')}`), {
         id: 'fun.staff-sass.what-she-said'
     }, function(resp) {
         if (resp.message.user.mention_name) {
@@ -47,5 +47,5 @@ module.exports = function (robot) {
 // Flips a coin to determine whether that's what she said should have the message:
 // "And he respected it!" appended to the end. This is not meant to be offensive. Just funny
 function makeFeminist() {
-    return (Math.random() < .5) ? "" : "And he respected it!";
+    return (Math.random() < 0.5) ? '' : 'And he respected it!';
 }

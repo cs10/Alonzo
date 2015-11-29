@@ -1,3 +1,4 @@
+![Build Status](https://travis-ci.org/cs10/Alonzo.svg?branch=master)
 ![Alonzo-Icon][icon]
 # Alonzo
 
