@@ -276,7 +276,7 @@ function uploadCheckoff(roomFn, data, msg) {
     failures = 0;
     expectedScores = data.sids.length;
     data.sids.forEach(function(sid) {
-        postSignleAssignment(assnID, sid, data.points, msg);
+        postSingleAssignment(assnID, sid, data.points, msg);
     });
 
     // wait till all requests are complete...hopefully.
@@ -288,7 +288,7 @@ function uploadCheckoff(roomFn, data, msg) {
 }
 
 
-function postSignleAssignment(assnID, sid, score, msg) {
+function postSingleAssignment(assnID, sid, score, msg) {
     var scoreForm = 'submission[posted_grade]=' + score,
         url = `${cs10.baseURL}assignments/${assnID}/submissions/${sid}`;
 
