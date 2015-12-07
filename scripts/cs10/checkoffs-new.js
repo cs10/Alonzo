@@ -127,7 +127,7 @@ function doTACheckoff(data, msg) {
     var assignments = robot.brain.get(LAB_CACHE_KEY);
 
     if (!assignments || !cacheIsValid(assignments)) {
-        msg.send('Refreshing lab assignments from bCourses...')
+        msg.send('Refreshing lab assignments from bCourses...');
         robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
         cacheLabAssignments(doTACheckoff, [data, msg]);
         return;
