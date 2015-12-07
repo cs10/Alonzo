@@ -47,6 +47,11 @@ module.exports = function (robot) {
             resp.send(`@${resp.message.user.mention_name} that's what she said... ${makeFeminist()}`);
         }
     });
+    
+    robot.respond(/stfu/i, {id: 'stfu'}, function(resp) {
+        resp.send('Sorry, you should yell @Andy. Not my fault. :(',
+                    'I\'m, just programmed poorly.');
+    })
 };
 
 // Flips a coin to determine whether that's what she said should have the
