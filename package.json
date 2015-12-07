@@ -30,7 +30,6 @@
     "hubot-redis-brain": "0.0.3",
     "hubot-shipit": "^0.2.0",
     "hubot-thank-you": "git://github.com/hubot-scripts/hubot-thank-you.git",
-    "hubot-wolfram": "git://github.com/cycomachead/hubot-wolfram.git",
     "hubot-whiteboardcleaner": "0.0.4",
     "hubot-wikipedia": "0.0.2",
     "hubot-xkcd": "0.0.3",
