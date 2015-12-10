@@ -18,6 +18,9 @@ module.exports = (robot) ->
     child_process.exec 'cal -h', (error, stdout, stderr) ->
       msg.send(stdout)
 
+  robot.respond /count char(?:acter)?s? (.*)/i, (resp) ->
+    resp.send resp.match[1].length + ' characters'
+
   robot.respond /room name/i, (msg) ->
     msg.send msg.message.room
 
