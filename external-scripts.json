@@ -2,6 +2,7 @@
     "hubot-auth",
     "hubot-group-alias",
     "hubot-google-hangouts",
+    "hubot-google-images",
     "hubot-meme",
     "hubot-piazza",
     "hubot-pusheen",
