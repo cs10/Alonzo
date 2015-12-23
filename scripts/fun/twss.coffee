@@ -19,6 +19,7 @@ require './twss/stop'
 require './twss/stem'
 require './twss/bigram'
 
+SENSITIVITY = 30 # the lower this number, the more often it will trigger
 module.exports = (robot) ->
   robot.hear /.*/i, (msg) ->
     natural = require 'natural'
@@ -31,14 +32,14 @@ module.exports = (robot) ->
         cmp[c[0].label] = c[0].value
         cmp[c[1].label] = c[1].value
         perc = cmp['positive']/cmp['negative']
-        if perc > 5 # the lower this number, the more often it will trigger
+        if perc > SENSITIVITY 
           return 'positive'
         return false
       if check(msg.message.text.unrepeat().tokenize().stop().stem().bigram()) == 'positive'
         # s = ["that's what she said","said the actress to the bishop","she said that","said the girl to the soldier"]
         # i = Math.floor(Math.random()*s.length)
         # msg.send s[i]
-        msg.send "#{userName} that's what she said... #{makeFeminist()}"
+        msg.send "@#{userName} that's what she said... #{makeFeminist()}"
 
 # Flips a coin to determine whether that's what she said should have the
 #  message: "And he respected it!" appended to the end.
