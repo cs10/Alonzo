@@ -226,18 +226,24 @@ function isValidRoom(msg) {
 /**
  * This exports the robot functionality for the caching module
  */
+var initialBrainLoad = true;
 module.exports = function(robot) {
 
-    // Weirdness because the brain loads after the scripts.
-    // Set a 10 second timeout and then refresh the cache
-    // TODO: Fix this....
-    setTimeout(cs10Cache.refreshCache, 10 * 1000, function(error, resp) {
-        if (error) {
-            robot.logger.error(error.msg);
+    // Refresh the cache on brain loaded
+    robot.brain.on('loaded', function() {
+        if (!initialBrainLoad) {
             return;
         }
-        robot.logger.info(resp.msg);
-    });
+
+        initialBrainLoad = false;
+        cs10Cache.refreshCache(function(err, resp) {
+            if (err) {
+                robot.logger.err(err.msg);
+                return;
+            }
+            // robot.logger.info(resp.msg);
+        });
+    })
 
     // This is mostly for debugging as it currently does not show names mapped to ids.
     // TODO: Store names and ids in cache
