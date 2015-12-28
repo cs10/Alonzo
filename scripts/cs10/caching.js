@@ -238,12 +238,12 @@ module.exports = function(robot) {
         initialBrainLoad = false;
         cs10Cache.refreshCache(function(err, resp) {
             if (err) {
-                robot.logger.err(err.msg);
+                robot.logger.debug(err.msg);
                 return;
             }
-            // robot.logger.info(resp.msg);
+            robot.logger.info(resp.msg);
         });
-    })
+    });
 
     // This is mostly for debugging as it currently does not show names mapped to ids.
     // TODO: Store names and ids in cache

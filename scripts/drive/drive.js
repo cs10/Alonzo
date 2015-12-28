@@ -28,15 +28,15 @@ google.options({ auth: oauthClient });
  * @param  file      the file to be uploaded
  * @param  fileName  the name of the file
  * @param  mimeType  the mimeType of the file
- * @param  roomName  the name of the room to upload the file to
+ * @param  jid       the id of the room to upload the file to
  * @param  cb        the callback function (err, resp)
  */
-function uploadToHipchat(filePath, fileName, mimeType, roomName, cb) {
+function uploadToHipchat(filePath, fileName, mimeType, jid, cb) {
     request({
         method: 'PUT',
         preambleCRLF: true,
         postambleCRLF: true,
-        uri: 'http://www.hipchat.com/v2/room/${room_name}/share/file',
+        uri: 'http://www.hipchat.com/v2/room/${jid}/share/file',
         multipart: [
           {
             'Content-Type': 'application/json',
@@ -66,9 +66,10 @@ function uploadToHipchat(filePath, fileName, mimeType, roomName, cb) {
  * 
  * @param  fileName  the name of the file
  * @param  mimeType  the mimeType of the file
+ * @param  jid       the id of the room to upload the file to
  * @param  cb        the callback function (err, resp)
  */
-drive.uploadFileToHipchat = function(fileName, mimeType, roomName, cb) {
+drive.uploadFileToHipchat = function(fileName, mimeType, jid, cb) {
     fileName.replace("'", "\'");
     var queryString = `title='${fileName}'`; /** and mimeType='${mimeType}`;*/
 
@@ -97,7 +98,7 @@ drive.uploadFileToHipchat = function(fileName, mimeType, roomName, cb) {
                 file = fs.createWriteStream(filePath);
 
             file.on('finish', function() {
-                uploadToHipchat(filePath, fileName, mimeType, roomName, function(err, resp) {
+                uploadToHipchat(filePath, fileName, mimeType, jid, function(err, resp) {
                     if (err) {
                         cb(err);
                         return;
@@ -194,8 +195,8 @@ function validateToken(cb) {
 
     if (at == null || rt == null) {
         robot.logger.info('tokens not set, must be set from terminal.');
-            var authMsg = `Authorize this app by visiting this url:\n ${generateAuthUrl()}` +
-                '\n\nThen use @Alonzo drive code <code>';
+            var authMsg = `Authorize this app by visiting this url (only andy can do this):\n ${generateAuthUrl()}` +
+                '\nThen use @Alonzo drive code <code>';
 
         cb({err: null, msg: authMsg});
         return;
@@ -212,7 +213,7 @@ function validateToken(cb) {
 
             storeToken(token);
             cb(null);
-        })
+        });
     }
 }
 
