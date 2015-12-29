@@ -1,7 +1,7 @@
 var google = require('googleapis');
 var driveAPI = google.drive('v2');
 var GoogleSpreadsheet = require("google-spreadsheet");
-var request = require('request');
+var requestMod = require('request');
 var fs = require('fs');
 var mime = require('mime');
 
@@ -32,7 +32,7 @@ google.options({ auth: oauthClient });
  * @param  cb        the callback function (err, resp)
  */
 function uploadToHipchat(filePath, fileName, mimeType, jid, cb) {
-    request({
+    requestMod({
         method: 'PUT',
         preambleCRLF: true,
         postambleCRLF: true,
@@ -172,6 +172,7 @@ function generateAuthUrl() {
  * @param  code  the code obtained by a user from the auth url
  */
 function setCode(code, cb) {
+    robot.logger.info("setting code: " + code);
     oauthClient.getToken(code, function(err, token) {
         if (err) {
             console.log(err);
@@ -250,7 +251,7 @@ module.exports = function(robot) {
     });
 
     robot.respond(/drive\s+code\s+([^\s]+)/i, {id: 'drive.set-code'}, function(msg) {
-        var code = msg.match[2];
+        var code = msg.match[1];
 
         setCode(code, function(err,resp) {
             if (!err) {
