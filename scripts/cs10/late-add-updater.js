@@ -1,6 +1,6 @@
-var cs10 = require('./bcourses-config.js');
-var cs10Cache = require('./caching.js');
-var drive = require('../drive/drive.js');
+// var cs10 = require('./bcourses-config.js');
+// var cs10Cache = require('./caching.js');
+// var drive = require('../drive/drive.js');
 
 // This changes each semester
 var LATE_ADD_FILE_ID='1HDNEOf3ZRlP_s3qEsVFa8PgXwmwEfCAGxpBi1hOaxdI';
