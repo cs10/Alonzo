@@ -24,10 +24,13 @@ var GoogleSpreadsheet = require("google-spreadsheet");
 var request = require('request');
 var fs = require('fs');
 var mime = require('mime');
+var Hipchat = require('../hipchat/hipchat-api.js');
+var hipchat = new Hipchat(process.env.HIPCHAT_API_TOKEN);
 
 var TOKEN_KEY = 'DRIVE_AUTH_TOKEN',
     REFRESH_KEY = 'DRIVE_REFRESH_TOKEN',
     EXPIRY_KEY = 'DRIVE_EXPIRE_TIME',
+    ROOM_ID_KEY = 'ROOM_ID_MAP',
     GOOGLE_DOCS_URL = 'docs.google.com';
 
 var CLIENT_ID = process.env.DRIVE_CLIENT_ID,
@@ -43,50 +46,7 @@ var oauthClient = new OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 google.options({
     auth: oauthClient
 });
-/**
- * HIPCHAT ONLY
- * Uploads a completed file to hipchat.
- *
- * @param  file      the file to be uploaded
- * @param  fileName  the name of the file
- * @param  mimeType  the mimeType of the file
- * @param  jid       the id of the room to upload the file to
- * @param  cb        the callback function (err, resp)
- */
-function uploadToHipchat(filePath, fileName, mimeType, jid, cb) {
-    var hipchatUri = `http://www.hipchat.com/v2/room/${jid}/share/file`;
-    var req = request({
-        method: 'PUT',
-        preambleCRLF: true,
-        postambleCRLF: true,
-        uri: hipchatUri,
-        multipart: [{
-            'Content-Type': 'application/json',
-            'charset': 'UTF-8',
-            'Content-Disposition': 'attachment; name="metadata"',
-            body: 'File uploaded from google drive:'
-        }, {
-            'Content-Type': mimeType,
-            'Content-Disposition': `attachment; name="file"; filename="${fileName}"`,
-            body: fs.createReadStream(filePath)
-        }],
-        function(err, resp, body) {
-            fs.unlink(filePath, function() {
-                return;
-            });
-            if (err) {
-                cb({
-                    err: err,
-                    msg: 'Upload to hipchat failed'
-                });
-                return;
-            }
 
-            robot.logger.info('file uploaded');
-            cb(null);
-        }
-    });
-}
 /**
  * Downloads a file from the given links and places it into a temporary file.
  * Returns the path to the temporary file.
@@ -95,7 +55,7 @@ function uploadToHipchat(filePath, fileName, mimeType, jid, cb) {
  * @param  id    any fairly unique id that can be used to store the temp file
  * @param  cb    the callback which is called with the path to the file
  */
-function downloadFromLink(link, id, cb) {
+drive.downloadFromLink = function(link, id, cb) {
     var filePath = `./temp-down-${id}`,
         stream = request.get(link)
         .auth(null, null, true, robot.brain.get(TOKEN_KEY))
@@ -111,132 +71,168 @@ function downloadFromLink(link, id, cb) {
         cb(null, filePath);
     });
 }
+
 /**
  * HIPCHAT ONLY
  * Attempts to uploads a file from google drive to the current hipchat room
  * Chooses the first file from the list by default
  * 
  * @param  fileName  the name of the file
- * @param  mimeType  the mimeType of the file
+ * @param  ext       the extension of the file
  * @param  jid       the id of the room to upload the file to
  * @param  cb        the callback function (err, resp)
  */
-drive.uploadFileToHipchat = function(fileName, mimeType, jid, cb) {
-        fileName.replace("'", "\'");
-        var queryString = `title contains '${fileName}'`; /** and mimeType='${mimeType}`;*/
+drive.uploadFileToHipchat = function(fileName, ext, jid, cb) {
+    fileName.replace("'", "\'");
+    var queryString = `title contains '${fileName}'`; /** and mimeType='${mimeType}`;*/
 
-        validateToken(function(err, resp) {
+    var mimeType = mime.lookup(ext);
+
+    if (!mimeType) {
+        cb({
+            err: null,
+            msg: `No valid mimeType found for provided extension: ${ext}`
+        });
+        return;
+    }
+
+    validateToken(function(err, resp) {
+        if (err) {
+            cb({
+                err: err,
+                msg: err.msg
+            });
+            return;
+        }
+
+        driveAPI.files.list({
+            q: queryString
+        }, function(err, resp) {
             if (err) {
                 cb({
                     err: err,
-                    msg: err.msg
+                    msg: `Authentication Error: failed to get a list of files for: ${fileName}`
                 });
                 return;
             }
 
-            driveAPI.files.list({
-                q: queryString
+            // Drive api may return either a drive#fileList or a drive#file
+            var kind = resp.kind;
+            var file = null;
+            if (kind == 'drive#file') {
+                file = resp;
+            } else if (kind == 'drive#fileList' && (resp.items.length > 0)) {
+                file = resp.items[0]; // could do something besides choosing the first
+            }
+
+            if (!file) {
+                cb({
+                    err: err,
+                    msg: `File Name Error: No files found with title similar to: ${fileName}`
+                });
+                return;
+            }
+
+            var fileId = file.id,
+                title = file.title,
+                filePath = `./temp-${fileId}${ext}`;
+
+            console.log(filePath);
+
+            driveAPI.files.get({
+                fileId: fileId
             }, function(err, resp) {
                 if (err) {
                     cb({
                         err: err,
-                        msg: `Authentication Error: failed to get a list of files for: ${fileName}`
+                        msg: `API Error: Problem downloading file: ${title}`
                     });
                     return;
                 }
 
-                // Drive api may return either a drive#fileList or a drive#file
-                var kind = resp.kind;
-                var file = null;
-                if (kind == 'drive#file') {
-                    file = resp;
-                } else if (kind == 'drive#fileList' && (resp.items.length > 0)) {
-                    file = resp.items[0]; // could do something besides choosing the first
-                }
+                var links = resp.exportLinks;
 
-                if (!file) {
+                if (!links || !links[mimeType]) {
                     cb({
                         err: err,
-                        msg: `File Name Error: No files found with title similar to: ${fileName}`
+                        msg: `File Type Error: No export link found for mimeType: ${mimeType}`
                     });
                     return;
                 }
 
-                var fileId = file.id,
-                    title = file.title,
-                    filePath = `./temp-${fileId}`;
+                var roomIdMap = robot.brain.get(ROOM_ID_KEY);
 
-                driveAPI.files.get({
-                    fileId: fileId
-                }, function(err, resp) {
-                    if (err) {
-                        cb({
-                            err: err,
-                            msg: `API Error: Problem downloading file: ${title}`
-                        });
-                        return;
-                    }
-
-                    var links = resp.exportLinks;
-
-                    if (!links || !links[mimeType]) {
-                        cb({
-                            err: err,
-                            msg: `File Type Error: No export link found for mimeType: ${mimeType}`
-                        });
-                        return;
-                    }
-
-                    downloadFromLink(links[mimeType], fileId, function(err, resp) {
+                if (!roomIdMap || !roomIdMap[jid]) {
+                    refreshRoomMap(function(err, resp) {
                         if (err) {
-                            cb({
-                                err: err,
-                                msg: err.msg
-                            });
+                            cb(err);
                             return;
                         }
 
-                        uploadToHipchat(resp, fileName, mimeType, jid, function(err, resp) {
-                            if (err) {
-                                cb({
-                                    err: err,
-                                    msg: err.msg
-                                });
-                                return;
-                            }
-                            robot.logger.info('File uploaded to hipchat');
-                            cb(null);
+                        cb(null, {
+                            resp: resp,
+                            msg: 'Refreshed room id map. Please try again!'
+                        })
+                    });
+                    return;
+                }
+
+                drive.downloadFromLink(links[mimeType], fileId, function(err, filePath) {
+                    if (err) {
+                        cb({
+                            err: err,
+                            msg: err.msg
+                        });
+                        return;
+                    }
+
+                    hipchat.shareFileFromPath(filePath, roomIdMap[jid], function(err, resp) {
+                        if (err) {
+                            cb(err);
+                            return;
+                        }
+
+                        // Delete the temp file from hubot
+                        fs.unlink(filePath, function() {
+                            return;
+                        })
+                        cb(null, {
+                            resp: resp,
+                            msg: 'Here\'s a file just for you ;) and uh I guess anyone else in this room.....'
                         });
                     });
                 });
             });
         });
-    }
-    /**
-     * Creates a new readable spreadsheet object from the given file id
-     *
-     * @param  fileId  the id of a file in google drive
-     * @param  cb      the callback function (err,resp) which is called with a new spreadsheet object
-     */
-drive.createSpreadsheet = function(fileId, cb) {
-        validateToken(function(err, resp) {
-            if (err) {
-                cb({
-                    err: err,
-                    msg: 'error validating token for spreadsheet creation'
-                });
-                return;
-            }
+    });
+}
 
-            cb(null, new GoogleSpreadsheet(fileId, oauthClient.access_token));
-        });
-    }
-    /**
-     * Stores the token and expire time into the robot brain and
-     * Sets it in the oauthClient
-     *
-     * @param  token  the token object returned from google oauth2
-     */
+/**
+ * Creates a new readable spreadsheet object from the given file id
+ *
+ * @param  fileId  the id of a file in google drive
+ * @param  cb      the callback function (err,resp) which is called with a new spreadsheet object
+ */
+drive.createSpreadsheet = function(fileId, cb) {
+    validateToken(function(err, resp) {
+        if (err) {
+            cb({
+                err: err,
+                msg: 'error validating token for spreadsheet creation'
+            });
+            return;
+        }
+
+        cb(null, new GoogleSpreadsheet(fileId, oauthClient.access_token));
+    });
+}
+
+/**
+ * Stores the token and expire time into the robot brain and
+ * Sets it in the oauthClient
+ *
+ * @param  token  the token object returned from google oauth2
+ */
 function storeToken(token) {
     oauthClient.setCredentials(token);
     robot.brain.set(TOKEN_KEY, token.access_token);
@@ -247,6 +243,7 @@ function storeToken(token) {
     robot.brain.save();
     robot.brain.resetSaveInterval(60);
 }
+
 /**
  * Initially tokens must be created from the command line.
  * This requires a user manually inputting a code so it cannot be done by the bot alone.
@@ -263,6 +260,7 @@ function generateAuthUrl() {
 
     return authUrl;
 }
+
 /**
  * Used to set the code provided by the generated auth url. 
  * This code is generated for a user and is needed to initiate the oauth2 handshake.
@@ -281,9 +279,13 @@ function setCode(code, cb) {
         }
         console.log('tokens', token);
         storeToken(token);
-        cb(null, "code successfully set");
+        cb(null, {
+            resp: token,
+            msg: "code successfully set"
+        });
     });
 }
+
 /**
  * Checks the current expire time and determines if the token is valid.
  * Refreshes the token if it is not valid.
@@ -319,18 +321,39 @@ function validateToken(cb) {
             }
 
             storeToken(token);
-            cb(null);
+            cb(null, {
+                resp: token,
+                msg: 'Token refreshed'
+            });
         });
     } else {
         cb(null);
     }
 }
 
+function refreshRoomMap(cb) {
+    hipchat.createRoomMapping(function(err, resp) {
+        if (err) {
+            cb({
+                err: err,
+                msg: err.msg
+            });
+            return;
+        }
+        robot.brain.set(ROOM_ID_KEY, resp);
+        robot.brain.save();
+        cb(null, {
+            resp: null,
+            msg: 'Room id mapping refreshed'
+        });
+    });
+}
+
 // Export robot functions
 var initialBrainLoad = true;
 module.exports = function(robot) {
 
-    var uploadRe = /drive\s+upload\s+([^\s].*)\s+(ext=\s*([^\s].*))?/i;
+    var uploadRe = /drive\s+upload\s+([^\s].*)\s+ext=\s*([^\s].*)/i;
 
     robot.respond(uploadRe, {
         id: 'drive.upload-file'
@@ -343,35 +366,43 @@ module.exports = function(robot) {
             return;
         }
 
-        var mimeType = mime.lookup(ext);
-
-        if (!mimeType) {
-            msg.send(`No valid mimeType found for provided extension: ${ext}`);
-            return;
-        }
-
-        drive.uploadFileToHipchat(fileName, mimeType, msg.jid, function(err, resp) {
+        msg.send('This might take a few seconds....');
+        drive.uploadFileToHipchat(fileName, ext, msg.jid, function(err, resp) {
             if (err) {
                 msg.send(err.msg);
                 return;
             }
 
-            msg.send("Here's a file just for you ;)");
+            msg.send(resp.msg);
         });
+    });
+
+    robot.respond(/room map/i, {
+        id: 'drive.room-map'
+    }, function(msg) {
+        var map = robot.brain.get(ROOM_ID_KEY);
+        var text = '';
+        if (map) {
+            for (var key in map) {
+                text += `${key} : ` + map[key] + '\n';
+            }
+
+            msg.send(text);
+        }
     });
 
     robot.respond(/drive\s+code\s+([^\s]+)/i, {
         id: 'drive.set-code'
     }, function(msg) {
         var code = msg.match[1];
-
+        msg.send('Attempting to set code...')
         setCode(code, function(err, resp) {
-            if (!err) {
-                msg.send(resp);
+            if (err) {
+                msg.send(err.msg);
                 return;
             }
 
-            msg.send(err.msg);
+            msg.send(resp.msg);
         });
     });
 
@@ -388,6 +419,7 @@ module.exports = function(robot) {
     });
 
     // Set credentials on load. Does not validate/refresh tokens
+    // Also update hipchat room mapping
     robot.brain.on('loaded', function() {
         if (!initialBrainLoad) {
             return;
@@ -401,6 +433,17 @@ module.exports = function(robot) {
             access_token: at,
             refresh_token: rt
         });
+
+        var roomIdMap = robot.brain.get(ROOM_ID_KEY);
+        if (!roomIdMap) {
+            refreshRoomMap(function(err, resp) {
+                if (err) {
+                    robot.logger.debug('Error refreshing room id map' + err);
+                    return;
+                }
+                robot.logger.debug('Room id map refreshed on startup');
+            });
+        }
 
     });
 }
