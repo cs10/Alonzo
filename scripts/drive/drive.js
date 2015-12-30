@@ -367,7 +367,9 @@ module.exports = function(robot) {
         }
 
         msg.send('This might take a few seconds....');
-        drive.uploadFileToHipchat(fileName, ext, msg.jid, function(err, resp) {
+        
+        var jid = msg.message.user.reply_to;
+        drive.uploadFileToHipchat(fileName, ext, jid, function(err, resp) {
             if (err) {
                 msg.send(err.msg);
                 return;
