@@ -186,7 +186,7 @@ drive.uploadFileToHipchat = function(fileName, ext, jid, cb) {
                         return;
                     }
 
-                    hipchat.shareFileFromPath(filePath, roomIdMap[jid], function(err, resp) {
+                    hipchat.shareFileFromPath(filePath, title, roomIdMap[jid], function(err, resp) {
                         if (err) {
                             cb(err);
                             return;
@@ -367,7 +367,7 @@ module.exports = function(robot) {
         }
 
         msg.send('This might take a few seconds....');
-        
+
         var jid = msg.message.user.reply_to;
         drive.uploadFileToHipchat(fileName, ext, jid, function(err, resp) {
             if (err) {

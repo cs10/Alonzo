@@ -125,11 +125,12 @@ HipchatV2.prototype.createRoomMapping = function(cb) {
 /**
  * Shares a file to a hipchat room.
  *
- * @param  file        the file to be uploaded
+ * @param  filePath    path to the file to be uploaded
+ * @param  fileAlias   the name that users should see when the file is uploaded
  * @param  roomIdName  the id or name of the room to upload the file to, does not need to be uri encoded
  * @param  cb          the callback function (err, resp)
  */
-HipchatV2.prototype.shareFileFromPath = function(filePath, roomIdName, cb) {
+HipchatV2.prototype.shareFileFromPath = function(filePath, fileAlias, roomIdName, cb) {
     var self = this,
         encodedId = encodeURIComponent(roomIdName);
         hipchatUrl = `http://www.hipchat.com/v2/room/${encodedId}/share/file`,
@@ -170,7 +171,7 @@ HipchatV2.prototype.shareFileFromPath = function(filePath, roomIdName, cb) {
                 })
             }, {
                 'Content-Type': 'file/' + mimeType,
-                'Content-Disposition': `attachment; name="file"; filename="${fileName + ext}"`,
+                'Content-Disposition': `attachment; name="file"; filename="${fileAlias + ext}"`,
                 'body': data
             }]},
             function(err, resp, body) {
