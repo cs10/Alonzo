@@ -39,7 +39,8 @@ module.exports = (robot) ->
         # s = ["that's what she said","said the actress to the bishop","she said that","said the girl to the soldier"]
         # i = Math.floor(Math.random()*s.length)
         # msg.send s[i]
-        msg.send "@#{userName} that's what she said... #{makeFeminist()}"
+        # msg.send "@#{userName} that's what she said... #{makeFeminist()}"
+        a = 'this has been removed for now';
 
 # Flips a coin to determine whether that's what she said should have the
 #  message: "And he respected it!" appended to the end.

@@ -8,14 +8,20 @@ var cs10 = new Canvas(bCoursesURL, {
     token: authToken
 });
 
-/** COURSE AND ASSIGNMENT IDS
-    Update these each semester!!
-    The course ID is the standard CS10 course id, easily obtainable from the URL:
-    http://bcourses.berkeley.edu/courses/<id>/ when you are viewing the CS10
-    page in bCourses.
-    The labsID is the id of the "assignment group" for all lab check offs.
-    To get this id...... TODO.
-**/
+
+/************************************************
+ * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
+ ************************************************/
+
+
+/**
+ * COURSE AND ASSIGNMENT IDS
+ * The course ID is the standard CS10 course id, easily obtainable from the URL:
+ * http://bcourses.berkeley.edu/courses/<id>/ when you are viewing the CS10
+ * page in bCourses.
+ * The labsID is the id of the "assignment group" for all lab check offs.
+ * To get this id...... TODO.
+ */
 // These are used in URL building, so strings are OK.
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course>
@@ -27,42 +33,10 @@ cs10.courseID = 1371647;
 // Michael Sandbox: 1593713
 cs10.labsID = 1846637;
 
-/**
- * These are room names that are particularly useful
- */
-cs10.LA_ROOM = 'lab_assistant_check-offs';
-cs10.TA_ROOM = 'lab_check-off_room';
-
-// This changes the default ID of a student to tell bCourses to use SIDs
-// The default are internal bCourses IDs, but no one knows those.
-// See https://bcourses.berkeley.edu/doc/api/file.object_ids.html
-cs10.uid = 'sis_user_id:';
-
-// all endpoints are based of the course, at least for our usage
-cs10.baseURL = `/courses/${cs10.courseID}/`;
-
-// Shortcut for use in chat error messages
-cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
-
-/** Mapping of extenstion student IDs to bCourses IDs
-    If there are no extenstion students, leave this empty
-    The UID.. is for the sis_user_id field as bCourses doesn't know about
-    extenstion student IDs. To get the UID format go to the user's page in
-    bCourses and click "more details" (The extenstion IDs come from the
-    BearFacts roster.)
-
-    TODO: Consider making this a config for privacy reasons
-    However, these IDs don't actually reveal anything.
-**/
-cs10.SWAP_IDS = {};
-
-// Course Level Policies:
-cs10.gracePeriodMinutes = 15;
-cs10.allowedSlipDays = 3;
-cs10.firstLab = 2;
-cs10.lastLab = 18;
-cs10.labCheckOffPoints = 2; // These could be changed as the course changes.
-cs10.labCheckOffLatePts = 1;
+// The google drive id of the file for the late add form data
+// Its the long number thing at the end of the file url when you go to it in drive
+// Ex: 
+cs10.LATE_ADD_DRIVE_ID = '1HDNEOf3ZRlP_s3qEsVFa8PgXwmwEfCAGxpBi1hOaxdI';
 
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
@@ -77,6 +51,58 @@ cs10.slipDayAssignmentIDs = [
     6644470, // Explore Post Content
     6644476, // Final Project
 ];
+
+/** Mapping of extenstion student IDs to bCourses IDs
+    If there are no extenstion students, leave this empty
+    The UID.. is for the sis_user_id field as bCourses doesn't know about
+    extenstion student IDs. To get the UID format go to the user's page in
+    bCourses and click "more details" (The extenstion IDs come from the
+    BearFacts roster.)
+
+    TODO: Consider making this a config for privacy reasons
+    However, these IDs don't actually reveal anything.
+**/
+cs10.SWAP_IDS = {};
+
+
+/***********************************************
+ * MAY NEED TO CHANGE BASED ON COURSE POLICIES *
+ ***********************************************/
+
+
+cs10.gracePeriodMinutes = 15;
+cs10.allowedSlipDays = 3;
+cs10.firstLab = 2;
+cs10.lastLab = 18;
+cs10.labCheckOffPoints = 2; // These could be changed as the course changes.
+cs10.labCheckOffLatePts = 1;
+
+
+/**********************
+ * SOME HIPCHAT STUFF *
+ **********************/
+
+
+//These are room names that are particularly useful
+cs10.LA_ROOM = 'lab_assistant_check-offs';
+cs10.TA_ROOM = 'lab_check-off_room';
+
+
+/**********************************
+ * BCOURSES CONFIG AND SOME UTILS *
+ **********************************/
+
+
+// This changes the default ID of a student to tell bCourses to use SIDs
+// The default are internal bCourses IDs, but no one knows those.
+// See https://bcourses.berkeley.edu/doc/api/file.object_ids.html
+cs10.uid = 'sis_user_id:';
+
+// all endpoints are based of the course, at least for our usage
+cs10.baseURL = `/courses/${cs10.courseID}/`;
+
+// Shortcut for use in chat error messages
+cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 // Trim an SID and check off extenstion students
 // This must called whenever a SID is used to make sure its the proper format
@@ -116,13 +142,5 @@ cs10.postMultipleGrades = function(assnID, grades, msg) {
     });
 };
 
-// Note this is probably non-standard, but it works!
-
-// Hubot's default module.exports so the config file can `robot` properties
-// DO NOT add any listeners here!
-module.exports = function(robot) { };
-
-// extend the exports so there can be easy to access functions and properties
-for (key in cs10) {
-    module.exports[key] = cs10[key];
-}
+//Export the cs10 object
+module.exports = cs10;

@@ -801,3 +801,7 @@ module.exports = (robot) ->
 
   robot.respond /q(?:uestion)? card/i, (msg) ->
     msg.send msg.random questions
+
+  robot.respond /humanity( me)?/i, (msg) ->
+    msg.send msg.random questions
+    msg.send msg.random answers
