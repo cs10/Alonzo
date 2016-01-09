@@ -16,6 +16,7 @@
     "url": "https://github.com/cs10/alonzo.git"
   },
   "dependencies": {
+    "canvas-grade-uploader": "^1.0.3",
     "githubot": "^1.0.0",
     "hubot": "latest",
     "hubot-auth": "^1.2.0",
