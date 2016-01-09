@@ -12,5 +12,6 @@
     "hubot-thank-you",
     "hubot-wikipedia",
     "hubot-whiteboardcleaner",
-    "hubot-xkcd"
+    "hubot-xkcd",
+    "hubot-googledrive-search"
 ]
