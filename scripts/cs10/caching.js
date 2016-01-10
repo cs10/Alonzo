@@ -158,9 +158,16 @@ cs10Cache.cacheStudGroups = function(cb) {
 
      function studGroupsProcessor(body) {
         var groups = {};
-        body.forEach(function(cat) {
-            groups[cat.name] = cat.id;
-        });
+        // TODO: Verify this.
+        if (body.constructor == Array) {
+            body.forEach(function(cat) {
+                groups[cat.name] = cat.id;
+            });
+        } else {
+            console.warn('No Data received from bCourses - student groups');
+            console.log('BODY: ', body);
+        }
+        
         return groups;
     };
 
