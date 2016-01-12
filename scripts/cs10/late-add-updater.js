@@ -80,7 +80,6 @@ var downloadFromLink = function(link, cb) {
 
 module.exports = function(robot) {
 
-
     robot.respond(/refresh late data/i, {
         id: 'cs10.late-add-updater.refresh'
     }, function(msg) {
