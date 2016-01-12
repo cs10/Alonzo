@@ -31,7 +31,7 @@ class HipChat extends Adapter
       room # this will happen if someone uses robot.messageRoom(jid, ...)
 
   getRoomDetails: (envelope) ->
-    jid = extractJid(envelope)
+    jid = @extractJid(envelope)
 
     if not jid
       return @logger.error "ERROR: Details for this room do not exist"
@@ -40,7 +40,7 @@ class HipChat extends Adapter
 
   send: (envelope, strings...) ->
     
-    target_jid = extractJid(envelope)
+    target_jid = @extractJid(envelope)
       
     if not target_jid
       return @logger.error "ERROR: Not sure who to send to: envelope=#{inspect envelope}"
@@ -49,7 +49,7 @@ class HipChat extends Adapter
       @connector.message target_jid, str
 
   sendHtml: (envelope, strings...) ->
-    target_jid = extractJid(envelope)
+    target_jid = @extractJid(envelope)
     target_id = @room_map[target_jid].id
 
     if not target_id
@@ -80,7 +80,7 @@ class HipChat extends Adapter
   #     type (required) : the type of the file (text, pdf, json, csv etc...)
   #     msg (optional) : a simple text msg to be posted along with the file
   sendFile: (envelope, file_info) ->
-    target_jid = extractJid(envelope)
+    target_jid = @extractJid(envelope)
     target_id = @room_map[target_jid].id
 
     if not target_id
@@ -104,10 +104,10 @@ class HipChat extends Adapter
         if err
           return @logger.error "File Read Error: could not read from file path: #{file_info.path}"
 
-        sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
+        @sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
 
     else if file_info.data
-      sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
+      @sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
 
     else
       return @logger.error "ERROR: must specify either data or path for sendFile"
