@@ -24,7 +24,7 @@ module.exports = (robot) ->
 				path: testPath
 				type: 'text'
 
-			robot.adapter.sendFile(file_info1)
+			msg.send('/file', file_info1)
 
 			# Send base64 encoded byte stream
 			file_info2 = 
@@ -32,10 +32,10 @@ module.exports = (robot) ->
 				data: base64_encode(testPath)
 				type: 'text'
 
-			robot.adapter.sendFile(file_info2)
+			msg.send('/file', file_info2)
 
 	robot.respond /adapter test (sendHtml|send html)/i, 'id' : 'test.sendHtml', (msg) ->
 
 		# Send a hyperlink
 		html = '<a href="https://www.hipchat.com">hipchat site</a>'
-		robot.adapter.sendHtml(html)
+		msg.send('/html', html)
