@@ -10,10 +10,13 @@ module.exports = (robot) ->
 
 	robot.respond /adapter test (sendfile|send file)/i, 'id': 'test.sendFile', (msg) ->
 		msg.send('Testing send file....')
-		
+
 		# Create a file
 		testPath = './adapterTest.text'
 		fs.writeFile testPath, 'This is a test for the hipchat adapter\'s sendFile Method', (err, resp) ->
+
+			robot.logger.info 'Wrote to file'
+			
 			if err
 				return robot.logger.info('File Wrtie Error: #{err}')
 
