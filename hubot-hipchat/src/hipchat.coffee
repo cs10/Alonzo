@@ -66,11 +66,11 @@ class HipChat extends Adapter
     if not @options.token
       return @logger.error "A hubot api token must be set to send html messages"
 
-    target_id = @room_map[target_jid].id
+    room_id = @room_map[target_jid].id
     fullMsg = strings.join('')
 
     params =
-      url: "#{@room_endpoint}"
+      url: "#{@room_endpoint}/#{room_id}/notification"
       headers : 
         'content-type' : 'text/html'
       auth:
@@ -97,8 +97,8 @@ class HipChat extends Adapter
     if not @options.token
       return @logger.error "A hubot api token must be set to send html messages"
 
-    target_id = @room_map[target_jid].id
-    url = "#{@room_endpoint}/#{target_id}/share/file"
+    room_id = @room_map[target_jid].id
+    url = "#{@room_endpoint}/#{room_id}/share/file"
     mimeType = mime.lookup(file_info.type)
     ext = mime.extension(mimeType)
 
