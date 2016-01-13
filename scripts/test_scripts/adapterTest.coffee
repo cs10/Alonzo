@@ -18,7 +18,7 @@ module.exports = (robot) ->
 			robot.logger.info 'Wrote to file'
 
 			if err
-				return robot.logger.info('File Wrtie Error: #{err}')
+				return robot.logger.info 'File Wrtie Error: #{err}'
 
 			# If the file already exists then just look below for how to send it
 
@@ -30,10 +30,10 @@ module.exports = (robot) ->
 
 			msg.send '/file', file_info1
 
-			# Send base64 encoded byte stream
+			# Send byte stream
 			file_info2 = 
-				name: 'adapter test: sendFile(2/2) from base64 data'
-				data: fs.readFileSync(file)
+				name: 'adapter test: sendFile(2/2) from data'
+				data: fs.readFileSync(testPath)
 				type: 'text'
 
 			msg.send(file_info2.data.toString())
