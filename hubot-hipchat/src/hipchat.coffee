@@ -40,11 +40,6 @@ class HipChat extends Adapter
 
   send: (envelope, strings...) ->
     
-    target_jid = @extractJid(envelope)
-      
-    if not target_jid
-      return @logger.error "ERROR: Not sure who to send to: envelope=#{inspect envelope}"
-
     # Look for special send flags
     if strings.length > 1
       if strings[0] == '/file' and typeof strings[1] == 'object'
@@ -53,6 +48,12 @@ class HipChat extends Adapter
       if strings[0] == '/html'
         return @sendHtml(envelope, strings.slice(1))
 
+    # Basic send
+    target_jid = @extractJid(envelope)
+      
+    if not target_jid
+      return @logger.error "Not sure who to send to: envelope=#{inspect envelope}"
+
     for str in strings
       @connector.message target_jid, str
 
@@ -60,10 +61,10 @@ class HipChat extends Adapter
     target_jid = @extractJid(envelope)
 
     if not target_id
-      return @logger.error "ERROR: Not sure who to send html message to: envelope=#{inspect envelope}"
+      return @logger.error "Not sure who to send html message to: envelope=#{inspect envelope}"
 
     if not @options.token
-      return @logger.error "ERROR: A hubot api token must be set to send html messages"
+      return @logger.error "A hubot api token must be set to send html messages"
 
     target_id = @room_map[target_jid].id
     fullMsg = strings.join('')
@@ -91,10 +92,10 @@ class HipChat extends Adapter
     target_jid = @extractJid(envelope)
 
     if not target_id
-      return @logger.error "ERROR: Not sure who to send html message to: envelope=#{inspect envelope}"
+      return @logger.error "Not sure who to send file to: envelope=#{inspect envelope}"
 
     if not @options.token
-      return @logger.error "ERROR: A hubot api token must be set to send html messages"
+      return @logger.error "A hubot api token must be set to send html messages"
 
     target_id = @room_map[target_jid].id
     url = "#{@room_endpoint}/#{target_id}/share/file"
@@ -102,7 +103,7 @@ class HipChat extends Adapter
     ext = mime.extension(mimeType)
 
     if not file_info.type || not mimeType
-      return @logger.error "ERROR: a valid type must be provided to sendFile. Type was: #{file_info.type}"
+      return @logger.error "A valid type must be provided to sendFile. Type was: #{file_info.type}"
 
     if not file_info.msg
       file_info.msg = ''
@@ -118,7 +119,7 @@ class HipChat extends Adapter
       @sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
 
     else
-      return @logger.error "ERROR: must specify either data or path for sendFile"
+      return @logger.error "Must specify either data or path for sendFile"
 
   sendMutlipart: (path, name, data, mimeType, msg) ->
     params =
