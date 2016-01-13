@@ -36,7 +36,6 @@ module.exports = (robot) ->
 				data: fs.readFileSync(testPath)
 				type: 'text'
 
-			msg.send(file_info2.data.toString())
 			msg.send '/file', file_info2
 
 	robot.respond /adapter test (sendHtml|send html)/i, 'id' : 'test.sendHtml', (msg) ->

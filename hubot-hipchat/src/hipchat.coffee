@@ -139,8 +139,11 @@ class HipChat extends Adapter
     @logger.info 'sending file request'
 
     requestLib.post params, (err, resp, body) =>
-          if resp.statusCode > 400
-            return @logger.error "Hipchat API errror: #{resp.statusCode}"
+          @logger.info 'response status:' + resp.statusCode
+          if resp.statusCode >= 400
+            @logger.error "Hipchat API errror: #{resp.statusCode}"
+            return @logger.error body.error.message
+            
 
   topic: (envelope, message) ->
 
