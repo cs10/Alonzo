@@ -7,7 +7,7 @@ base64_encode = (file) ->
 
 module.exports = (robot) ->
 
-	robot.respond /adapter test (sendfile|send file)/i, 'id: test.sendFile', (msg) ->
+	robot.respond /adapter test (sendfile|send file)/i, 'id': 'test.sendFile', (msg) ->
 
 		# Create a file
 		testPath = './adapterTest.text'
@@ -32,3 +32,9 @@ module.exports = (robot) ->
 				type: 'text'
 
 			msg.sendFile(file_info2)
+
+	robot.respond /adapter test (sendHtml|send html)/i, 'id' : 'test.sendHtml', (msg) ->
+
+		# send a hyperlink
+		html = '<a href="https://www.hipchat.com">hipchat site</a>'
+		msg.sendHtml(html)
