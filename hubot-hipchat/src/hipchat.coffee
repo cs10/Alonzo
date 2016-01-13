@@ -45,12 +45,19 @@ class HipChat extends Adapter
     if not target_jid
       return @logger.error "ERROR: Not sure who to send to: envelope=#{inspect envelope}"
 
+    # Look for special send flags
+    if strings.length > 1
+      if strings[0] == '/file' and typeof strings[1] == 'object'
+        return @sendFile(envelope, strings[1])
+
+      if strings[0] == '/html'
+        return @sendHtml(envelope, strings.slice(1))
+
     for str in strings
       @connector.message target_jid, str
 
   sendHtml: (envelope, strings...) ->
     target_jid = @extractJid(envelope)
-    target_id = @room_map[target_jid].id
 
     if not target_id
       return @logger.error "ERROR: Not sure who to send html message to: envelope=#{inspect envelope}"
@@ -58,6 +65,7 @@ class HipChat extends Adapter
     if not @options.token
       return @logger.error "ERROR: A hubot api token must be set to send html messages"
 
+    target_id = @room_map[target_jid].id
     fullMsg = strings.join('')
 
     params =
@@ -81,7 +89,6 @@ class HipChat extends Adapter
   #     msg (optional) : a simple text msg to be posted along with the file
   sendFile: (envelope, file_info) ->
     target_jid = @extractJid(envelope)
-    target_id = @room_map[target_jid].id
 
     if not target_id
       return @logger.error "ERROR: Not sure who to send html message to: envelope=#{inspect envelope}"
@@ -89,6 +96,7 @@ class HipChat extends Adapter
     if not @options.token
       return @logger.error "ERROR: A hubot api token must be set to send html messages"
 
+    target_id = @room_map[target_jid].id
     url = "#{@room_endpoint}/#{target_id}/share/file"
     mimeType = mime.lookup(file_info.type)
     ext = mime.extension(mimeType)
