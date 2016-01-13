@@ -78,7 +78,7 @@ class HipChat extends Adapter
       body: fullMsg
 
     requestLib.post params, (err,resp,body) ->
-      if err || response.statusCode >= 400
+      if err || resp.statusCode >= 400
         return @logger.error "Hipchat API error: #{resp.statusCode}"
 
   # Send a file from hubot
@@ -116,12 +116,12 @@ class HipChat extends Adapter
         @sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
 
     else if file_info.data
-      @sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
+      @sendMultipart url, file_info.name + ext, file_info.data, mimeType, file_info.msg
 
     else
       return @logger.error "Must specify either data or path for sendFile"
 
-  sendMutlipart: (path, name, data, mimeType, msg) ->
+  sendMultipart: (path, name, data, mimeType, msg) ->
     params =
       url: path 
       auth:
