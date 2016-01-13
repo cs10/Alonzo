@@ -42,10 +42,10 @@ class HipChat extends Adapter
     
     # Look for special send flags
     if strings.length > 1
-      if strings[0] == '/file' and typeof strings[1] == 'object'
+      if strings[0].toLowerCase() == '/file' and typeof strings[1] == 'object'
         return @sendFile(envelope, strings[1])
 
-      if strings[0] == '/html'
+      if strings[0].toLowerCase() == '/html'
         return @sendHtml(envelope, strings.slice(1))
 
     # Basic send
@@ -60,7 +60,7 @@ class HipChat extends Adapter
   sendHtml: (envelope, strings...) ->
     target_jid = @extractJid(envelope)
 
-    if not target_id
+    if not target_jid
       return @logger.error "Not sure who to send html message to: envelope=#{inspect envelope}"
 
     if not @options.token
@@ -91,7 +91,7 @@ class HipChat extends Adapter
   sendFile: (envelope, file_info) ->
     target_jid = @extractJid(envelope)
 
-    if not target_id
+    if not target_jid
       return @logger.error "Not sure who to send file to: envelope=#{inspect envelope}"
 
     if not @options.token
@@ -262,9 +262,6 @@ class HipChat extends Adapter
               @room_map = {}
               for room in rooms
                 @room_map[room.jid] = room
-
-            @logger.info @room_map
-            @logger.info rooms
 
             # Join all rooms
             if @options.rooms is "All" or @options.rooms is "@All"
