@@ -1,4 +1,5 @@
-fs = require('fs')
+fs = require 'fs'
+util = require 'util'
 
 # function to encode file data to base64 encoded string
 base64_encode = (file) ->
@@ -41,6 +42,5 @@ module.exports = (robot) ->
 
 	robot.respond /adapter test features/i, 'id' : 'test.features', (msg) ->
 
-		msg.send('testing features')
-		for key in msg
-			msg.send(key)
+		msg.send 'testing features'
+		msg.send '/code\n #{util.inspect myObject, false, null}'
