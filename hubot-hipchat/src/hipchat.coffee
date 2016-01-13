@@ -77,7 +77,7 @@ class HipChat extends Adapter
         bearer : @options.token
       body: fullMsg
 
-    requestLib.post params, (err,resp,body) ->
+    requestLib.post params, (err,resp,body) =>
       if err || resp.statusCode >= 400
         return @logger.error "Hipchat API error: #{resp.statusCode}"
 
@@ -108,12 +108,13 @@ class HipChat extends Adapter
     if not file_info.msg
       file_info.msg = ''
 
+    self = @
     if file_info.path
-      fs.readFile file_info.path, (err, data) ->
+      fs.readFile file_info.path, (err, data) =>
         if err
           return @logger.error "File Read Error: could not read from file path: #{file_info.path}"
 
-        @sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
+        self.sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
 
     else if file_info.data
       @sendMultipart url, file_info.name + ext, file_info.data, mimeType, file_info.msg
@@ -136,9 +137,9 @@ class HipChat extends Adapter
           'body': data
       ]
 
-    requestLib.post params, (err, resp, body) ->
+    requestLib.post params, (err, resp, body) =>
           if resp.statusCode > 400
-            return @logger.error "Hipchat API errror: #{resp.statusCode}"
+            return self.logger.error "Hipchat API errror: #{resp.statusCode}"
 
   topic: (envelope, message) ->
 
