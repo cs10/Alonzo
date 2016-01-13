@@ -28,7 +28,7 @@ module.exports = (robot) ->
 				path: testPath
 				type: 'text'
 
-			msg.send '/file', file_info1
+			msg.sendFile file_info1
 
 			# Send byte stream
 			file_info2 = 
@@ -36,17 +36,17 @@ module.exports = (robot) ->
 				data: fs.readFileSync(testPath)
 				type: 'text'
 
-			msg.send '/file', file_info2
+			msg.sendFile file_info2
 
 	robot.respond /adapter test (sendHtml|send html)/i, 'id' : 'test.sendHtml', (msg) ->
 		msg.send 'Testing send html...'
 
 		# This is a hyperlink
-		html = '<a href="https://www.hipchat.com">hipchat site</a>'
-		msg.send '/html', html
+		html1 = '<a href="https://www.hipchat.com">hipchat site</a>'
+		msg.sendHtml html1
 
 		# This is a table
-		html = '<table style="width:100%"><tr><td>Jill</td><td>Smith</td><td>50</td></tr><tr><td>Eve</td><td>Jackson</td><td>94</td></tr></table>'
-		msg.send '/html', html
+		html2 = '<table style="width:100%"><tr><td>Jill</td><td>Smith</td><td>50</td></tr><tr><td>Eve</td><td>Jackson</td><td>94</td></tr></table>'
+		msg.sendHtml html2
 
 

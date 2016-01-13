@@ -6,6 +6,7 @@ promise = require "./promises"
 requestLib = require "request"
 fs = require 'fs'
 mime = require 'mime'
+HipchatResponse = require './response'
 
 class HipChat extends Adapter
 
@@ -13,6 +14,7 @@ class HipChat extends Adapter
     super robot
     @logger = robot.logger
     @room_endpoint = "http://www.hipchat.com/v2/room"
+    @robot.Response = HipchatResponse
     reconnectTimer = null
 
   emote: (envelope, strings...) ->
@@ -39,16 +41,7 @@ class HipChat extends Adapter
     return @room_map[jid]
 
   send: (envelope, strings...) ->
-    
-    # Look for special send flags
-    if strings.length > 1
-      if strings[0].toLowerCase() == '/file' and typeof strings[1] == 'object'
-        return @sendFile(envelope, strings[1])
 
-      if strings[0].toLowerCase() == '/html'
-        return @sendHtml(envelope, strings.slice(1))
-
-    # Basic send
     target_jid = @extractJid(envelope)
       
     if not target_jid
@@ -135,8 +128,6 @@ class HipChat extends Adapter
           'Content-Disposition': "attachment; name='file'; filename='#{name}'",
           'body': data
       ]
-
-    @logger.info 'sending file request'
 
     requestLib.post params, (err, resp, body) =>
           @logger.info 'response status:' + resp.statusCode
