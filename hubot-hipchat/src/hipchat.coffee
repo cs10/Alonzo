@@ -72,7 +72,7 @@ class HipChat extends Adapter
       if err || response.statusCode >= 400
         return @logger.error "Hipchat API error: #{resp.statusCode}"
 
-  # Send a file from hubot to a room
+  # Send a file from hubot
   #   options =
   #     name : the name to share the file with
   #     path : send file from this path (a string)

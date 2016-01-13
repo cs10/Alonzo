@@ -38,3 +38,9 @@ module.exports = (robot) ->
 		# send a hyperlink
 		html = '<a href="https://www.hipchat.com">hipchat site</a>'
 		msg.sendHtml(html)
+
+	robot.respond /adapter test features/i, 'id' : 'test.features', (msg) ->
+
+		msg.send('testing features')
+		for key in msg
+			msg.send(key)
