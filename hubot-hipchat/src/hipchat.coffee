@@ -106,34 +106,40 @@ class HipChat extends Adapter
         if err
           return @logger.error "File Read Error: could not read from file path: #{file_info.path}"
 
-        @sendMultipart url, file_info.name + ext, data, mimeType, file_info.msg
+        @sendMultipart url, file_info.name + '.' + ext, data, mimeType, file_info.msg
 
     else if file_info.data
-      @sendMultipart url, file_info.name + ext, file_info.data, mimeType, file_info.msg
+      @sendMultipart url, file_info.name + '.' + ext, file_info.data, mimeType, file_info.msg
 
     else
       return @logger.error "Must specify either data or path for sendFile"
 
   sendMultipart: (path, name, data, mimeType, msg) ->
+
+    # Weird stuff from the hipchat api
+    # Must have filename="name" etc... with double quotes not single  
     params =
+      method: 'POST'
       url: path 
       auth:
         bearer: @options.token
       multipart: [
-          'Content-Type': 'application/json; charset UTF-8',
-          'Content-Disposition': 'attachment; name="metadata"',
-          'body': JSON.stringify 'message': msg
+        {
+          "Content-Type": "application/json; charset UTF-8",
+          "Content-Disposition": 'attachment; name="metadata"',
+          "body": JSON.stringify "message": msg
+        }
         ,
-          'Content-Type': 'file/' + mimeType,
-          'Content-Disposition': "attachment; name='file'; filename='#{name}'",
-          'body': data
+        {
+          "Content-Type": "file/" + mimeType,
+          "Content-Disposition": 'attachment; name="file"; filename="' + name + '"',
+          "body": data
+        }
       ]
 
-    requestLib.post params, (err, resp, body) =>
-          @logger.info 'response status:' + resp.statusCode
+    requestLib params, (err, resp, body) =>
           if resp.statusCode >= 400
-            @logger.error "Hipchat API errror: #{resp.statusCode}"
-            return @logger.error body.error.message
+            return @logger.error "Hipchat API errror: #{resp.statusCode}"
             
 
   topic: (envelope, message) ->

@@ -1,10 +1,4 @@
 fs = require 'fs'
-util = require 'util'
-
-# function to encode file data to base64 encoded string
-base64_encode = (file) ->
-    bitmap = fs.readFileSync(file)
-    return new Buffer(bitmap).toString('base64')
 
 module.exports = (robot) ->
 
@@ -15,16 +9,14 @@ module.exports = (robot) ->
 		testPath = './adapterTest.text'
 		fs.writeFile testPath, 'This is a test for the hipchat adapter\'s sendFile Method', (err, resp) ->
 
-			robot.logger.info 'Wrote to file'
-
 			if err
-				return robot.logger.info 'File Wrtie Error: #{err}'
+				return robot.logger.info "File Wrtie Error: #{err}"
 
 			# If the file already exists then just look below for how to send it
 
 			# Send file from path
 			file_info1 = 
-				name: 'adapter test: sendFile(1/2) from path'
+				name: 'adapter test\: sendFile from path'
 				path: testPath
 				type: 'text'
 
@@ -32,9 +24,9 @@ module.exports = (robot) ->
 
 			# Send byte stream
 			file_info2 = 
-				name: 'adapter test: sendFile(2/2) from data'
-				data: fs.readFileSync(testPath)
-				type: 'text'
+				name: 'adapter test\: sendFile from data'
+				data: fs.readFileSync('./scripts/test_scripts/Recursion.pdf')
+				type: 'pdf'
 
 			msg.sendFile file_info2
 
