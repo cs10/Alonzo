@@ -42,22 +42,12 @@ module.exports = (robot) ->
 	robot.respond /adapter test (sendHtml|send html)/i, 'id' : 'test.sendHtml', (msg) ->
 		msg.send 'Testing send html...'
 
-		html = '<a href="https://www.hipchat.com">This is a hyperlink</a>'
+		# This is a hyperlink
+		html = '<a href="https://www.hipchat.com">hipchat site</a>'
 		msg.send '/html', html
 
-		html = '<table style="width:100%">
-					<tr> \
-						<td>Jill</td> \
-						<td>Smith</td> \
-						<td>50</td> \
-					</tr> \
-					<tr> \
-						<td>Eve</td> \
-						<td>Jackson</td> \
-						<td>94</td> \
-						</tr> \
-					</table>'
-
+		# This is a table
+		html = '<table style="width:100%"><tr><td>Jill</td><td>Smith</td><td>50</td></tr><tr><td>Eve</td><td>Jackson</td><td>94</td></tr></table>'
 		msg.send '/html', html
 
 
