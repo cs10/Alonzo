@@ -31,11 +31,14 @@ cs10Cache.CACHE_HOURS = 12;
  * and that are cs10 related
  * robot.brain.get(KEY) --> gets the data associated with the key
  * robot.brain.set(KEY, data) --> sets data for that cache key
+ *
+ * Objects are function name 
  */
-cs10Cache.STAFF_CACHE_KEY = 'STAFF_IDS';
-cs10Cache.LAB_CACHE_KEY = 'LAB_ASSIGNMENTS';
-cs10Cache.STUD_GROUP_CACHE_KEY = 'STUD_GROUPS';
-cs10Cache.LA_DATA_KEY = 'LA_DATA';
+var STAFF_CACHE_KEY = 'STAFF_IDS',
+    LAB_CACHE_KEY = 'LAB_ASSIGNMENTS',
+    STUD_GROUP_CACHE_KEY = 'STUD_GROUPS',
+    LA_DATA_KEY = 'LA_DATA',    
+    LATE_ADD_DATA_KEY = 'LATE_ADD_DATA';
 
 /**
  * Below are functions that return cached values.
@@ -45,23 +48,17 @@ cs10Cache.LA_DATA_KEY = 'LA_DATA';
  * NOTE: All of these values return an object of {time: <cache-timestamp>, cacheVal: <actual-data>}
  *       except for la data currently.
  */
-// TODO: Write a functionName → cache key mapper then generate the functions.
-cs10Cache.staffIDs = function() {
-    return robot.brain.get(cs10Cache.STAFF_CACHE_KEY);
-};
-
-cs10Cache.studentGroups = function() {
-    return robot.brain.get(cs10Cache.STUD_GROUP_CACHE_KEY);
-};
-
-cs10Cache.labAssignments = function() {
-    return robot.brain.get(cs10Cache.LAB_CACHE_KEY);
+var cacheMap = {
+    'staffIds': STAFF_CACHE_KEY,
+    'studentGroups': STUD_GROUP_CACHE_KEY,
+    'labAssignments': LAB_CACHE_KEY,
+    'lateAddData': LATE_ADD_DATA_KEY
 }
-
-//TODO: implement cache object style for la data
-cs10Cache.laData = function() {
-    return robot.brain.get(cs10Cache.LA_DATA_KEY);
-};
+for (var funcName in cacheMap) {
+    cs10Cache[funcName] = function() {
+        return robot.brain.get(cacheMap[funcName]);
+    }
+}
 
 /**
  * Expects two objects (error, resp) which will each have a msg attribute
@@ -154,7 +151,7 @@ cs10Cache.cacheStudGroups = function(cb) {
     var url = `${cs10.baseURL}group_categories`,
         errMsg = 'There was a problem caching assignment groups :(',
         sucMsg = 'Successfully cached student groups! :)',
-        key = cs10Cache.STUD_GROUP_CACHE_KEY;
+        key = STUD_GROUP_CACHE_KEY;
 
      function studGroupsProcessor(body) {
         var groups = {};
@@ -186,7 +183,7 @@ cs10Cache.cacheLabAssignments = function(cb) {
         },
         errMsg = 'There was a problem caching lab assignments :(',
         sucMsg = 'Successfully cached lab assignments! :)',
-        key = cs10Cache.LAB_CACHE_KEY;
+        key = LAB_CACHE_KEY;
 
     function labAssignmentProcessor(body) {
         return body.assignments;
@@ -194,6 +191,21 @@ cs10Cache.cacheLabAssignments = function(cb) {
 
     cacheObject(url, params, key, labAssignmentProcessor, errMsg, sucMsg, cb);
 };
+
+/**
+ * Cache the given array of student data in the brain.
+ * This is actually not asynchronous, 
+ * but to keep in the spirit of all the others we'll treat it like it is
+ *
+ * cb - a function of (error, resp) or null
+ */
+cs10Cache.cacheLateAddData = function(data, cb) {
+    robot.brain.set(LATE_ADD_DATA_KEY, createCacheObj(data))
+
+    if (cb) {
+        cb(null);
+    }
+}
 
 /**
  * Checks if a cacheObj is valid

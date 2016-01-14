@@ -27,6 +27,7 @@ module.exports = (robot) ->
 				name: 'adapter test\: sendFile from data'
 				data: fs.readFileSync('./scripts/test_scripts/Recursion.pdf')
 				type: 'pdf'
+				msg: 'A PDF just for you ;)'
 
 			msg.sendFile file_info2
 
