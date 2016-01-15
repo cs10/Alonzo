@@ -33,10 +33,10 @@ cs10.courseID = 1371647;
 // Michael Sandbox: 1593713
 cs10.labsID = 1846637;
 
-// The google drive id of the file for the late add form data
-// Its the long number thing at the end of the file url when you go to it in drive
-// Ex: 
-cs10.LATE_ADD_DRIVE_ID = '1HDNEOf3ZRlP_s3qEsVFa8PgXwmwEfCAGxpBi1hOaxdI';
+// The google drive id of the file for the late add form data. Open the file and look at the url:
+// For example --> https://docs.google.com/spreadsheets/d/1PFAHirAhvRkTE39QStPLYmVl-8ec4qNWjfg5m_7wfII/some_extra_stuff
+// the id is: 1PFAHirAhvRkTE39QStPLYmVl-8ec4qNWjfg5m_7wfII
+cs10.LATE_ADD_DRIVE_ID = '1PFAHirAhvRkTE39QStPLYmVl-8ec4qNWjfg5m_7wfII';
 
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
