@@ -1,5 +1,7 @@
-![Build Status](https://travis-ci.org/cs10/Alonzo.svg?branch=master)
 ![Alonzo-Icon][icon]
+
+
+[https://travis-ci.org/cs10/Alonzo](![Build Status](https://travis-ci.org/cs10/Alonzo.svg?branch=master))
 # Alonzo
 
 Alonzo is the sassy and helpful! bot for [CS10][awesomest-class]. He's our mascot. Alonzo has attitude, but that's OK, because he's pretty awesome in general! He's a big help to everyone on the team! If you haven't heard about CS10, you should check out the class, and learn how [we're changing the world][bjc4nyc]!
