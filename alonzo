@@ -1,9 +1,9 @@
-#!/bin/sh
+#! /bin/sh
 
 # Source localconfigurations
-source .env # DONT COMMIT THIS FILE
+# source .env # DONT COMMIT THIS FILE
 export HUBOT_LOG_LEVEL="info"
 export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
 
-exec node_modules/.bin/hubot "$@" --name Alonzo --adapter hipchat --alias /
+exec node_modules/.bin/hubot "$@" --name Alonzo --adapter shell --alias /
 

@@ -1,5 +1,7 @@
-![Build Status](https://travis-ci.org/cs10/Alonzo.svg?branch=master)
 ![Alonzo-Icon][icon]
+
+
+[![Build Status](https://travis-ci.org/cs10/Alonzo.svg?branch=master)](https://travis-ci.org/cs10/Alonzo)
 # Alonzo
 
 Alonzo is the sassy and helpful! bot for [CS10][awesomest-class]. He's our mascot. Alonzo has attitude, but that's OK, because he's pretty awesome in general! He's a big help to everyone on the team! If you haven't heard about CS10, you should check out the class, and learn how [we're changing the world][bjc4nyc]!
@@ -8,7 +10,7 @@ Alonzo is the sassy and helpful! bot for [CS10][awesomest-class]. He's our masco
 Alonzo was born from GitHub's Campfire bot, hubot. Currently, Alonzo is configured to work with our staff HipChat instance.
 
 #### Name
-Alonzo's full name is, of course, Alonzo Church, the inventor of lambda calculus! He's the mascot of the CS10 class, as well as Snap<i>!</i>, and BJC. 
+Alonzo's full name is, of course, Alonzo Church, the inventor of lambda calculus! He's the mascot of the CS10 class, as well as Snap<i>!</i>, and BJC.
 
 ## Current Functionality
 ##### Caution: This is may not be up to date always... Documentation is hard, man.

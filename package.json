@@ -48,5 +48,8 @@
   },
   "engines": {
     "node": "4.x.x"
+  },
+  "devDependencies": {
+    "dotenv": "^1.2.0"
   }
 }
