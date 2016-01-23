@@ -20,7 +20,7 @@ var cs10 = require('./bcourses-config.js');
 var cs10Cache = {};
 
 // Live time for a cache object
-cs10Cache.CACHE_HOURS = 12;
+cs10Cache.DEFAULT_CACHE_HOURS = 12;
 cs10Cache.isEnabled = true;
 
 /**
@@ -52,10 +52,11 @@ function genericErrorCB(msg, error, resp) {
 /**
  * Give this data and it will put a time stamp on it. Hooray.
  */
-function createCacheObj(data) {
+function createCacheObj(data, cacheLength) {
     return {
         time: (new Date()).toString(),
-        cacheVal: data
+        cacheVal: data,
+        cacheLength: cacheLength
     };
 }
 
@@ -70,7 +71,7 @@ function createCacheObj(data) {
  * @param sucMsg {string} message passed to cb if the query succeeds
  * @param cb {func(err, resp)} the callback function. err and resp will have a msg attribute
  */
-function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cb) {
+function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cacheLength, cb) {
     cs10.get(url, params, function(err, resp, body) {
 
         if (err || !body || resp.statusCode >= 400) {
@@ -83,7 +84,7 @@ function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cb) {
         }
 
 
-        robot.brain.set(key, createCacheObj(processFunc(body)));
+        robot.brain.set(key, createDefaultCacheObj(processFunc(body), cacheLength));
 
         if (cb) {
             cb(null, {
@@ -106,7 +107,8 @@ cs10Cache.cacheStaffIDs = function(cb) {
         },
         errMsg = 'There was a problem caching staff IDs :(',
         sucMsg = 'Successfully cached staff IDs! :)',
-        key = cs10Cache.STAFF_CACHE_KEY;
+        key = cs10Cache.STAFF_CACHE_KEY,
+        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;
 
     var staffIDProcessor = function(body) {
         var staffIDs = [];
@@ -117,7 +119,7 @@ cs10Cache.cacheStaffIDs = function(cb) {
     };
 
     robot.logger.info('Attempting to cache staff ids');
-    cacheObject(url, params, key, staffIDProcessor, errMsg, sucMsg, cb);
+    cacheObject(url, params, key, staffIDProcessor, errMsg, sucMsg, cacheLength, cb);
 };
 
 /**
@@ -129,7 +131,8 @@ cs10Cache.cacheStudGroups = function(cb) {
     var url = `${cs10.baseURL}group_categories`,
         errMsg = 'There was a problem caching assignment groups :(',
         sucMsg = 'Successfully cached student groups! :)',
-        key = cs10Cache.STUD_GROUP_CACHE_KEY;
+        key = cs10Cache.STUD_GROUP_CACHE_KEY,
+        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;;
 
     function studGroupsProcessor(body) {
         var groups = {},
@@ -142,7 +145,7 @@ cs10Cache.cacheStudGroups = function(cb) {
     };
 
     robot.logger.info('Attempting to cache student groups');
-    cacheObject(url, '', key, studGroupsProcessor, errMsg, sucMsg, cb);
+    cacheObject(url, '', key, studGroupsProcessor, errMsg, sucMsg, cacheLength, cb);
 };
 
 /**
@@ -157,14 +160,15 @@ cs10Cache.cacheLabAssignments = function(cb) {
         },
         errMsg = 'There was a problem caching lab assignments :(',
         sucMsg = 'Successfully cached lab assignments! :)',
-        key = cs10Cache.LAB_CACHE_KEY;
+        key = cs10Cache.LAB_CACHE_KEY,
+        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;;
 
     function labAssignmentProcessor(body) {
         return body.assignments;
     };
 
     robot.logger.info('Attempting to cache lab assignments');
-    cacheObject(url, params, key, labAssignmentProcessor, errMsg, sucMsg, cb);
+    cacheObject(url, params, key, labAssignmentProcessor, errMsg, sucMsg, cacheLength, cb);
 };
 
 /**
@@ -181,8 +185,9 @@ cs10Cache.cacheAllAssignments = function(cb) {
 cs10Cache.cacheIsValid = function(cacheObj) {
     var exists = cacheObj && cacheObj.cacheVal,
         date = cacheObj.time,
-        diff = (new Date()) - (new Date(date));
-    return exists && diff / (1000 * 60 * 60) < cs10Cache.CACHE_HOURS;
+        diff = (new Date()) - (new Date(date)),
+        cacheLife = cacheObj.cacheLength || cs10Cache.DEFAULT_CACHE_HOURS;
+    return exists && diff / (1000 * 60 * 60) < cacheLife;
 };
 
 /**
