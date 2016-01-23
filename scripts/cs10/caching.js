@@ -30,12 +30,12 @@ cs10Cache.isEnabled = true;
  * robot.brain.set(KEY, data) --> sets data for that cache key
  */
 cs10Cache.STAFF_CACHE_KEY = 'STAFF_IDS',
-    cs10Cache.LAB_CACHE_KEY = 'LAB_ASSIGNMENTS',
-    cs10Cache.STUD_GROUP_CACHE_KEY = 'STUD_GROUPS',
-    cs10Cache.LA_DATA_KEY = 'LA_DATA',
-    cs10Cache.LATE_ADD_DATA_KEY = 'LATE_ADD_DATA',
-    cs10Cache.LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES',
-    cs10Cache.ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS';
+cs10Cache.LAB_CACHE_KEY = 'LAB_ASSIGNMENTS',
+cs10Cache.STUD_GROUP_CACHE_KEY = 'STUD_GROUPS',
+cs10Cache.LA_DATA_KEY = 'LA_DATA',
+cs10Cache.LATE_ADD_DATA_KEY = 'LATE_ADD_DATA',
+cs10Cache.LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES',
+cs10Cache.ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS';
 
 /**
  * Expects two objects (error, resp) which will each have a msg attribute
@@ -267,6 +267,7 @@ cs10Cache.refreshCache = function(cb) {
 cs10Cache.enable = function() {
     cs10Cache.isEnabled = true;
 }
+
 cs10Cache.disable = function() {
     cs10Cache.isEnabled = false;
 }
