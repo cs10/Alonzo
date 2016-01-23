@@ -308,6 +308,12 @@ module.exports = function(robot) {
         if (key) {
             obj = robot.brain.get(key);
         }
+
+        if (!obj) {
+            msg.send(`Key does not exist: ${key}`);
+            return;
+        }
+
         var brainString = util.inspect(obj, {
             showHidden: true,
             depth: null

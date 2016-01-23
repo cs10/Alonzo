@@ -8,7 +8,7 @@ function loadFromHeroku() {
 
     try {
         // Grab Heroku Data
-        child_process.execSync('hk env > .env');
+        child_process.execSync('hk env -a alonzo > .env');
         // Append public stuff to Heroku data
         child_process.execSync('cat .env.local >> .env');
         dotenv.load();
