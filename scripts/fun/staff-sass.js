@@ -27,4 +27,11 @@ module.exports = function (robot) {
         resp.send('http://alonzo.herokuapp.com/Alonzo/help');
         resp.send(`So you can stop being such a n${msg.match[3]}b....`);
     });
+
+    var sassResponses = [
+    	""
+    ]
+    robot.respond(/sass (.+)/i, {id: 'fun.staff-sass.sass'}, function(resp) {
+    	resp.send(`@${msg.match[1]} ${resp.random(sassResponses)}`);
+    });
 };

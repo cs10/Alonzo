@@ -62,7 +62,7 @@ module.exports = function(robot) {
         if (!isValidRoom(msg)) {
             return;
         }
-        msg.send('/code', JSON.stringify(cs10Cache.laData()));
+        msg.send('/code', JSON.stringify(cs10Cache.getLaData()));
     });
 
     // Command Review LA data
@@ -73,8 +73,13 @@ module.exports = function(robot) {
         if (!isValidRoom(msg)) {
             return;
         }
-        var laScores = reviewLAData(cs10Cache.laData());
-        sendLAStats(laScores, msg);
+        reviewLAData(cs10Cache.getLaData(), function(err, resp) {
+            if (err) {
+                return msg.send(err.msg);
+            }
+
+            sendLAStats(resp, msg);
+        });
     });
 
     // submit LA scores
@@ -84,9 +89,14 @@ module.exports = function(robot) {
         if (!isValidRoom(msg)) {
             return;
         }
-        var laScores = reviewLAData(cs10Cache.laData());
-        sendLAStats(laScores, msg);
-        postGrades(laScores, msg);
+        reviewLAData(cs10Cache.getLaData(), function(err, resp) {
+            if (err) {
+                return msg.send(err.msg);
+            }
+
+            sendLAStats(resp, msg);
+            postGrades(laScores, msg);
+        });
     });
 
     // See the most recent checkoff for debugging
@@ -96,30 +106,11 @@ module.exports = function(robot) {
         if (!isValidRoom(msg)) {
             return;
         }
-        var data = cs10Cache.laData(),
+        var data = cs10Cache.getLaData(),
             last = data[data.length - 1];
         msg.send('/code', JSON.stringify(last));
     });
 
-    /**
-     * See all the la data in it's raw form for debugging
-     */
-    // robot.respond(/see all la data/i, {id: 'cs10.checkoff.see-la-data'}, function(msg) {
-    //     if (msg.message.room !== TA_ROOM && msg.message.room !== 'Shell') {
-    //         return;
-    //     }
-    //     msg.send('/code', JSON.stringify(cs10Cache.laData()));
-    // });
-
-    /**
-     * Clear all the la data. Only uncomment temporarily. 
-     * Note that changes made to storage locally do not persist.
-     */
-    // robot.respond(/CLEAR ALL DATA/, function(msg) {
-    //     robot.brain.remove(cs10.LA_DATA_KEY);
-    //     robot.brain.save();
-    //     msg.send('Poof! All that data is GONE.');
-    // });
 };
 
 function processCheckOff(msg) {
@@ -146,17 +137,7 @@ function processCheckOff(msg) {
         return;
     }
 
-    if (!cs10Cache.cacheIsValid(cs10Cache.labAssignments())) {
-        cs10Cache.cacheLabAssignments(function(error, resp) {
-            if (error) {
-                msg.send('Could not check off lab.\n The cache is invalid and could not be refreshed.');
-                return;
-            }
-            roomFun(parsed, msg);
-        });
-    } else {
-        roomFn(parsed, msg);
-    }
+    roomFn(parsed, msg);
 }
 
 /* Proccess the regex match into a common formatted object */
@@ -195,18 +176,6 @@ function verifyErrors(parsed) {
     return errors;
 }
 
-
-// Cache
-// TODO: document wacky callback thingy
-function verifyCache(callback, args) {
-    var cached = cs10Cache.labAssignments();
-    if (cs10Cache.cacheIsValid(cached)) {
-        callback.apply(null, args);
-    } else {
-        cs10Cache.cacheLabAssignments(callback, args);
-    }
-}
-
 // FIXME -- protect against infinite loops!!
 function doTACheckoff(data, msg) {
     msg.send(`TA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
@@ -226,9 +195,9 @@ function doLACheckoff(data, msg) {
     };
 
     //save checkoff to robot brain
-    var LA_DATA = cs10Cache.laData() || [];
+    var laData = cs10Cache.getLaData() || [];
     LA_DATA.push(checkoff);
-    robot.brain.set(cs10Cache.LA_DATA_KEY, LA_DATA);
+    cs10Cache.setLaData(LA_DATA);
 
     var sketchy = isSketchy(checkoff);
     if (sketchy.length) {
@@ -248,43 +217,36 @@ function doLACheckoff(data, msg) {
 }
 
 function uploadCheckoff(roomFn, data, msg) {
-    var assignments = cs10Cache.labAssignments();
+    cs10Cache.labAssignments(function(err, resp) {
+        if (err) {
+            return msg.send("Error getting lab assignments for checkoff. Your checkoff was not uploaded!!!");
+        }
 
-    if (!cs10Cache.cacheIsValid(assignments)) {
-        robot.logger.log('ALONZO: Refreshing Lab assignments cache.');
-        cs10Cache.cacheLabAssignments(function(respObj) {
-            if (respObj.error) {
-                msg.send("There was a problem updating the cache. Your checkoff was not uploaded :(");
-                return;
-            }
-            roomFn(data, msg);
+        var assignments = resp.cacheVal;
+        var assnID = getAssignmentID(data.lab, assignments, msg);
+
+        if (!assnID) {
+            msg.send(`Well, crap...I can\'t find lab ${data.lab} .\n` +
+                'Check to make sure you put in a correct lab number.\n' +
+                cs10.gradebookURL);
+            return;
+        }
+
+        // FIXME -- check whether 1 or more scores.
+        successes = 0;
+        failures = 0;
+        expectedScores = data.sids.length;
+        data.sids.forEach(function(sid) {
+            postSingleAssignment(assnID, sid, data.points, msg);
         });
-        return;
-    }
 
-    var assnID = getAssignmentID(data.lab, assignments, msg);
-
-    if (!assnID) {
-        msg.send(`Well, crap...I can\'t find lab ${data.lab} .\n` +
-            'Check to make sure you put in a correct lab number.\n' +
-            cs10.gradebookURL);
-        return;
-    }
-
-    // FIXME -- check whether 1 or more scores.
-    successes = 0;
-    failures = 0;
-    expectedScores = data.sids.length;
-    data.sids.forEach(function(sid) {
-        postSingleAssignment(assnID, sid, data.points, msg);
+        // wait till all requests are complete...hopefully.
+        // Or send a message after 30 seconds
+        timeoutID = setTimeout(function() {
+            var scores = `${successes} score${(successes == 1 ? '' : 's')}`;
+            msg.send(`After 30 seconds: ${scores} successfully submitted.`);
+        }, 30 * 1000);
     });
-
-    // wait till all requests are complete...hopefully.
-    // Or send a message after 30 seconds
-    timeoutID = setTimeout(function() {
-        var scores = `${successes} score${(successes == 1 ? '' : 's')}`;
-        msg.send(`After 30 seconds: ${scores} successfully submitted.`);
-    }, 30 * 1000);
 }
 
 
@@ -341,10 +303,9 @@ function findLabByNum(num, labs) {
 }
 
 function getAssignmentID(num, assignments) {
-    var lab = findLabByNum(num, assignments.cacheVal);
+    var lab = findLabByNum(num, assignments);
     return lab.id || false;
 }
-
 
 function sendLAStats(ladata, msg) {
     var safe = getSIDCount(ladata.safe);
@@ -359,11 +320,17 @@ function sendLAStats(ladata, msg) {
 
 // Bulk upload grades to bCourses
 function postGrades(ladata, msg) {
-    var grades = ladata.safe;
-    for (lab in grades) {
-        var assnID = getAssignmentID(lab, cs10Cache.labAssignments());
-        cs10.postMultipleGrades(assnID, grades[lab], msg);
-    }
+    cs10Cache.labAssignments(function(err, resp) {
+        if (err) {
+            return msg.send("Error getting lab assignments for bulk grade upload");
+        }
+        var assignments = resp.cacheVal;
+        var grades = ladata.safe;
+        for (lab in grades) {
+            var assnID = getAssignmentID(lab, assignments); 
+            cs10.postMultipleGrades(assnID, grades[lab], msg);
+        }
+    });
 }
 
 // This takes in a processed labs object from review LA data.
@@ -385,49 +352,56 @@ function getSIDCount(labs) {
     <num>: { ontime: [], late: [] }
     There is one object for safe check-offs and one for sketchy checkoffs
 **/
-function reviewLAData(data) {
+function reviewLAData(data, cb) {
     var safe = {};
     var sketchy = {
         labs: {},
         msgs: []
     };
 
-    data.forEach(function(checkoff) {
-        var lab = checkoff.lab,
-            sketch = isSketchy(checkoff);
-
-        if (!safe[lab] && !sketch) {
-            safe[lab] = {};
+    cs10Cache.labAssignments(function(err, resp) {
+        if (err) {
+            return cb(err.msg);
         }
+        var assignments = resp.cacheVal;
 
-        if (!sketchy.labs[lab] && sketch) {
-            sketchy.labs[lab] = {};
-        }
+        data.forEach(function(checkoff) {
+            var lab = checkoff.lab,
+                sketch = isSketchy(checkoff, assignments);
 
-        var obj = safe[lab];
+            if (!safe[lab] && !sketch) {
+                safe[lab] = {};
+            }
 
-        if (sketch) {
-            obj = sketchy.labs[lab];
-            sketchy.msgs.push(checkoff);
-        }
+            if (!sketchy.labs[lab] && sketch) {
+                sketchy.labs[lab] = {};
+            }
 
-        if (!checkoff.uploaded) {
-            checkoff.sid.forEach(function(sid) {
-                // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
-                // FIXME -- this should be removed sometime soon...
-                if (!sid || sid.length !== 20 && sid.length !== 8) {
-                    return;
-                }
-                sid = cs10.normalizeSID(sid);
-                obj[sid] = checkoff.points;
-            });
-        }
+            var obj = safe[lab];
+
+            if (sketch) {
+                obj = sketchy.labs[lab];
+                sketchy.msgs.push(checkoff);
+            }
+
+            if (!checkoff.uploaded) {
+                checkoff.sid.forEach(function(sid) {
+                    // Verify that an SID is 'normal' either sis_user_id:XXX or just XXX
+                    // FIXME -- this should be removed sometime soon...
+                    if (!sid || sid.length !== 20 && sid.length !== 8) {
+                        return;
+                    }
+                    sid = cs10.normalizeSID(sid);
+                    obj[sid] = checkoff.points;
+                });
+            }
+        });
+
+        cb(null, {
+            safe: safe,
+            sketchy: sketchy
+        });
     });
-
-    return {
-        safe: safe,
-        sketchy: sketchy
-    };
 }
 
 /** Determine whether an LA checkoff is sketchy.
@@ -490,9 +464,7 @@ var sketchyTests = {
         message: 'This lab checkoff is past due!\nOnly TAs can give full credit now.',
         test: function(co, assn) {
             var date = new Date(co.time),
-                // TODO: Shouldn't this be in `assn`
-                assignments = cs10Cache.labAssignments(),
-                dueDate = findLabByNum(co.lab, assignments.cacheVal).due_at;
+                dueDate = findLabByNum(co.lab, assn).due_at;
 
             dueDate = new Date(dueDate);
 

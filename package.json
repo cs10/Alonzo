@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "canvas-grade-uploader": "^1.0.3",
+    "csv": "^0.4.6",
     "githubot": "^1.0.0",
     "googleapis": "^2.1.7",
     "hubot": "latest",
@@ -40,7 +41,7 @@
     "hubot-xkcd": "0.0.3",
     "mime": "^1.3.4",
     "natural": "^0.2.1",
-    "node-canvas-lms": "git://github.com/cs10/node-canvas-lms.git",
+    "node-canvas-lms": "0.0.7",
     "node-native-zip": "^1.1.0",
     "request": "^2.67.0",
     "xml2js": "^0.4.5"

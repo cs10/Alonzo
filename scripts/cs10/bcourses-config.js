@@ -1,7 +1,6 @@
 // Use the Canvas API library, written just for CS10
 var Canvas = require('node-canvas-lms');
 var authToken = process.env.HUBOT_CANVAS_KEY;
-
 var bCoursesURL = 'https://bcourses.berkeley.edu';
 
 var cs10 = new Canvas(bCoursesURL, {
@@ -13,43 +12,43 @@ var cs10 = new Canvas(bCoursesURL, {
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
  ************************************************/
 
+// LAST UPDATED FOR: SPRING 2016 - ANDY
 
 /**
  * COURSE AND ASSIGNMENT IDS
- * The course ID is the standard CS10 course id, easily obtainable from the URL:
- * http://bcourses.berkeley.edu/courses/<id>/ when you are viewing the CS10
- * page in bCourses.
- * The labsID is the id of the "assignment group" for all lab check offs.
- * To get this id...... TODO.
  */
 // These are used in URL building, so strings are OK.
 // This is the bcourses course ID
-// https://bcourses.berkeley.edu/courses/<course>
+// https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1371647;
+cs10.courseID = 1408649;
+
 // This is the ID of the "labs" assignment group
 // Get the id from this URL:
-// https://bcourses.berkeley.edu/api/v1/courses/XXX/assignment_groups
+// https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 1846637;
+cs10.labsID = 1947116;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
-// For example --> https://docs.google.com/spreadsheets/d/1PFAHirAhvRkTE39QStPLYmVl-8ec4qNWjfg5m_7wfII/some_extra_stuff
-// the id is: 1PFAHirAhvRkTE39QStPLYmVl-8ec4qNWjfg5m_7wfII
+// For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
 cs10.LATE_ADD_DRIVE_ID = '1PFAHirAhvRkTE39QStPLYmVl-8ec4qNWjfg5m_7wfII';
+cs10.LATE_ADD_POLICIES_DRIVE_ID = '1wmwdFBnsAWa6jhmUifLQWMxJIwsNfb6NxoNC8jdpgXs';
+
+// The start date of the course
+cs10.START_DATE = new Date('1/19/2016');
 
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
-// Use the bCourses API courses/X/assignments to get these IDs or the page URLs
-// https://bcourses.berkeley.edu/api/v1/courses/XXX/assignments
+// To get these just click on the assignmnet in bcourses. The url will be formatted as:
+// https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
 cs10.slipDayAssignmentIDs = [
-    6644471, // Homework 1
-    6644472, // Homework 2
-    6930656, // Homework 3
-    6644475, // Midterm Project
+    7259694, // Homework 1
+    7259695, // Homework 2
+    7259696, // Homework 3
+    7259697, // Midterm Project
     //TODO: this is tricky to get if it's a discussion -- must use the API
-    6644470, // Explore Post Content
-    6644476, // Final Project
+    4632124, // Explore Post Content
+    7259691, // Final Project
 ];
 
 /** Mapping of extenstion student IDs to bCourses IDs
@@ -57,7 +56,7 @@ cs10.slipDayAssignmentIDs = [
     The UID.. is for the sis_user_id field as bCourses doesn't know about
     extenstion student IDs. To get the UID format go to the user's page in
     bCourses and click "more details" (The extenstion IDs come from the
-    BearFacts roster.)
+    BearFacts roster).
 
     TODO: Consider making this a config for privacy reasons
     However, these IDs don't actually reveal anything.
@@ -74,7 +73,7 @@ cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays = 3;
 cs10.firstLab = 2;
 cs10.lastLab = 18;
-cs10.labCheckOffPoints = 2; // These could be changed as the course changes.
+cs10.labCheckOffPoints = 2;
 cs10.labCheckOffLatePts = 1;
 
 
