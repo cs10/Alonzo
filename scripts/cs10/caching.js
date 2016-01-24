@@ -11,6 +11,9 @@
 //
 // Commands:
 //   hubot refresh (bcourses)? cache — refresh labs, staff ids, and student groups
+//   hubot dump brain <key>? - will dump the contents of the brain (provide an optional key) to a json file (if in shell it will print as a string)
+//   hubot dump keys - will write all the keys to a json file (or if in shell, print as a string)
+//   hubot CLEAR BRAIN KEY <key> - will clear the specified key. the user will be prompted to enter the command twice as extra confirmation
 //
 // Author:
 //  Andrew Schmitt
@@ -29,13 +32,13 @@ cs10Cache.isEnabled = true;
  * robot.brain.get(KEY) --> gets the data associated with the key
  * robot.brain.set(KEY, data) --> sets data for that cache key
  */
-cs10Cache.STAFF_CACHE_KEY = 'STAFF_IDS',
-    cs10Cache.LAB_CACHE_KEY = 'LAB_ASSIGNMENTS',
-    cs10Cache.STUD_GROUP_CACHE_KEY = 'STUD_GROUPS',
-    cs10Cache.LA_DATA_KEY = 'LA_DATA',
-    cs10Cache.LATE_ADD_DATA_KEY = 'LATE_ADD_DATA',
-    cs10Cache.LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES',
-    cs10Cache.ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS';
+cs10Cache.STAFF_CACHE_KEY = 'STAFF_IDS';
+cs10Cache.LAB_CACHE_KEY = 'LAB_ASSIGNMENTS';
+cs10Cache.STUD_GROUP_CACHE_KEY = 'STUD_GROUPS';
+cs10Cache.LA_DATA_KEY = 'LA_DATA';
+cs10Cache.LATE_ADD_DATA_KEY = 'LATE_ADD_DATA';
+cs10Cache.LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES';
+cs10Cache.ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS';
 
 /**
  * Expects two objects (error, resp) which will each have a msg attribute
@@ -84,7 +87,7 @@ function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cacheLength,
         }
 
 
-        robot.brain.set(key, createDefaultCacheObj(processFunc(body), cacheLength));
+        robot.brain.set(key, createCacheObj(processFunc(body), cacheLength));
 
         if (cb) {
             cb(null, {
@@ -281,6 +284,31 @@ function isValidRoom(msg) {
     return msg.message.room !== cs10.LA_ROOM;
 }
 
+function sendAsFileOrMsg(text, fileName, msg) {
+    // Files can only be sent when using the hipchat adapter
+    var filePath = './temp1234';
+    if (robot.adapterName == 'hipchat') {
+        fs.writeFile(filePath, text, function(err) {
+            if (err) {
+                msg.send('Error writing to file');
+                fs.unlink(filePath);
+                return;
+            }
+
+            fileInfo = {
+                path: filePath,
+                type: 'json',
+                name: fileName
+            }
+
+            msg.sendFile(fileInfo);
+            fs.unlink(filePath);
+        });
+    } else {
+        msg.send(text);
+    }
+}
+
 /**
  * This exports the robot functionality for the caching module
  */
@@ -303,6 +331,18 @@ module.exports = function(robot) {
         });
     });
 
+    // Refresh cached objects from bcourses
+    robot.respond(/refresh\s*(bcourses)?\s*cache/i, {
+        id: 'cs10.caching.refresh-lab-cache'
+    }, function(msg) {
+        if (!isValidRoom(msg)) {
+            return;
+        }
+        msg.send('Waiting on bCourses...');
+        cs10Cache.refreshCache(genericErrorCB.bind(null, msg));
+    });
+
+
     // Dump the contents of the brain to a file. Provide an optional key
     robot.respond(/(dump brain|brain dump)\s*(.+)?/i, {
         id: 'cs10.caching.dump-brain'
@@ -323,93 +363,51 @@ module.exports = function(robot) {
             showHidden: true,
             depth: null
         });
-        fs.writeFile(filePath, brainString, function(err) {
-            if (err) {
-                msg.send('Error writing to file for brain dump');
-                fs.unlink(filePath);
-                return;
-            }
-            var name = 'brain-dump';
-            if (key) {
-                name = 'brain-dump-' + key;
-            }
-            fileInfo = {
-                path: filePath,
-                type: 'json',
-                name: name
-            }
 
-            if (robot.adapterName == 'hipchat') {
-               msg.sendFile(fileInfo);
-            } else {
-                msg.send(`Files can only be sent via the hipchat adapter. You adapter is: ${robot.adapterName}`);
-            }
-            fs.unlink(filePath);
-        });
+        var fileName = 'brain-dump';
+        if (key) {
+            fileName = 'brain-dump-' + key;
+        }
+
+        sendAsFileOrMsg(brainString, fileName, msg);
     });
 
+    // Dump just the keys in the brain
     robot.respond(/dump keys/i, {
         id: 'cs10.caching.dump-brain-keys'
     }, function(msg) {
-        var keys = '';
-        // This is hacky, but the brain doesn't expose it any other way
+        var keys = '',
+            fileName = 'brain-key-dump';
+        // This is hacky, but the brain doesn't expose keys any other way
         for (var key in robot.brain.data._private) {
             keys += key + '\n'
         }
-        filePath = './temp-brain-key-dump.json';
-        fs.writeFile(filePath, keys, function(err) {
-            if (err) {
-                msg.send('Error writing to file for brain dump');
-                fs.unlink(filePath);
-                return;
-            }
 
-            fileInfo = {
-                path: filePath,
-                type: 'json',
-                name: 'brain-key-dump'
-            }
-
-            if (robot.adapterName == 'hipchat') {
-               msg.sendFile(fileInfo);
-            } else {
-                msg.send(`Files can only be sent via the hipchat adapter. You adapter is: ${robot.adapterName}`);
-            }
-
-            fs.unlink(filePath);
-        });
+        sendAsFileOrMsg(keys, fileName, msg);
     });
 
-    robot.respond(/refresh\s*(bcourses)?\s*cache/i, {
-        id: 'cs10.caching.refresh-lab-cache'
-    }, function(msg) {
-        if (!isValidRoom(msg)) {
-            return;
-        }
-        msg.send('Waiting on bCourses...');
-        cs10Cache.refreshCache(genericErrorCB.bind(null, msg));
-    });
-
-    /**
-     * Clear all the la data. Needs confirmation.
-     */
-    var needConfirm = true;
+    // Clear a key from the brain. Forces the user to enter the command twice in a row for the same key
+    var needConfirm = true,
+        prevKey = null;
     robot.respond(/CLEAR BRAIN KEY (.+)/, function(msg) {
-        if (!robot.brain.get(msg.match[1])) {
-            msg.send('Could not find a key with name: ' + msg.match[1]);
+        var key = msg.match[1];
+        if (!robot.brain.get(key)) {
+            msg.send('Could not find a key with name: ' + key);
             return;
         }
 
-        if (needConfirm) {
+        if (needConfirm || prevKey != key) {
             msg.send('Are you sure???? Enter the command again if you are absolutely certain!');
             needConfirm = false;
+            prevKey = key;
             return;
         }
 
-        robot.brain.remove(msg.match[1]);
+        robot.brain.remove(key);
         robot.brain.save();
-        msg.send('Poof! All that data is GONE.');
+        msg.send(`Poof! All that data is GONE for key: ${key}`);
         needConfirm = true;
+        prevKey = null;
     });
 };
 

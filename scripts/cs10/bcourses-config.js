@@ -68,19 +68,29 @@ cs10.SWAP_IDS = {};
  * MAY NEED TO CHANGE BASED ON COURSE POLICIES *
  ***********************************************/
 
-
+// SLIP DAY ASSIGNMENTS
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays = 3;
-cs10.firstLab = 2;
-cs10.lastLab = 18;
+
+// LABS
 cs10.labCheckOffPoints = 2;
 cs10.labCheckOffLatePts = 1;
+var oneWeek = 1000 * 60 * 60 * 24 * 7;
+cs10.labSecsAllowedLate = oneWeek;
+cs10.firstLab = 2;
+cs10.lastLab = 18;
+// Add special labs to the array below such as [1,2,3,4]
+// For summer there was special extra credit lab 42
+// var extraLabs = [42];
+// This semester (sp2016) there are no extra labs:
+var extraLabs = [];
+cs10.extraLabs = new Set(extraLabs);
+
 
 
 /**********************
  * SOME HIPCHAT STUFF *
  **********************/
-
 
 //These are room names that are particularly useful
 cs10.LA_ROOM = 'lab_assistant_check-offs';

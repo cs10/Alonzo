@@ -15,22 +15,20 @@
 //
 // Author:
 //  Michael Ball
-
-// This sets up all the bCourses interface stuff
 var cs10 = require('./bcourses-config.js');
-//stuff for caching
 var cs10Cache = require('./caching.js');
 
-// CONSTANTS
+// Checkoff points
 var FULL_POINTS = cs10.labCheckOffPoints;
 var LATE_POINTS = cs10.labCheckOffLatePts;
+
 // How late a checkoff is allowed to be
-var oneWeek = 1000 * 60 * 60 * 24 * 7;
-var SECS_ALLOWED_LATE = oneWeek;
+var SECS_ALLOWED_LATE = cs10.labSecsAllowedLate;
 
 // Lab Numbers that people can be checked off for.
-var MIN_LAB = 2;
-var MAX_LAB = 18;
+var MIN_LAB = cs10.firstLab;
+var MAX_LAB = cs10.lastLab;
+var EXTRA_LABS = cs10.extraLabs;
 
 // A long regex to parse a lot of different check off commands.
 var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
@@ -38,14 +36,13 @@ var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s
 var containsSIDExp = /.*x?\d{5,}/gi;
 
 // Global-ish stuff for successful lab checkoff submissions.
-var successes;
-var failures;
-var expectedScores;
-var timeoutID;
+var successes,
+    failures,
+    expectedScores,
+    timeoutID;
 
-//check that this is a valid room
 function isValidRoom(msg) {
-    return msg.message.room === TA_ROOM || msg.message.room === 'Shell';
+    return msg.message.room !== cs10.LA_ROOM;
 }
 
 module.exports = function(robot) {
@@ -164,8 +161,7 @@ function extractMessage(text) {
 // Return an array of error messages that prevent the checkoff from being saved.
 function verifyErrors(parsed) {
     var errors = [];
-    // NOTE: Lab "42" is a special lab code for an EC lab during the summer.
-    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) { // && parsed.lab != 42
+    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB || EXTRA_LABS.has(parsed.lab)) {
         errors.push(`The lab number: ${parsed.lab} is not a valid lab!`);
         errors.push('Please specify the lab number before all student ids.');
     }
