@@ -14,6 +14,8 @@
 //   hubot dump brain <key>? - will dump the contents of the brain (provide an optional key) to a json file (if in shell it will print as a string)
 //   hubot dump keys - will write all the keys to a json file (or if in shell, print as a string)
 //   hubot CLEAR BRAIN KEY <key> - will clear the specified key. the user will be prompted to enter the command twice as extra confirmation
+//   hubot enable/disable cache - toggle whether bCourses objects should be auto-refreshed or not on every use
+//   hubot is caching enabled? - tells you whether caching is currently on or off
 //
 // Author:
 //  Andrew Schmitt
@@ -177,7 +179,26 @@ cs10Cache.cacheLabAssignments = function(cb) {
  * Caches all assignments from bcourses, names, ids, base due date
  */
 cs10Cache.cacheAllAssignments = function(cb) {
+    var url = `${cs10.baseURL}assignments`,
+        errMsg = 'There was a problem caching all assignments :(',
+        sucMsg = 'Successfully cached all assignments! :)',
+        key = cs10Cache.ALL_ASSIGNMENTS_KEY,
+        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;;
 
+    function allAssignmentsProcessor(body) {
+        var assignments = {},
+            asgn;
+
+        for (var i = 0; i < body.length; i++) {
+            asgn = body[i];
+            assignments[asgn.name] = asgn;
+        }
+
+        return assignments;
+    };
+
+    robot.logger.info('Attempting to cache all assignments');
+    cacheObject(url, '', key, allAssignmentsProcessor, errMsg, sucMsg, cacheLength, cb);
 }
 
 /**
