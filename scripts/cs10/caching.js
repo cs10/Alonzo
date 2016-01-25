@@ -330,6 +330,31 @@ module.exports = function(robot) {
         });
     });
 
+    // Functions for enabling and disabling auto-caching
+    robot.respond(/is\s*(bcourses)?\s*caching (enabled|on|off|disabled)\??/i, {
+        id: 'cs10.caching.cache-check'
+    }, function(msg) {
+        if (cs10Cache.isEnabled) {
+            return msg.send('bCourses caching is currently enabled!');
+        }
+
+        msg.send('bCourses caching is currently disabled...');
+    });
+
+    robot.respond(/enable cach(e|ing)/i, {
+        id: 'cs10.caching.enable-cache'
+    }, function(msg) {
+        cs10Cache.enable();
+        msg.send('bCourses caching enabled.');
+    });
+
+    robot.respond(/disable cach(e|ing)/i, {
+        id: 'cs10.caching.disable-cache'
+    }, function(msg) {
+        cs10Cache.disable();
+        msg.send('bCourses caching disable.');
+    });
+
     // Refresh cached objects from bcourses
     robot.respond(/refresh\s*(bcourses)?\s*cache/i, {
         id: 'cs10.caching.refresh-lab-cache'
