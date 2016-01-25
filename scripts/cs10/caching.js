@@ -105,7 +105,7 @@ cs10Cache.cacheStaffIDs = function(cb) {
     var url = `${cs10.baseURL}users`,
         params = {
             'per_page': '100',
-            'enrollment_type': ['ta', 'teacher']
+            'enrollment_type[]': ['ta', 'teacher']
         },
         errMsg = 'There was a problem caching staff IDs :(',
         sucMsg = 'Successfully cached staff IDs! :)',
