@@ -448,6 +448,13 @@ module.exports = function(robot) {
             return;
         }
 
+        // Dump the contents of the key to a file (or a string if in shell) before clearing
+        var objStr = util.inspect(robot.brain.get(key), {
+                showHidden: true,
+                depth: null
+            });
+        sendAsFileOrMsg(objString, `deletion-dump-${key}`, msg);
+
         robot.brain.remove(key);
         robot.brain.save();
         msg.send(`Poof! All that data is GONE for key: ${key}`);

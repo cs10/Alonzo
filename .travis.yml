@@ -6,9 +6,3 @@ before_script:
 script:
 - "./tests/tests.sh"
 sudo: false
-deploy:
-  provider: heroku
-  api_key:
-    secure: RSdLdv7S0uDA2DaoVaudYeUyVuV1/xW8xj47GCSRUFztiSh0becrHh+csnrXpE92FvL2aj4onvd3oFBEMbs4zIHwIYqylCR2Csz4WM8OG/mUGZierH0ZjOCS+AMX6TKTe2bph3lkfCbnW68tMPiWJ49cPTbAwPFjDHIt6oQyP/w=
-  app:
-    master: alonzo
