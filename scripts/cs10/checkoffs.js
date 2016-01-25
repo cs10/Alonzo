@@ -232,10 +232,10 @@ var sketchyTests = {
 function processCheckOff(msg) {
     var roomFn, parsed, errors;
     switch (msg.message.room) {
-        case 'Shell': // Move this condition around for command line testing
         case cs10.LA_ROOM:
             roomFn = doLACheckoff;
             break;
+        case 'Shell': // Move this condition around for command line testing
         case cs10.TA_ROOM:
             roomFn = doTACheckoff;
             break;

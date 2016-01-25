@@ -61,7 +61,9 @@ cs10.slipDayAssignmentIDs = [
     TODO: Consider making this a config for privacy reasons
     However, these IDs don't actually reveal anything.
 **/
-cs10.SWAP_IDS = {};
+cs10.SWAP_IDS = {
+    
+};
 
 
 /***********************************************
