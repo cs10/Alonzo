@@ -86,7 +86,6 @@ function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cacheLength,
             return;
         }
 
-
         robot.brain.set(key, createCacheObj(processFunc(body), cacheLength));
 
         if (cb) {
@@ -349,7 +348,7 @@ module.exports = function(robot) {
     }, function(msg) {
         var obj = robot.brain,
             key = msg.match[2],
-            filePath = './temp-brain-dump.json';;
+            filePath = './temp-brain-dump.json';
         if (key) {
             obj = robot.brain.get(key);
         }

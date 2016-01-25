@@ -92,7 +92,7 @@ cs10.extraLabs = new Set(extraLabs);
  * SOME HIPCHAT STUFF *
  **********************/
 
-//These are room names that are particularly useful
+// These are room names that are particularly useful
 cs10.LA_ROOM = 'lab_assistant_check-offs';
 cs10.TA_ROOM = 'lab_check-off_room';
 
@@ -114,7 +114,7 @@ cs10.baseURL = `/courses/${cs10.courseID}/`;
 cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 // Trim an SID and check off extenstion students
-// This must called whenever a SID is used to make sure its the proper format
+// This must be called whenever a SID is used to make sure its the proper format
 cs10.normalizeSID = function(sid) {
     sid = sid.trim().replace('X', '');
     if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
