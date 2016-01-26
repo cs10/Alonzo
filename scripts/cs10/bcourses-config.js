@@ -86,7 +86,13 @@ cs10.lastLab = 18;
 var extraLabs = [];
 cs10.extraLabs = new Set(extraLabs);
 
-
+// LATE ADD POLICIES
+// Maps assignment-name: number-of-days-since-student-added-class
+cs10.lateAddAssignments = {
+    'Homework 1': 4,
+    'Homework 2': 7,
+    'Homework 3': 12 
+}
 
 /**********************
  * SOME HIPCHAT STUFF *

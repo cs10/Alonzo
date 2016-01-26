@@ -33,9 +33,8 @@ var CLIENT_ID = process.env.HUBOT_DRIVE_CLIENT_ID,
     REDIRECT_URL = process.env.HUBOT_DRIVE_REDIRECT_URL,
     SCOPES = 'https://www.googleapis.com/auth/drive';
 
-// The google drive file ids for the late add files (responses and policies)
-var LATE_RESPONSES_ID = cs10.LATE_ADD_RESPONSES_DRIVE_ID,
-    LATE_POLICIES_ID = cs10.LATE_ADD_POLICIES_DRIVE_ID;
+// The google drive file ids for the late add file (responses)
+var LATE_RESPONSES_ID = cs10.LATE_ADD_RESPONSES_DRIVE_ID;
 
 // Field names in the student responses form
 var DATE_FIELD = 'What day did you add this class?',
@@ -43,23 +42,11 @@ var DATE_FIELD = 'What day did you add this class?',
     TA_FIELD = 'Who is your TA?',
     SID_FIELD = 'What is your student id number?';
 
-// Field names in the config file
-var ASSIGN_FIELD = 'NAME',
-    EXT_FIELD = 'EXTENSION',
-    DEADLINE_FIELD = 'DEADLINE';
-
 // Give a few days bonus to whatever day a student said that they added a class
 var FUDGE_DAYS = 3;
 
 // A way to count whether all sets of student groups (by week) were uploaded
 var numGroupUploads = 0;
-
-// Variables to hold data from the two file
-var responseData,
-    responseChanged,
-    configData,
-    configChanged,
-    numRequests;
 
 /**
  * Callback handlers
@@ -80,7 +67,7 @@ var errorHandler = function(msg, cb) {
  * @param  link  the download link
  * @param  cb    the callback is called with the array of csv data
  */
-var downloadFromLink = function(link, cb) {
+var downloadCsvFromLink = function(link, cb) {
 
     // columns true means that each row is an object with columns as keys
     var parser = parse({
@@ -111,7 +98,7 @@ var downloadFromLink = function(link, cb) {
  * Downloads a file with given id from drive
  * Calls the callback with the modified date of the file
  */
-var downloadDriveFile = function(fileId, cb) {
+var downloadDriveCsvFile = function(fileId, cb) {
     if (!auth.getTokens()) {
         var authMsg = `Please authorize this app by visiting this url: ${auth.generateAuthUrl()}` +
             'then use the command @Alonzo drive set code <code>';
@@ -139,7 +126,7 @@ var downloadDriveFile = function(fileId, cb) {
                 return errorHandler(`File Type Error: No export link found for mimeType: ${mimeType}`, cb);
             }
 
-            downloadFromLink(links[mimeType], function(err, resp) {
+            downloadCsvFromLink(links[mimeType], function(err, resp) {
                 if (err) {
                     return cb(err);
                 }
@@ -151,33 +138,6 @@ var downloadDriveFile = function(fileId, cb) {
             });
 
         });
-    });
-}
-
-/**
- * Parse the config file, attempts to autoparse date strings
- */
-function processConfigFile(force, cb) {
-
-    var cachedData = cs10Cache.getLateAddPolicies();
-    downloadDriveFile(LATE_POLICIES_ID, function(err, resp) {
-        if (err) {
-            return cb(err);
-        }
-
-        if (!data) {
-            cb(null, null);
-        }
-
-        if (!cachedData || (cachedData.time < resp.modDate)) {
-            configChanged = true;
-            configData = resp;
-            cs10Cache.storeLateAddPolicies(resp);
-            return;
-        }
-
-        configData = configData.cacheVal;
-        cb(null);
     });
 }
 
@@ -198,7 +158,7 @@ function processResponsesFile(force, cb) {
     };
 
     var cachedData = cs10Cache.getLateAddData();
-    downloadDriveFile(LATE_RESPONSES_ID, cachedData, function(err, data) {
+    downloadDriveCsvFile(LATE_RESPONSES_ID, cachedData, function(err, data) {
         if (err) {
             return cb(err);
         }
@@ -225,9 +185,7 @@ function processResponsesFile(force, cb) {
             }
         }
 
-        responseData = toUpload;
-
-        cb(null);
+        cb(null, toUpload);
 
     });
 }
@@ -244,9 +202,10 @@ function setAssignmentDates(studs, n, cb) {
 }
 
 /**
- * Given a date computes the number of weeks that a student is late to the class
+ * Given that date that a student joined the class generates a mapping of due dates:
+ * <bcourses-assignment-id> : <date>
  */
-function computeWeeksLate(date) {
+function computeDueDates(joinDate, assignmentIDs, lateAddAssignments) {
     var start = cs10.START_DATE,
         daysLate = (date - start) / (1000 * 60 * 60 * 24);
 
@@ -257,10 +216,12 @@ function computeWeeksLate(date) {
 /**
  * Set assignments dates for the given set of student info objects into bcourses.
  */
-function uploadToBcourses(studentData, configData, cb) {
+function uploadToBcourses(studentData, cb) {
 
-    // If force or config changed we need to upload all student data again
-    if (force || configChanged) {
+    var assignmentIDs = findAssignmentIDs(resp.cacheVal, cs10.lateAddAssignments);
+
+    // If force we need to upload all student data again
+    if (force) {
         var cachedStudData = cs10Cache.lateAddData();
 
         if (cachedStudData) {
@@ -271,7 +232,7 @@ function uploadToBcourses(studentData, configData, cb) {
     }
 
     // Upload student data in groups partitioned by number of weeks late
-    var weeksLateMap = {},
+    var student = [],
         weeksLate,
         stud;
 
@@ -293,6 +254,23 @@ function uploadToBcourses(studentData, configData, cb) {
 }
 
 /**
+ * Given the mapping of assignment names to objects, 
+ * generates a mapping of assignment names to ids
+ */
+function findAssignmentIDs(assignments, lateAddAssignments) {
+    var lateAddIds = {};
+    for (var assignName in lateAddAssignments) {
+        for (var bcoursesName in assignments) {
+            if (assignName == bcoursesName) {
+                lateAddIds[assignName] = assignment[bcoursesName].id;
+                break;
+            }
+        }
+    }
+    return lateAddIds;
+}
+
+/**
  * Reads from the late add spreadsheet and makes the appropriate updates to bcourses
  * This is the starting point for the late add updater
  *
@@ -300,9 +278,6 @@ function uploadToBcourses(studentData, configData, cb) {
  * @param  cb     the callback function (err, resp)
  */
 function updateLateData(force, cb) {
-    responseData = null;
-    configData = null;
-    configChanged = false;
     var error = false;
 
     // First make sure that the assignments cache is valid and usable
@@ -312,24 +287,13 @@ function updateLateData(force, cb) {
             return cb(err);
         }
 
-        var cb = function(err, resp) {
-            if (err && !error) {
-                error = true;
+        processResponsesFile(force, function(err, studentsToUpload) {
+            if (err) {
                 return cb(err);
             }
 
-            if (error) {
-                return;
-            }
-
-            if (responseData && configData) {
-                uploadToBcourses(responseData, configData, cb);
-            }
-        }
-
-        // Async so do them at the same time
-        processResponsesFile(force, cb);
-        processConfigFile(force, cb);
+            uploadToBcourses(studentsToUpload, cb);
+        });
     });
 }
 

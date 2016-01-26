@@ -25,13 +25,13 @@ module.exports = function (robot) {
         resp.send(`@${name} you should check out the collection of chatbot commands:`);
         // TODO: Config this URL?
         resp.send('http://alonzo.herokuapp.com/Alonzo/help');
-        resp.send(`So you can stop being such a n${msg.match[3]}b....`);
+        resp.send(`So you can stop being such a n${resp.match[3]}b....`);
     });
 
     var sassResponses = [
     	""
-    ]
+    ];
     robot.respond(/sass (.+)/i, {id: 'fun.staff-sass.sass'}, function(resp) {
-    	resp.send(`@${msg.match[1]} ${resp.random(sassResponses)}`);
+    	resp.send(`@${resp.match[1]} ${resp.random(sassResponses)}`);
     });
 };
