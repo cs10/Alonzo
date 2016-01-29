@@ -453,7 +453,7 @@ module.exports = function(robot) {
                 showHidden: true,
                 depth: null
             });
-        sendAsFileOrMsg(objString, `deletion-dump-${key}`, msg);
+        sendAsFileOrMsg(objStr, `deletion-dump-${key}`, msg);
 
         robot.brain.remove(key);
         robot.brain.save();
