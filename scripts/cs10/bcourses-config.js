@@ -32,7 +32,7 @@ cs10.labsID = 1947116;
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
 cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE';
-cs10.LATE_ADD_FORM_URL = 'bjc.link/sp16lateadd';
+cs10.LATE_ADD_FORM_URL = 'http://bjc.link/sp16lateadd';
 cs10.LATE_ADD_FORM_PASSWORD = 'yzjn7597';
 
 // The start date of the course
