@@ -10,6 +10,7 @@
 // Commands:
 //   hubot links | forms - CS10: show useful TA notes.
 //   hubot locker (combo)? - CS10: show the locker comber for lab
+//   hubot late form - CS10: show the link and password for the student late add form
 //
 // Author:
 //  Michael Ball
