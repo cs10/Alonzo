@@ -32,8 +32,13 @@ module.exports = function(robot) {
     });
 
     robot.respond(/\s*locker( combo)?/i, {
-        id: 'cs10.locker'
+        id: 'cs10.util.locker-combo'
     }, function(msg) {
         msg.send(process.env.LOCKER_COMBO);
+    });
+
+    robot.respond(/\s*late\s*(add)?\s*form/i, {id: 'cs10.util.late-form'}, function(msg) {
+        msg.send("Here is the late add form link: " + cs10.LATE_ADD_FORM_URL);
+        msg.send("Here is the late add form password: " + cs10.LATE_ADD_FORM_PASSWORD);
     });
 };

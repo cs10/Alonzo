@@ -40,19 +40,21 @@ var LATE_RESPONSES_ID = cs10.LATE_ADD_RESPONSES_DRIVE_ID;
 var DATE_FIELD = 'What day did you add this class?',
     NAME_FIELD = 'What is your name?',
     TA_FIELD = 'Who is your TA?',
-    SID_FIELD = 'What is your student id number?';
+    SID_FIELD = 'What is your student id number (SID)?';
 
 // Give a few days bonus to whatever day a student said that they added a class
 var FUDGE_DAYS = 3;
 
 // A way to count whether all sets of student groups (by week) were uploaded
-var numGroupUploads = 0;
+var numUploads = 0;
 
 /**
  * Callback handlers
  */
 var errorHandler = function(msg, cb) {
+    console.log(cb);
     if (cb) {
+        console.log('clallalal');
         return cb({
             err: null,
             msg: msg
@@ -99,16 +101,16 @@ var downloadCsvFromLink = function(link, cb) {
  * Calls the callback with the modified date of the file
  */
 var downloadDriveCsvFile = function(fileId, cb) {
-    if (!auth.getTokens()) {
-        var authMsg = `Please authorize this app by visiting this url: ${auth.generateAuthUrl()}` +
+    var authMsg = `Please authorize this app by visiting this url: ${auth.generateAuthUrl()}` +
             'then use the command @Alonzo drive set code <code>';
+    if (!auth.getTokens()) {
         return errorHandler(authMsg, cb);
     }
 
-    auth.validateTokens(function(err, resp) {
+    auth.validateToken(function(err, resp) {
 
         if (err) {
-            return errorHandler(`Could not refresh google auth tokens`, cb);
+            return errorHandler(`Could not refresh google auth tokens.\n${authMsg}`, cb);
         }
 
         var mimeType = 'text/csv';
@@ -116,6 +118,7 @@ var downloadDriveCsvFile = function(fileId, cb) {
             fileId: fileId
         }, function(err, resp) {
             if (err) {
+                console.log(err);
                 return errorHandler(`API Error: Problem downloading late add response file`, cb);
             }
 
@@ -158,7 +161,7 @@ function processResponsesFile(force, cb) {
     };
 
     var cachedData = cs10Cache.getLateAddData();
-    downloadDriveCsvFile(LATE_RESPONSES_ID, cachedData, function(err, data) {
+    downloadDriveCsvFile(LATE_RESPONSES_ID, function(err, data) {
         if (err) {
             return cb(err);
         }
@@ -206,19 +209,19 @@ function setAssignmentDates(studs, n, cb) {
  * <bcourses-assignment-id> : <date>
  */
 function computeDueDates(joinDate, assignmentIDs, lateAddAssignments) {
-    var start = cs10.START_DATE,
-        daysLate = (date - start) / (1000 * 60 * 60 * 24);
-
-    // Give them a little bit of extra
-    return (daysLate + FUDGE_DAYS) % 7;
+        
 }
 
 /**
  * Set assignments dates for the given set of student info objects into bcourses.
  */
-function uploadToBcourses(studentData, cb) {
+function uploadToBcourses(studentData, rawAssignments, cb) {
 
-    var assignmentIDs = findAssignmentIDs(resp.cacheVal, cs10.lateAddAssignments);
+    var assignments = getLateAddAssignments(rawAssignments, cs10.lateAddAssignments);
+
+    if (assignments.length == 0) {
+        return cb({err: null, msg: 'No late add assignments found.'});
+    }
 
     // If force we need to upload all student data again
     if (force) {
@@ -231,43 +234,47 @@ function uploadToBcourses(studentData, cb) {
         }
     }
 
-    // Upload student data in groups partitioned by number of weeks late
+    // Upload student data in groups partitioned by add date
     var student = [],
-        weeksLate,
+        addDateMap = {},
         stud;
 
-    numGroupUploads = 0;
+    var numGroups = 0;
     for (var i = 0; i < studentData.length; i++) {
         stud = studentData[i];
-        weeksLate = computeWeeksLate(stud.date);
-        if (!weeksLateMap[weeksLate]) {
-            weeksLateMap[weeksLate] = [];
-            numGroupUploads += 1;
+        if (!addDateMap[stud.date]) {
+            addDateMap[stud.date] = [];
+            numGroups += 1;
         }
-        weeksLateMap[weeksLate].push(stud);
+        addDateMap[stud.date].push(stud);
     }
 
-    for (var week in weeksLateMap) {
-        setAssignmentDates(weeksLateMap[week], week, cb);
+    // There is one assignment override for each set of dates (group), for each assignment
+    numUploads = numGroups * assignments.length;
+    for (var date in addDateMap) {
+        setAssignmentDates(addDateMap[date], week, cb);
     }
     
 }
 
 /**
- * Given the mapping of assignment names to objects, 
- * generates a mapping of assignment names to ids
+ * Returns a list of assignment objects.
+ * Filters the list of assignments to only the late add assignments
+ * and adds the number of extension days to each of these objects.
  */
-function findAssignmentIDs(assignments, lateAddAssignments) {
-    var lateAddIds = {};
-    for (var assignName in lateAddAssignments) {
-        for (var bcoursesName in assignments) {
+function getLateAddAssignments(allAssignments, rawLateAddAssignments) {
+    var lateAddAssignments = [];
+    for (var assignName in rawLateAddAssignments) {
+        for (var bcoursesName in allAssignments) {
+
+            // If names match get the assignment object and add the extension to it
             if (assignName == bcoursesName) {
-                lateAddIds[assignName] = assignment[bcoursesName].id;
-                break;
+                allAssignments[bcoursesName].extension = rawLateAddAssignments[assignName];
+                lateAddAssignments.push(allAssignments[bcousesName]);
             }
         }
     }
-    return lateAddIds;
+    return lateAddAssignments;
 }
 
 /**
@@ -292,7 +299,9 @@ function updateLateData(force, cb) {
                 return cb(err);
             }
 
-            uploadToBcourses(studentsToUpload, cb);
+            console.log(studentsToUpload);
+
+            uploadToBcourses(studentsToUpload, resp.cacheVal, cb);
         });
     });
 }
@@ -303,21 +312,21 @@ module.exports = function(robot) {
 
     robot.respond(/(force)?\s*refresh\s*(force)?\s*late\s*(?:add)?\s*data/i, {
         id: 'cs10.late-add-updater.refresh'
-    }, function(msg) {
+    }, function(res) {
         var msg = '',
             force = false;
-        if (msg.match[1] || msg.match[2]) {
+        if (res.match[1] || res.match[2]) {
             force = true;
             msg = 'force ';
         }
-        msg.send(`Attempting to ${msg}update student late data in bcourses...`);
+        res.send(`Attempting to ${msg}update student late data in bcourses...`);
         updateLateData(force, function(err, resp) {
             if (err) {
-                msg.send(err.msg);
+                res.send(err.msg);
                 return;
             }
 
-            msg.send(resp.msg);
+            res.send(resp.msg);
         });
     });
 
