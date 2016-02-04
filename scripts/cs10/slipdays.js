@@ -28,7 +28,7 @@ module.exports = function(robot) {
         id: 'cs10.slip-days'
     }, function(msg) {
         var sid = msg.match[1];
-        msg.send(`http://cs10.org/fa15/slipdays/?${sid}`);
+        msg.send(`http://cs10.org/sp16/slipdays/?${sid}`);
         calculateSlipDays(sid, function(data) {
             msg.send(`/code\n${JSON.stringify(data)}`);
         });
@@ -80,16 +80,15 @@ function calculateSlipDays(sid, callback) {
             return callback(null);
         }
 
-        var staffIDs = resp.cachVal;
-
-        var url = `${cs10.baseURL}students/submissions`,
+        var staffIDs = resp.cachVal,
+            url = `${cs10.baseURL}students/submissions`,
             options = {
                 'include[]': ['submission_comments', 'assignment'],
                 'student_ids[]': cs10.normalizeSID(sid),
                 'assignment_ids[]': cs10.slipDayAssignmentIDs,
                 // parameters of the assingment object...they dont work
                 // 'override_assignment_dates' : false,
-                // 'all_dates' : true,
+                // 'include[]' : 'overrides',
                 grouped: true
             };
 
@@ -115,7 +114,7 @@ function calculateSlipDays(sid, callback) {
 
             var submissions = body[0].submissions;
             // List of submissions contains only most recent submission
-            submissions.forEach(function(subm) {
+            submissions.forEach(function (subm) {
                 var days, verified, submitted, state, assignment, displayDays;
                 state = subm.workflow_state;
                 submitted = subm.submitted_at !== null;
@@ -130,6 +129,7 @@ function calculateSlipDays(sid, callback) {
                 if (!verified) { // Use time of submission
                     days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
                     displayDays = days;
+                    // TODO: Improve this with caching
                     if (subm.assignment.has_overrides) {
                         displayDays = 'Unknown!';
                         results.errors.push('Could not calculate days for ' +
@@ -185,8 +185,8 @@ function commentIsAuthorized(staffIDs, comment) {
 
 // parse comment (just a string) then return slip days or -1
 function extractSlipDays(comment) {
-    var slipdays = /.*(?:used)?\s*slip\s*days?\s*(?:used)?:?.*(\d+)/gi;
-    var match = slipdays.exec(comment);
+    var slipdays = /.*(?:used)?\s*slip\s*days?\s*(?:used)?:?.*(\d+)/gi,
+        match = slipdays.exec(comment);
     if (match) {
         return match[1];
     }
