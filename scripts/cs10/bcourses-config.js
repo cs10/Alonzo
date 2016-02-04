@@ -81,13 +81,13 @@ var hw1_id = 7259694,
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-    'Late Assignments Form:\n http://bjc.link/lateAssignmentsSP16',
-    `Grade book:\n ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
-    'Checkoff Answers:\n http://bjc.link/cs10checkoffquestions',
-    'Contacts Sheet:\n http://bjc.link/cs10contacts',
-    'Get Snap! Project:\n https://alonzo.herokuapp.com/snap-proj.html',
-    'Late Add From:\n http://bjc.link/sp16lateadd',
-    `Late Add Form Password:\n ${process.env.LATE_ADD_FORM_PW}`
+    'Late Assignments Form: http://bjc.link/lateAssignmentsSP16',
+    `Grade book: ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
+    'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
+    'Contacts Sheet: http://bjc.link/cs10contacts',
+    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
+    'Late Add From: http://bjc.link/sp16lateadd',
+    `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`
 ]
 
 /** Mapping of extenstion student IDs to bCourses IDs
