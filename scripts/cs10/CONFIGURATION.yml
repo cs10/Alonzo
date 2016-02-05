@@ -1,0 +1,39 @@
+# NOTE: This file is currently NOT being used.
+# It is a test plan for migrating data from bcourses-config.js
+# to something readable
+# YAML is readable, and allows comments.
+---
+name: CS10 Spring 2016
+canvas_url: https://bcourses.berkeley.edu
+# These are used in URL building, so strings are OK.
+# This is the bcourses course ID
+# https://bcourses.berkeley.edu/courses/<course-id>
+canvas_id: 1408649
+# TODO: This is in canvas so it shouldn't be necessary.
+canvas_assignment_groups:
+    'Lab Check-Offs': 1947116
+#
+#
+late_add_configuation:
+  LATE_ADD_RESPONSES_DRIVE_ID: 1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
+  LATE_ADD_FORM_URL: http://bjc.link/sp16lateadd
+  LATE_ADD_FORM_PASSWORD: yzjn7597
+  LATE_ADD_EXTENSIONS:
+      'Homework 1': 4
+      'Homework 2': 7
+      'Homewrok 3': 12
+slip_days:
+  slip_day_assignments:
+    - 'Homework 1'
+    - 'Homework 2'
+    - 'Homework 3'
+    - 'Explore Post'
+    - 'Midterm Project'
+    - 'Final Project'
+  slip_days_granted: 3
+  slip_days_grace_minutes: 15
+  slip_days_max_per_assignment: 3
+  slip_days_late_deduction_rate: 0.33
+  # 24 hours. What should this format be that's generic?
+  slip_days_late_deduction_time_frame: 24:00:00
+
