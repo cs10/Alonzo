@@ -102,7 +102,7 @@ var downloadCsvFromLink = function(link, cb) {
  */
 var downloadDriveCsvFile = function(fileId, cb) {
     var authMsg = `Please authorize this app by visiting this url: ${auth.generateAuthUrl()}` +
-            'then use the command @Alonzo drive set code <code>';
+            `then use the command @${robot.name} drive set code <code>`;
     if (!auth.getTokens()) {
         return errorHandler(authMsg, cb);
     }

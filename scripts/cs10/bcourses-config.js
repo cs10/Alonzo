@@ -78,8 +78,10 @@ cs10.labCheckOffPoints = 2;
 cs10.labCheckOffLatePts = 1;
 var oneWeek = 1000 * 60 * 60 * 24 * 7;
 cs10.labSecsAllowedLate = oneWeek;
+// TODO: This should be dynamic...
 cs10.firstLab = 2;
 cs10.lastLab = 18;
+// TODO: Consider removing this...
 // Add special labs to the array below such as [1,2,3,4]
 // For summer there was special extra credit lab 42
 // var extraLabs = [42];
@@ -100,6 +102,7 @@ cs10.lateAddAssignments = {
  **********************/
 
 // These are room names that are particularly useful
+// TODO: This should be moved to general authorization
 cs10.LA_ROOM = 'lab_assistant_check-offs';
 cs10.TA_ROOM = 'lab_check-off_room';
 
@@ -107,7 +110,7 @@ cs10.TA_ROOM = 'lab_check-off_room';
 /**********************************
  * BCOURSES CONFIG AND SOME UTILS *
  **********************************/
-
+// TODO: Move this to a new file.
 
 // This changes the default ID of a student to tell bCourses to use SIDs
 // The default are internal bCourses IDs, but no one knows those.

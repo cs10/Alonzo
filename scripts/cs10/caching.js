@@ -295,6 +295,7 @@ cs10Cache.refreshCache = function(cb) {
 cs10Cache.enable = function() {
     cs10Cache.isEnabled = true;
 }
+
 cs10Cache.disable = function() {
     cs10Cache.isEnabled = false;
 }
@@ -308,6 +309,7 @@ function sendAsFileOrMsg(text, fileName, msg) {
     // Files can only be sent when using the hipchat adapter
     var filePath = './temp1234';
     if (robot.adapterName == 'hipchat') {
+        // TODO: Replace this with Buffers
         fs.writeFile(filePath, text, function(err) {
             if (err) {
                 msg.send('Error writing to file');
