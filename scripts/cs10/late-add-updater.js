@@ -369,6 +369,8 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
         studentNames,
         newDueDate;
 
+    // Handle rate limiting by only sending 2 request per second
+    var waitTime = 500;
     apiInfo.forEach(function(assignment) {
         students = studs.filter(stud => stud.assignments.indexOf(assignment.id) === -1);
 
@@ -381,7 +383,8 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
         newDueDate = new Date(assignment.new_due_date);
         title = `Due at: ${newDueDate.toDateString()}, For: ${studentNames}`;
 
-        postOverride(assignment, studentIds, newDueDate, title, studCb.bind(this, studs, assignment.id));
+        setTimeout(postOverride, waitTime, assignment, studentIds, newDueDate, title, studCb.bind(this, studs, assignment.id));
+        waitTime += 500;
     });
 }
 
