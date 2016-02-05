@@ -5,7 +5,7 @@ var testURL = 'https://ucberkeley.test.instructure.com';
 var bCoursesURL = 'https://bcourses.berkeley.edu';
 
 // TOGGLE WHETHER TO USE THE TEST INSTANCE OR THE REAL INSTANCE OF BCOURSES
-var TEST = true;
+var TEST = false;
 
 // NODE-CANVAS-LMS CREATION
 var host = bCoursesURL;
@@ -82,12 +82,12 @@ var hw1_id = 7259694,
 // Helpful link for TAs
 cs10.HELP_LINKS = [
     'Late Assignments Form: http://bjc.link/lateAssignmentsSP16',
+    'Late Add From: http://bjc.link/sp16lateadd',
+    `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
+    'Contacts Sheet: http://bjc.link/cs10contacts',
     `Grade book: ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
     'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
-    'Contacts Sheet: http://bjc.link/cs10contacts',
-    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
-    'Late Add From: http://bjc.link/sp16lateadd',
-    `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`
+    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'
 ]
 
 /** Mapping of extenstion student IDs to bCourses IDs
@@ -108,6 +108,9 @@ cs10.SWAP_IDS = {};
 /***********************************************
  * MAY NEED TO CHANGE BASED ON COURSE POLICIES *
  ***********************************************/
+
+// This is the email that is linked to alonzo (used by the late add emailer)
+cs10.ADMIN_EMAIL = 'alonzo-bot@berkeley.edu';
 
 // SLIP DAY ASSIGNMENTS
 cs10.gracePeriodMinutes = 15;

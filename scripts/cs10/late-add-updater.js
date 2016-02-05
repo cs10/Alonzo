@@ -1,5 +1,7 @@
 // Description:
-//   Download late add response csv from google drive and 
+//   Download late add response csv from google drive. 
+//   Then email students and TAs with assignment due dates. 
+//   Also propagate due dates to bCourses.
 //
 // Dependencies:
 //   request
@@ -219,7 +221,7 @@ function processResponsesFile(force, cb) {
  * Calls the CS10EMAILER package to send an email to a given student
  */
 var sendLateAddEmail = function(joinDate, dueDateMsgInfo, studObj, cb) {
-    var recipients = [studObj.taEmail, studObj.email].join(','),
+    var recipients = [studObj.taEmail, studObj.email, cs10.ADMIN_EMAIL].join(','),
         subject = `[CS10] IMPORTANT: Late Add Due Dates for ${studObj.name}`,
         body = emailer.buildLateAddMessage(joinDate, dueDateMsgInfo, studObj);
 
@@ -255,13 +257,15 @@ function emailStudents(joinDate, force, studs, allAssignments, cb) {
         } else {
             // The students data should have been cached at this point (see below)
             var lateAddCache = cs10Cache.getLateAddData();
-            if (!cs10Cache) {
-                robot.logger.error('late add cache is very broken :(');
-                return;
+
+            if (!lateAddCache || !lateAddCache[+stud.sid]) {
+                robot.logger.error(`EMAIL CB ERROR: late add cache is very broken :( sid: ${stud.sid} was not found`);
+                emailFails += 1;
+            } else {
+                lateAddCache[+stud.sid].emailSent = true;
+                cs10Cache.setLateAddData(lateAddCache);
+                emailSucs += 1;
             }
-            lateAddCache[stud.sid].emailSent = true;
-            cs10Cache.setLateAddData(lateAddCache);
-            emailSucs += 1;
         }
 
         if (emailFails.length + emailSucs == numEmails) {
@@ -273,11 +277,10 @@ function emailStudents(joinDate, force, studs, allAssignments, cb) {
     }
 
     studs.forEach(function(stud) {
-        studCb(stud, null);
 
-        // if (!stud.emailSent || force) {
-        //     sendLateAddEmail(joinDate, messageInfo, stud, studCb.bind(this, stud));
-        // }
+        if (!stud.emailSent || force) {
+            sendLateAddEmail(joinDate, messageInfo, stud, studCb.bind(this, stud));
+        }
     });
 }
 
@@ -340,16 +343,16 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
             } else {
                 // The students data should have been cached at this point (see uploadToBcourses)
                 var lateAddCache = cs10Cache.getLateAddData();
-                if (!cs10Cache) {
-                    robot.logger.error('late add cache is very broken :(');
-                    return;
+                if (!lateAddCache || !lateAddCache[+stud.sid]) {
+                    robot.logger.error(`ASSIGNMENT UPLOAD ERROR: late add cache is very broken :( sid: ${stud.sid} not found`);
+                    assignmentFails += 1;
+                } else {
+                    if (lateAddCache[+stud.sid].assignments.indexOf(assignmentId) === -1) {
+                        lateAddCache[+stud.sid].assignments.push(assignmentId);
+                    }
+                    cs10Cache.setLateAddData(lateAddCache);
+                    assignmentSucs += 1;
                 }
-                if (lateAddCache[stud.sid].assignments.indexOf(assignmentId) !== -1) {
-                    lateAddCache[stud.sid].assignments.push(assignmentId);
-                }
-                console.log('in stud cb', lateAddCache);
-                cs10Cache.setLateAddData(lateAddCache);
-                assignmentSucs += 1;
             }
         });
 
@@ -368,10 +371,15 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
 
     apiInfo.forEach(function(assignment) {
         students = studs.filter(stud => stud.assignments.indexOf(assignment.id) === -1);
+
+        if (students.length === 0) {
+            return;
+        }
+
         studentIds = students.map(stud => stud.sid),
         studentNames = students.map(stud => stud.name).join(','),
         newDueDate = new Date(assignment.new_due_date);
-        title = `Due at: ${newDueDate}, For: ${studentNames}`;
+        title = `Due at: ${newDueDate.toDateString()}, For: ${studentNames}`;
 
         postOverride(assignment, studentIds, newDueDate, title, studCb.bind(this, studs, assignment.id));
     });
@@ -462,57 +470,76 @@ var shouldUpload = function(force, stud) {
  */
 function uploadToBcourses(force, allStudentData, allAssignments, cb) {
 
-    console.log('student data before cache', studentData);
-
     // Determine what cached student data needs to be uploaded
-    var cachedStudData = cs10Cache.getLateAddData() || {},
-        cachedStudData = cachedStudData.cacheVal || {};
+    var cachedData = cs10Cache.getLateAddData() || {};
 
+    var needsUpload = [];
     allStudentData.forEach(function(stud) {
-        if (cachedStudData[stud.sid]) {
-            
+        // If in the cache then fetch that object otherwise cache the data
+        if (cachedData[stud.sid]) {
+            stud = cachedData[stud.sid];
+        } else {
+            cachedData[stud.sid] = stud;
+        }
+
+        if (shouldUpload(stud)) {
+            needsUpload.push(stud);
         }
     });
-    var needsUpload = allStudentData.filter(shouldUpload);
 
-    // Cache the new student data
-    studentData.forEach(function(stud) {
-        var lateAddCache = cs10Cache.getLateAddData() || {};
-        lateAddCache[stud.sid] = stud;
-        cs10Cache.setLateAddData(lateAddCache);
-    });
+    cs10Cache.setLateAddData(cachedData);
 
-    console.log('all student data', studentData);
-
-    // Upload student data in groups partitioned by add date
+    // Upload student data in groups partitioned by join date
     var student = [],
         addDateMap = {};
 
-    for (var i = 0; i < studentData.length; i++) {
-        stud = studentData[i];
+    for (var i = 0; i < needsUpload.length; i++) {
+        stud = needsUpload[i];
         if (!addDateMap[stud.date.toDateString()]) {
             addDateMap[stud.date.toDateString()] = [];
         }
         addDateMap[stud.date.toDateString()].push(stud);
     }
 
-    numEmails = studentData.filter(stud => !stud.emailSent).length;
+    // Determine how many emails will be sent out
+    numEmails = needsUpload.filter(stud => !stud.emailSent).length;
     emailFails = [];
     emailSucs = 0;
 
     // Determine how many assignments need to be uploaded
     var numLateAddAssignments = Object.keys(cs10.lateAddAssignments).length,
         numAssignmentsUploaded = 0;
-    studentData.forEach(function(stud) {
+    needsUpload.forEach(function(stud) {
         numAssignmentsUploaded += stud.assignments.length;
     });
 
-    numAssignments = (studentData.length * numLateAddAssignments) - numAssignmentsUploaded;
+    numAssignments = (needsUpload.length * numLateAddAssignments) - numAssignmentsUploaded;
     assignmentFails = [];
     assignmentSucs = 0;
 
     emailsDone = false;
     assignmentsDone = false;
+
+    if (numEmails === 0) {
+        emailsDone = true;
+    }
+
+    if (numAssignments === 0) {
+        assignmentsDone = true;
+    }
+
+    if (assignmentsDone && emailsDone) {
+        cb(null, {
+            emails: {
+                fails: [],
+                sucs: 0
+            },
+            assignments: {
+                fails: [],
+                sucs: 0
+            }
+        });
+    }
 
     for (var date in addDateMap) {
         emailStudents(new Date(date), force, addDateMap[date], allAssignments, function(err, resp) {
