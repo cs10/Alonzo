@@ -160,7 +160,8 @@ cs10Cache.cacheStudGroups = function(cb) {
 cs10Cache.cacheLabAssignments = function(cb) {
     var url = `${cs10.baseURL}assignment_groups/${cs10.labsID}`,
         params = {
-            'include[]': 'assignments'
+            'include[]': 'assignments',
+            'override_assignment_dates': false
         },
         errMsg = 'There was a problem caching lab assignments :(',
         sucMsg = 'Successfully cached lab assignments! :)',

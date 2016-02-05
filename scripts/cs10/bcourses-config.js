@@ -1,4 +1,5 @@
 // Use the Canvas API library, written just for CS10
+// TODO: extract this into a separate file.
 var Canvas = require('node-canvas-lms');
 var authToken = process.env.HUBOT_CANVAS_KEY;
 var bCoursesURL = 'https://bcourses.berkeley.edu';
