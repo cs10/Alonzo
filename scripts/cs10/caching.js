@@ -101,7 +101,7 @@ function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cacheLength,
 /**
  * Caches the current list of staff IDs
  *
- * cb - a function of (error, resp) or null
+ * DATA ORGANIZATION: [id...]
  */
 cs10Cache.cacheStaffIDs = function(cb) {
     var url = `${cs10.baseURL}users`,
@@ -129,7 +129,7 @@ cs10Cache.cacheStaffIDs = function(cb) {
 /**
  * Caches the current list of assignment groups
  *
- * cb - a function of (error, resp) or null
+ * DATA ORGANIZATION: [{group_name: group_id}]
  */
 cs10Cache.cacheStudGroups = function(cb) {
     var url = `${cs10.baseURL}group_categories`,
@@ -155,7 +155,7 @@ cs10Cache.cacheStudGroups = function(cb) {
 /**
  * Caches lab assignments and the time at which they were cached
  *
- * cb - a function of (error, resp) or null
+ * DATA ORGANIZATION: [assign_obj...]
  */
 cs10Cache.cacheLabAssignments = function(cb) {
     var url = `${cs10.baseURL}assignment_groups/${cs10.labsID}`,
@@ -178,9 +178,16 @@ cs10Cache.cacheLabAssignments = function(cb) {
 
 /**
  * Caches all assignments from bcourses, names, ids, base due date
+ *
+ * DATA ORGANIZATION: [{assign_id: assign_obj}...]
  */
 cs10Cache.cacheAllAssignments = function(cb) {
     var url = `${cs10.baseURL}assignments`,
+        params = {
+            per_page: '100',
+            override_assignment_dates: 'false',
+            'include[]': 'overrides'
+        }
         errMsg = 'There was a problem caching all assignments :(',
         sucMsg = 'Successfully cached all assignments! :)',
         key = cs10Cache.ALL_ASSIGNMENTS_KEY,
@@ -192,14 +199,14 @@ cs10Cache.cacheAllAssignments = function(cb) {
 
         for (var i = 0; i < body.length; i++) {
             asgn = body[i];
-            assignments[asgn.name] = asgn;
+            assignments[asgn.id] = asgn;
         }
 
         return assignments;
     };
 
     robot.logger.info('Attempting to cache all assignments');
-    cacheObject(url, '', key, allAssignmentsProcessor, errMsg, sucMsg, cacheLength, cb);
+    cacheObject(url, params, key, allAssignmentsProcessor, errMsg, sucMsg, cacheLength, cb);
 }
 
 /**

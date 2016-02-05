@@ -2,9 +2,18 @@
 // TODO: extract this into a separate file.
 var Canvas = require('node-canvas-lms');
 var authToken = process.env.HUBOT_CANVAS_KEY;
+var testURL = 'https://ucberkeley.test.instructure.com';
 var bCoursesURL = 'https://bcourses.berkeley.edu';
 
-var cs10 = new Canvas(bCoursesURL, {
+// TOGGLE WHETHER TO USE THE TEST INSTANCE OR THE REAL INSTANCE OF BCOURSES
+var TEST = false;
+
+// NODE-CANVAS-LMS CREATION
+var host = bCoursesURL;
+if (TEST) {
+    host = testURL;
+}
+var cs10 = new Canvas(host, {
     token: authToken
 });
 
@@ -32,26 +41,55 @@ cs10.labsID = 1947116;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
-cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE';
-cs10.LATE_ADD_FORM_URL = 'http://bjc.link/sp16lateadd';
-cs10.LATE_ADD_FORM_PASSWORD = 'yzjn7597';
+cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE'; // ACTUAL FORM
+// cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
-// The start date of the course
+// The start date of the course (this needs to be a date object)
 cs10.START_DATE = new Date('1/19/2016');
 
+// The quest due date (this just needs to be a string)
+cs10.questDate = new Date('2/17/2016');
+
+// TA Emails taken from the website
+cs10.TA_EMAILS = {
+    'Adam': 'adam@cs10.org',
+    'Rachel': 'rachel@cs10.org',
+    'Alex': 'alex@cs10.org',
+    'Amruta': 'amruta@cs10.org',
+    'Arany': 'arany@cs10.org',
+    'Will': 'william@cs10.org',
+    'Yifat': 'yifat@cs10.org',
+    'Lara': 'lara@cs10.org',
+    'Erik': 'erik@cs10.org',
+    'Janna': 'janna@cs10.org',
+    'Joseph': 'joseph@cs10.org',
+    'Steven': 'steven@cs10.org',
+    'Victoria': 'victoria@cs10.org',
+    'Andy': 'andy@cs10.org'
+}
+
+// ASSIGNMENT IDS
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-cs10.slipDayAssignmentIDs = [
-    7259694, // Homework 1
-    7259695, // Homework 2
-    7259696, // Homework 3
-    7259697, // Midterm Project
-    //TODO: this is tricky to get if it's a discussion -- must use the API
-    4632124, // Explore Post Content
-    7259691, // Final Project
-];
+var hw1_id = 7259694,
+    hw2_id = 7259695,
+    hw3_id = 7259696,
+    midtermProj_id = 7259697,
+    explorePost_id = 4632124,
+    finalProj_id = 7259691;
+
+// Helpful link for TAs
+cs10.HELP_LINKS = [
+    'Late Assignments Form: http://bjc.link/lateAssignmentsSP16',
+    'Late Add From: http://bjc.link/sp16lateadd',
+    `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
+    'Contacts Sheet: http://bjc.link/cs10contacts',
+    `Grade book: ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
+    'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
+    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'
+]
 
 /** Mapping of extenstion student IDs to bCourses IDs
     If there are no extenstion students, leave this empty
@@ -62,6 +100,8 @@ cs10.slipDayAssignmentIDs = [
 
     TODO: Consider making this a config for privacy reasons
     However, these IDs don't actually reveal anything.
+
+    NOTE: THIS IS NOT NEEDED ANYMORE I THINK - ANDY SP2016
 **/
 cs10.SWAP_IDS = {};
 
@@ -70,9 +110,21 @@ cs10.SWAP_IDS = {};
  * MAY NEED TO CHANGE BASED ON COURSE POLICIES *
  ***********************************************/
 
+// This is the email that is linked to alonzo (used by the late add emailer)
+cs10.ADMIN_EMAIL = 'alonzo-bot@berkeley.edu';
+
 // SLIP DAY ASSIGNMENTS
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays = 3;
+cs10.slipDayAssignmentIDs = [
+    hw1_id, 
+    hw2_id, 
+    hw3_id,
+    midtermProj_id,
+    //TODO: this is tricky to get if it's a discussion -- must use the API
+    explorePost_id,
+    finalProj_id
+];
 
 // LABS
 cs10.labCheckOffPoints = 2;
@@ -91,11 +143,15 @@ var extraLabs = [];
 cs10.extraLabs = new Set(extraLabs);
 
 // LATE ADD POLICIES
-// Maps assignment-name: number-of-days-since-student-added-class
+// For example an entry below of the form: 
+//  1234567 : {days: 4, name: 'Homework'}
+// --> means that assignment with id 1234567 is due 4 days after a student joins the class and is named Homework
+// Put the ids as variables in the section above entitled 'UPDATE EVERY SEMESTER'
+// These assignments should appear in the order that they are due in for the semester
 cs10.lateAddAssignments = {
-    'Homework 1': 4,
-    'Homework 2': 7,
-    'Homework 3': 12 
+    [hw1_id]: {days: 4, name: 'Homework 1'},
+    [hw2_id]: {days: 7, name: 'Homework 2'},
+    [hw3_id]: {days: 12, name: 'Homework 3'}
 }
 
 /**********************
@@ -127,7 +183,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Trim an SID and check off extenstion students
 // This must be called whenever a SID is used to make sure its the proper format
 cs10.normalizeSID = function(sid) {
-    sid = sid.trim().replace('X', '');
+    sid = sid.toString().trim().replace('X', '');
     if (Object.keys(cs10.SWAP_IDS).indexOf(sid) !== -1) {
         sid = cs10.SWAP_IDS[sid];
     }
