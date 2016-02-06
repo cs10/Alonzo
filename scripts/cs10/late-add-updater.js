@@ -481,6 +481,7 @@ function uploadToBcourses(force, allStudentData, allAssignments, cb) {
         // If in the cache then fetch that object otherwise cache the data
         if (cachedData[stud.sid]) {
             stud = cachedData[stud.sid];
+            stud.date = new Date(stud.date);
         } else {
             cachedData[stud.sid] = stud;
         }
