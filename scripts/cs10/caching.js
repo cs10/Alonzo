@@ -180,6 +180,8 @@ cs10Cache.cacheLabAssignments = function(cb) {
  * Caches all assignments from bcourses, names, ids, base due date
  *
  * DATA ORGANIZATION: [{assign_id: assign_obj}...]
+ * TODO: Migrate this to a grouped URL:
+ * assignment_groups?include[]=overrides&include[]=assignments&poverride_due_date=false'
  */
 cs10Cache.cacheAllAssignments = function(cb) {
     var url = `${cs10.baseURL}assignments`,

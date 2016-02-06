@@ -401,6 +401,7 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
  * Returns a new date object with n days added to it
  */
 var addDays = function(date, n) {
+    // TODO document 864e5 ?
     return new Date(date.valueOf() + 864e5 * n);
 }
 
@@ -672,7 +673,14 @@ var testAllTAs = {
 module.exports = function(robot) {
 
     robot.brain.on('loaded', function() {
-        auth = new HubotGoogleAuth('HUBOT_DRIVE', CLIENT_ID, CLIENT_SECRET, REDIRECT_URL, SCOPES, robot.brain);
+        auth = new HubotGoogleAuth(
+            'HUBOT_DRIVE',
+            CLIENT_ID,
+            CLIENT_SECRET,
+            REDIRECT_URL,
+            SCOPES,
+            robot.brain
+        );
     });
 
     robot.respond(/(force)?\s*refresh\s*(force)?\s*late\s*(?:add)?\s*data/i, {

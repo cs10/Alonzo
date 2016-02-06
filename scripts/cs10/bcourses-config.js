@@ -39,6 +39,12 @@ cs10.courseID = 1408649;
 // Michael Sandbox: 1593713
 cs10.labsID = 1947116;
 
+// all endpoints are based of the course, at least for our usage
+cs10.baseURL = `/courses/${cs10.courseID}/`;
+
+// Shortcut for use in chat error messages
+cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
+
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
 cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE'; // ACTUAL FORM
@@ -86,7 +92,7 @@ cs10.HELP_LINKS = [
     'Late Add From: http://bjc.link/sp16lateadd',
     `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
-    `Grade book: ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
+    `Grade book: ${cs10.gradebookURL}`,
     'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
     'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'
 ]
@@ -173,12 +179,6 @@ cs10.TA_ROOM = 'lab_check-off_room';
 // The default are internal bCourses IDs, but no one knows those.
 // See https://bcourses.berkeley.edu/doc/api/file.object_ids.html
 cs10.uid = 'sis_user_id:';
-
-// all endpoints are based of the course, at least for our usage
-cs10.baseURL = `/courses/${cs10.courseID}/`;
-
-// Shortcut for use in chat error messages
-cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 // Trim an SID and check off extenstion students
 // This must be called whenever a SID is used to make sure its the proper format
