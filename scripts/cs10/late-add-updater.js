@@ -26,10 +26,12 @@
 // Author:
 //  Andrew Schmitt
 var fs = require('fs');
+
 var request = require('request');
 var HubotGoogleAuth = require('hubot-google-auth');
 var csv = require('csv');
 var nodemailer = require('nodemailer');
+
 var cs10 = require('./bcourses-config.js');
 var cs10Cache = require('./caching.js');
 var CS10Emailer = require('./emailer.js');

@@ -58,7 +58,7 @@ CS10Emailer.prototype.buildLateAddMessage = function(joinDate, dueDateInfo, stud
 
     var message =
         `
-    <h3> Hello ${studentName} and Welcome to CS10!</h3>
+        <h3> Hello ${studentName}, and Welcome to CS10!</h3>
 
         You're receiving this email because you filled out a late add form and told us that you added the class on: ${joinDate.toDateString()}
         <br>
@@ -72,9 +72,9 @@ CS10Emailer.prototype.buildLateAddMessage = function(joinDate, dueDateInfo, stud
 
         Additionally, please make sure that you have access to the following sites: 
         <ul>
-            <li> our class question/answer forum on piazza.com </li> 
-            <li> the cs10 class on bcourses.berkeley.edu (this is how you will see your grades) </li>
-            <li> take a look at the assignment calendar and course policies at cs10.org </li>
+            <li>Our class question/answer forum on piazza.com </li> 
+            <li>The CS10 class on bcourses.berkeley.edu (this is how you will see your grades) </li>
+            <li>Theake a look at the assignment calendar and course policies at cs10.org </li>
         </ul>
         <br>
         If you have any other questions please don't hesitate to talk to your TA. ${taName} can be reached at: ${taEmail}, 
@@ -83,7 +83,7 @@ CS10Emailer.prototype.buildLateAddMessage = function(joinDate, dueDateInfo, stud
         <br>
         Thanks!
         <br>
-        - Alonzo the CS10 bot
+        - Alonzo, the CS10 bot
     `
 
     return message;
