@@ -21,7 +21,7 @@ var cs10 = require('./bcourses-config.js');
 // Resetting a password can only be done in the TA room
 var TA_ROOM = 'cs10_staff_room_(private)',
     RQ_GROUP_NAME = 'Reading Quizzes',
-    RESET_MINS = .5,
+    RESET_MINS = 30,
     TIMEOUT = 1000 * 60 * RESET_MINS,
     // Store previous passwords
     prevQuizPW = {};
@@ -66,7 +66,7 @@ function md5(text) {
 
 function autoResetCallback(quizID, password, msg) {
     return function (error, response, body) {
-        if (error || !body || body.errors || body.access_code != password) {
+        if (error || response.statusCode >= 400) {
             msg.send('There was a problem setting the password.');
             if (body.access_code) {
                 msg.send(`The current password is: ${body.access_code}`);
@@ -89,7 +89,7 @@ function autoResetCallback(quizID, password, msg) {
 
 function simpleResetCallback(quizID, password, msg) {
     return function(error, response, body) {
-        if (error || !body || body.errors || body.access_code !== password) {
+        if (error || response.statusCode >= 400) {
             msg.send(`There was a problem resetting the password for quiz ${msg.match[1]}.`);
             if (body.access_code) {
                 msg.send(`The current password is: ${body.access_code}`);
