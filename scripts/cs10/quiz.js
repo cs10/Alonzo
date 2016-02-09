@@ -21,7 +21,7 @@ var cs10 = require('./bcourses-config.js');
 // Resetting a password can only be done in the TA room
 var TA_ROOM = 'cs10_staff_room_(private)',
     RQ_GROUP_NAME = 'Reading Quizzes',
-    RESET_MINS = 30,
+    RESET_MINS = .5,
     TIMEOUT = 1000 * 60 * RESET_MINS,
     // Store previous passwords
     prevQuizPW = {};
@@ -79,8 +79,8 @@ function autoResetCallback(quizID, password, msg) {
             msg.send("Will update to random password in 30 minutes.");
             storedResetID[qz] = setTimeout(function() {
                 var hash = md5(password);
-                prevQuizPW[quizID] = hash;
                 setQuizPassword(quizID, hash, msg, simpleResetCallback);
+                prevQuizPW[quizID] = hash;
                 storedResetID[qz] = null;
             }, TIMEOUT);
         }
