@@ -9,7 +9,7 @@
 //   csv
 //   nodemailer
 //   bcourses library see ./bcourses-config.js
-//	 cs10 caching library see ./caching.js
+//   cs10 caching library see ./caching.js
 //   cs10 emailing library see ./emailer.js
 //
 // Configuration:
@@ -19,7 +19,7 @@
 //   cs10.LATE_ADD_RESPONSES_DRIVE_ID - drive id of the late add form RESPONSES!
 //
 // Commands:
-// 	 hubot refresh (force)? late data -  pulls the late data and uploads it to bcourses, optional include force
+//   hubot refresh (force)? late data -  pulls the late data and uploads it to bcourses, optional include force
 //   hubot test late add email - send a test email to andy@cs10.org
 //   hubot test late add email all - send a test email to all the emails list in cs10.TA_EMAILS (see ./bcourses-config.js)
 //
@@ -128,7 +128,7 @@ var downloadCsvFromLink = function(link, cb) {
  */
 var downloadDriveCsvFile = function(fileId, cb) {
     var authMsg = `Please authorize this app by visiting this url: ${auth.generateAuthUrl()}` +
-        'then use the command @Alonzo drive set code <code>';
+            `then use the command @${robot.name} drive set code <code>`;
     if (!auth.getTokens()) {
         return errorHandler(authMsg, cb);
     }
@@ -296,7 +296,7 @@ function emailStudents(joinDate, force, studs, allAssignments, cb) {
 var postOverride = function(assignment, studentIds, dueDate, title, cb) {
 
     var oneDay = 1000 * 60 * 60 * 24;
-    oldDueDate = new Date(assignment.due_at),
+        oldDueDate = new Date(assignment.due_at),
         unlockAt = new Date(assignment.unlock_at),
         lockAt = new Date(assignment.lock_at),
         difference = Math.round((lockAt - oldDueDate) / oneDay),
@@ -306,9 +306,13 @@ var postOverride = function(assignment, studentIds, dueDate, title, cb) {
         lockAt = minLockAtDate;
     }
 
+    // TODO: remove .json ? 
+    // TODO: Do we need to set all dates differently?
+    // TODO: Verify Lock date allows for late submissions
     var url = `${cs10.baseURL}assignments/${assignment.id}/overrides.json`,
+        studentIds = studentIds.map(sid => cs10.normalizeSID(sid)),
         form = {
-            'assignment_override[student_ids][]': studentIds.map(sid => cs10.normalizeSID(sid)),
+            'assignment_override[student_ids][]': studentIds,
             'assignment_override[title]': title,
             'assignment_override[due_at]': dueDate.toISOString(),
             'assignment_override[unlock_at]': unlockAt.toISOString(),
@@ -346,6 +350,7 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
                 // The students data should have been cached at this point (see uploadToBcourses)
                 var lateAddCache = cs10Cache.getLateAddData();
                 if (!lateAddCache || !lateAddCache[+stud.sid]) {
+                    // TODO: Add a message room function.
                     robot.logger.error(`ASSIGNMENT UPLOAD ERROR: late add cache is very broken :( sid: ${stud.sid} not found`);
                     assignmentFails += 1;
                 } else {
@@ -398,6 +403,7 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
  * Returns a new date object with n days added to it
  */
 var addDays = function(date, n) {
+    // TODO document 864e5 ?
     return new Date(date.valueOf() + 864e5 * n);
 }
 
@@ -670,7 +676,14 @@ var testAllTAs = {
 module.exports = function(robot) {
 
     robot.brain.on('loaded', function() {
-        auth = new HubotGoogleAuth('HUBOT_DRIVE', CLIENT_ID, CLIENT_SECRET, REDIRECT_URL, SCOPES, robot.brain);
+        auth = new HubotGoogleAuth(
+            'HUBOT_DRIVE',
+            CLIENT_ID,
+            CLIENT_SECRET,
+            REDIRECT_URL,
+            SCOPES,
+            robot.brain
+        );
     });
 
     robot.respond(/(force)?\s*refresh\s*(force)?\s*late\s*(?:add)?\s*data/i, {

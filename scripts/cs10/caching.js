@@ -160,7 +160,8 @@ cs10Cache.cacheStudGroups = function(cb) {
 cs10Cache.cacheLabAssignments = function(cb) {
     var url = `${cs10.baseURL}assignment_groups/${cs10.labsID}`,
         params = {
-            'include[]': 'assignments'
+            'include[]': 'assignments',
+            'override_assignment_dates': false
         },
         errMsg = 'There was a problem caching lab assignments :(',
         sucMsg = 'Successfully cached lab assignments! :)',
@@ -179,6 +180,8 @@ cs10Cache.cacheLabAssignments = function(cb) {
  * Caches all assignments from bcourses, names, ids, base due date
  *
  * DATA ORGANIZATION: [{assign_id: assign_obj}...]
+ * TODO: Migrate this to a grouped URL:
+ * assignment_groups?include[]=overrides&include[]=assignments&poverride_due_date=false'
  */
 cs10Cache.cacheAllAssignments = function(cb) {
     var url = `${cs10.baseURL}assignments`,
@@ -302,6 +305,7 @@ cs10Cache.refreshCache = function(cb) {
 cs10Cache.enable = function() {
     cs10Cache.isEnabled = true;
 }
+
 cs10Cache.disable = function() {
     cs10Cache.isEnabled = false;
 }
@@ -315,6 +319,7 @@ function sendAsFileOrMsg(text, fileName, msg) {
     // Files can only be sent when using the hipchat adapter
     var filePath = './temp1234';
     if (robot.adapterName == 'hipchat') {
+        // TODO: Replace this with Buffers
         fs.writeFile(filePath, text, function(err) {
             if (err) {
                 msg.send('Error writing to file');

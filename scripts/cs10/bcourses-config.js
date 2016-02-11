@@ -1,4 +1,5 @@
 // Use the Canvas API library, written just for CS10
+// TODO: extract this into a separate file.
 var Canvas = require('node-canvas-lms');
 var authToken = process.env.HUBOT_CANVAS_KEY;
 var testURL = 'https://ucberkeley.test.instructure.com';
@@ -37,6 +38,12 @@ cs10.courseID = 1408649;
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
 cs10.labsID = 1947116;
+
+// all endpoints are based of the course, at least for our usage
+cs10.baseURL = `/courses/${cs10.courseID}/`;
+
+// Shortcut for use in chat error messages
+cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -86,7 +93,7 @@ cs10.HELP_LINKS = [
     'Late Add From: http://bjc.link/sp16lateadd',
     `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
-    `Grade book: ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
+    `Grade book: ${cs10.gradebookURL}`,
     'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
     'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'
 ]
@@ -137,8 +144,10 @@ cs10.labCheckOffPoints = 2;
 cs10.labCheckOffLatePts = 1;
 var oneWeek = 1000 * 60 * 60 * 24 * 7;
 cs10.labSecsAllowedLate = oneWeek;
+// TODO: This should be dynamic...
 cs10.firstLab = 2;
 cs10.lastLab = 18;
+// TODO: Consider removing this...
 // Add special labs to the array below such as [1,2,3,4]
 // For summer there was special extra credit lab 42
 // var extraLabs = [42];
@@ -163,6 +172,7 @@ cs10.lateAddAssignments = {
  **********************/
 
 // These are room names that are particularly useful
+// TODO: This should be moved to general authorization
 cs10.LA_ROOM = 'lab_assistant_check-offs';
 cs10.TA_ROOM = 'lab_check-off_room';
 
@@ -170,18 +180,12 @@ cs10.TA_ROOM = 'lab_check-off_room';
 /**********************************
  * BCOURSES CONFIG AND SOME UTILS *
  **********************************/
-
+// TODO: Move this to a new file.
 
 // This changes the default ID of a student to tell bCourses to use SIDs
 // The default are internal bCourses IDs, but no one knows those.
 // See https://bcourses.berkeley.edu/doc/api/file.object_ids.html
 cs10.uid = 'sis_user_id:';
-
-// all endpoints are based of the course, at least for our usage
-cs10.baseURL = `/courses/${cs10.courseID}/`;
-
-// Shortcut for use in chat error messages
-cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 // Trim an SID and check off extenstion students
 // This must be called whenever a SID is used to make sure its the proper format
