@@ -21,7 +21,6 @@ module.exports = function(robot) {
     robot.respond(/.*(links|forms).*/i, {
         id: 'cs10.links'
     }, function(msg) {
-        // 'LA Attendance: https://bcourses.berkeley.edu/courses/1301477/external_tools/36957';
         msg.send(cs10.HELP_LINKS.join('\n'));
     });
 
@@ -29,5 +28,9 @@ module.exports = function(robot) {
         id: 'cs10.util.locker-combo'
     }, function(msg) {
         msg.send(process.env.LOCKER_COMBO);
+    });
+
+    robot.respond(/\s*(backup|back-up|back\s*up)\s*/i, {id: 'cs10.util.backup'}, function(msg) {
+        msg.send(cs10.BACKUP_LINKS.join('\n'));
     });
 };
