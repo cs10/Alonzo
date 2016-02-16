@@ -66,7 +66,7 @@ function md5(text) {
 
 function autoResetCallback(quizID, password, msg) {
     return function (error, response, body) {
-        if (error || !body || body.errors || body.access_code != password) {
+        if (error || response.statusCode >= 400) {
             msg.send('There was a problem setting the password.');
             if (body.access_code) {
                 msg.send(`The current password is: ${body.access_code}`);
@@ -79,8 +79,8 @@ function autoResetCallback(quizID, password, msg) {
             msg.send("Will update to random password in 30 minutes.");
             storedResetID[qz] = setTimeout(function() {
                 var hash = md5(password);
-                prevQuizPW[quizID] = hash;
                 setQuizPassword(quizID, hash, msg, simpleResetCallback);
+                prevQuizPW[quizID] = hash;
                 storedResetID[qz] = null;
             }, TIMEOUT);
         }
@@ -89,7 +89,7 @@ function autoResetCallback(quizID, password, msg) {
 
 function simpleResetCallback(quizID, password, msg) {
     return function(error, response, body) {
-        if (error || !body || body.errors || body.access_code !== password) {
+        if (error || response.statusCode >= 400) {
             msg.send(`There was a problem resetting the password for quiz ${msg.match[1]}.`);
             if (body.access_code) {
                 msg.send(`The current password is: ${body.access_code}`);

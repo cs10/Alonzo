@@ -81,6 +81,7 @@ var hw1_id = 7259694,
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
+    // 'LA Attendance: https://bcourses.berkeley.edu/courses/1301477/external_tools/36957';
     'Late Assignments Form: http://bjc.link/lateAssignmentsSP16',
     'Late Add From: http://bjc.link/sp16lateadd',
     `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
@@ -88,6 +89,12 @@ cs10.HELP_LINKS = [
     `Grade book: ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
     'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
     'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'
+]
+
+// Links to backup sites for when things go to hell
+cs10.BACKUP_LINKS = [
+    'Snap! Backup: http://cs10.org/snap',
+    'Lab Backup (might be out of order): http://beautyjoy.github.io/bjc-r/'
 ]
 
 /** Mapping of extenstion student IDs to bCourses IDs
