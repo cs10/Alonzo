@@ -15,7 +15,27 @@
 // Author:
 //  Michael Ball
 
-cs10 = require('./bcourses-config.js');
+var _ = require('lodash');
+
+var cs10 = require('./bcourses-config.js');
+
+function findDueDates(resp) {
+    // Send a message
+    resp.send('Working on it...');
+    var NOW = new Date();
+    cs10.get(`${cs10.baseURL}/assignments`, { per_page: 100 }, function(err, res, body) {
+            var next, future, msgText, due;
+            // Skip the error handling!
+            function dateDist(assn) { return new Date(assn.due_at) - NOW };
+            function isFuture(assn) { return dateDist(assn) > 0 };
+            future = _.filter(body, isFuture);
+            next = _.minBy(future, dateDist);
+            due = new Date(next.due_at).toLocaleString();
+            msgText = `The next assignment ${next.name} is due on ${due}.`;
+            // Notify the asker
+            resp.reply(msgText);
+    });
+}
 
 module.exports = function(robot) {
     robot.respond(/.*(links|forms).*/i, {
@@ -30,4 +50,6 @@ module.exports = function(robot) {
     }, function(msg) {
         msg.send(process.env.LOCKER_COMBO);
     });
+    
+    robot.respond(/find the next due date/i, findDueDates);
 };
