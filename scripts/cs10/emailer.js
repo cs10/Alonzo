@@ -2,6 +2,7 @@
 
 
 var nodemailer = require('nodemailer');
+var cs10 = require('./bcourses-config');
 
 var CS10Emailer = function(username, password) {
 	this.userEmail = username;
