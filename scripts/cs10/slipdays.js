@@ -73,16 +73,15 @@ function getSlipDays(submissionTime, dueTime) {
 var STATE_GRADED = 'graded';
 
 function calculateSlipDays(sid, callback) {
-
     cs10Cache.staffIDs(function(err, resp) {
 
         if (err) {
             return callback(null);
         }
+        
+        var staffIDs = resp.cacheVal;
 
-        var staffIDs = resp.cachVal;
-
-        var url = `${cs10.baseURL}students/submissions`,
+        var assignmentsURL = `${cs10.baseURL}students/submissions`,
             options = {
                 'include[]': ['submission_comments', 'assignment'],
                 'student_ids[]': cs10.normalizeSID(sid),
@@ -93,7 +92,7 @@ function calculateSlipDays(sid, callback) {
                 grouped: true
             };
 
-        cs10.get(url, options, function(error, response, body) {
+        cs10.get(assignmentsURL, options, function(error, response, body) {
             var results = {
                 totalDays: 0,
                 daysRemaining: cs10.allowedSlipDays,
@@ -162,7 +161,9 @@ function calculateSlipDays(sid, callback) {
 // Search comments for a "Slip Days Used" match
 function getReaderDays(comments, staffIDs) {
     var tempDay, days = -1;
-    comments = comments.filter(commentIsAuthorized.bind(this, staffIDs));
+    comments = comments.filter(function (comment) {
+        commentIsAuthorized(staffIDs, comment);
+    });
     // It's possible multiple readers may comment.
     // The last comment with a valid day found will be used for slip days
     comments.forEach(function(comment) {
