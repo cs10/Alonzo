@@ -1,15 +1,25 @@
+# Description:
+#   Automated tests for the cs10 caching library
+#
+# Dependencies:
+#   hubot-test-helper
+#   bluebird
+#   co
+#   chai.expect
+#
+# Author:
+#  Andrew Schmitt
 Helper = require('hubot-test-helper')
-loader = require('../scripts/loader.js')
-# helper loads all scripts passed a directory
-helper = new Helper(loader)
+helper = new Helper('../scripts');
 
 Promise = require('bluebird')
 co      = require('co')
 expect  = require('chai').expect
 
-api_wait_time = 6000
+start_wait_time = 6000
 
 describe 'cs10.caching', ->
+  @timeout(1.5 * start_wait_time)
 
   beforeEach ->
     @room = helper.createRoom()
@@ -20,12 +30,11 @@ describe 'cs10.caching', ->
   context 'user sends command /Refresh cache', ->
     beforeEach ->
       co =>
-        @timeout(1.5 * api_wait_time)
         yield @room.user.say 'alice', '@hubot Refresh Cache'
-        yield new Promise.delay(api_wait_time)
+        yield new Promise.delay(start_wait_time)
 
     it 'should reply with caching success for all objects', ->
-      expect(@room.messages).should.have.memebers [
+      expect(@room.messages).to.deep.have.members [
         ['alice', '@hubot Refresh Cache']
         ['hubot', 'Waiting on bCourses...']
         ['hubot', 'Successfully cached student groups! :)']

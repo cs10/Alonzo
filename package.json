@@ -61,7 +61,7 @@
     "chai": "^3.5.0",
     "co": "^4.6.0",
     "dotenv": "^1.2.0",
-    "hubot-test-helper": "git://github.com/aaaschmitt/hubot-test-helper.git",
+    "hubot-test-helper": "^1.4.4",
     "mocha": "^2.4.5"
   }
 }
