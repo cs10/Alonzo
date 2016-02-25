@@ -4,5 +4,5 @@ node_js:
 before_script:
 - chmod +x tests/tests.sh
 script:
-- "./tests/tests.sh"
+- npm test
 sudo: false
