@@ -2,6 +2,9 @@ language: node_js
 node_js:
 - '4.2'
 
+# Run on new infrastructure
+sudo: false
+
 # Get heroku toolbelt
 addons:
   apt:
@@ -17,15 +20,3 @@ before_script:
 # Run tests
 # script:
 # - npm test
-
-# deploy to heroku
-after_script:
-  - gem install heroku
-  - git remote add heroku HEROKU_GIT_REPO
-  - echo "Host heroku.com" >> ~/.ssh/config
-  - echo "   StrictHostKeyChecking no" >> ~/.ssh/config
-  - echo "   CheckHostIP no" >> ~/.ssh/config
-  - echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config
-  - heroku keys:clear
-  - yes | heroku keys:add
-  - yes | git push heroku master
