@@ -1,9 +1,31 @@
 language: node_js
 node_js:
 - '4.2'
+
+# Get heroku toolbelt
+addons:
+  apt:
+    sources:
+    - heroku
+    packages:
+    - heroku-toolbelt
+
+# Run toolbelt to make sure it works
 before_script:
-- sudo L=/usr/local/bin/hk && curl -sL -A "`uname -sp`" https://hk.heroku.com/hk.gz | zcat >$L && chmod +x $L
-- hk
-script:
-- npm test
-sudo: true
+- heroku --version #just test if this works
+
+# Run tests
+# script:
+# - npm test
+
+# deploy to heroku
+after_script:
+  - gem install heroku
+  - git remote add heroku HEROKU_GIT_REPO
+  - echo "Host heroku.com" >> ~/.ssh/config
+  - echo "   StrictHostKeyChecking no" >> ~/.ssh/config
+  - echo "   CheckHostIP no" >> ~/.ssh/config
+  - echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+  - heroku keys:clear
+  - yes | heroku keys:add
+  - yes | git push heroku master
