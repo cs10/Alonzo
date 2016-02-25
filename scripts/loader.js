@@ -15,6 +15,7 @@ module.exports = function (robot) {
     dirs.forEach(function (dir) {
         if (dir.indexOf('.') == -1) {
             scriptsPath = Path.resolve(".", "scripts/", dir);
+            console.log(scriptsPath);
             robot.load(scriptsPath);
         }
     });

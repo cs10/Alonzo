@@ -1,6 +1,6 @@
 #!/bin/bash
 
 # Run test scripts
-./tests/tests.sh
+npm test
 
 # Run other things?
