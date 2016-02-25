@@ -2,8 +2,8 @@ language: node_js
 node_js:
 - '4.2'
 before_script:
-- L=/usr/local/bin/hk && curl -sL -A "`uname -sp`" https://hk.heroku.com/hk.gz | zcat >$L && chmod +x $L
+- sudo L=/usr/local/bin/hk && curl -sL -A "`uname -sp`" https://hk.heroku.com/hk.gz | zcat >$L && chmod +x $L
 - hk
 script:
 - npm test
-sudo: false
+sudo: true
