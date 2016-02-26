@@ -15,8 +15,13 @@
     "type": "git",
     "url": "https://github.com/cs10/alonzo.git"
   },
+  "scripts": {
+    "test": "npm run test-unit",
+    "test-unit": "mocha --compilers coffee:coffee-script/register tests"
+  },
   "dependencies": {
     "canvas-grade-uploader": "^1.0.3",
+    "coffee-script": "^1.10.0",
     "csv": "^0.4.6",
     "githubot": "^1.0.0",
     "googleapis": "^2.1.7",
@@ -52,6 +57,11 @@
     "node": "4.x.x"
   },
   "devDependencies": {
-    "dotenv": "^1.2.0"
+    "bluebird": "^3.3.1",
+    "chai": "^3.5.0",
+    "co": "^4.6.0",
+    "dotenv": "^1.2.0",
+    "hubot-test-helper": "^1.4.4",
+    "mocha": "^2.4.5"
   }
 }

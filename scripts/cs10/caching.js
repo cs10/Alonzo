@@ -19,14 +19,46 @@
 //
 // Author:
 //  Andrew Schmitt
+
+/**
+ * LIST OF EXPORTS FOR THIS MODULE
+ *  
+ * GETTERS/SETTERS
+ * 1.) Does not do any auto refreshing, just get and set data for a key
+ * 2.) Does not take a callback (i.e. they are synchronous)
+    - cs10Cahce.getLateAddData()
+    - cs10Cahce.setLateAddData(obj)
+    - cs10Cahce.getLateAddPolicies()
+    - cs10Cahce.setLateAddPolicies(obj)
+    - cs10Cahce.getLaData()
+    - cs10Cahce.setLaData(obj)
+ *
+ * CACHED VALUES 
+ * 1.) Does autorefreshing if needed according to cache length
+ * 2.) Need to provide a cb of the form (err, cacheObject)
+ * 3.) A cacheObject looks like: {time: <last-cached-at>, cacheVal: <data>, cacheLength: <how-long-im-valid>}
+    - cs10Cahce.staffIDs(cb) -> array of staff ids
+    - cs10Cache.studentGroups -> object: {bcourses_group_name: bcourses_group_object}
+    - cs10Cahce.labAssignments(cb) -> array of lab assignment objects from bcourses
+    - cs10Cahce.allAssignments(cb) -> object: {bcourses_assignment_id: bcourses_assignment_object}
+
+    - cs10Cache.allBcoursesData(cb) -> combination of the above. need to provide:
+         cb(err, staffIDs, allAssignments, studentGroups)
+ *
+ * OTHER
+    - cs10Cahce.enable() -> disable autocahing for cache objects
+    - cs10Cahce.disable() -> enable autocaching for cache objects
+ */
+
 var fs = require('fs');
 var util = require('util');
 var cs10 = require('./bcourses-config.js');
 var cs10Cache = {};
+var robot;
 
 // Live time for a cache object
-cs10Cache.DEFAULT_CACHE_HOURS = 12;
-cs10Cache.isEnabled = true;
+DEFAULT_CACHE_HOURS = 12;
+isEnabled = true;
 
 /**
  * Cache keys for various things that are stored in the redis brain
@@ -34,13 +66,13 @@ cs10Cache.isEnabled = true;
  * robot.brain.get(KEY) --> gets the data associated with the key
  * robot.brain.set(KEY, data) --> sets data for that cache key
  */
-cs10Cache.STAFF_CACHE_KEY = 'STAFF_IDS';
-cs10Cache.LAB_CACHE_KEY = 'LAB_ASSIGNMENTS';
-cs10Cache.STUD_GROUP_CACHE_KEY = 'STUD_GROUPS';
-cs10Cache.LA_DATA_KEY = 'LA_DATA';
-cs10Cache.LATE_ADD_DATA_KEY = 'LATE_ADD_DATA';
-cs10Cache.LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES';
-cs10Cache.ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS';
+STAFF_CACHE_KEY = 'STAFF_IDS';
+LAB_CACHE_KEY = 'LAB_ASSIGNMENTS';
+STUD_GROUP_CACHE_KEY = 'STUD_GROUPS';
+LA_DATA_KEY = 'LA_DATA';
+LATE_ADD_DATA_KEY = 'LATE_ADD_DATA';
+LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES';
+ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS';
 
 /**
  * Expects two objects (error, resp) which will each have a msg attribute
@@ -103,7 +135,7 @@ function cacheObject(url, params, key, processFunc, errMsg, sucMsg, cacheLength,
  *
  * DATA ORGANIZATION: [id...]
  */
-cs10Cache.cacheStaffIDs = function(cb) {
+var cacheStaffIDs = function(cb) {
     var url = `${cs10.baseURL}users`,
         params = {
             'per_page': '100',
@@ -111,8 +143,8 @@ cs10Cache.cacheStaffIDs = function(cb) {
         },
         errMsg = 'There was a problem caching staff IDs :(',
         sucMsg = 'Successfully cached staff IDs! :)',
-        key = cs10Cache.STAFF_CACHE_KEY,
-        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;
+        key = STAFF_CACHE_KEY,
+        cacheLength = DEFAULT_CACHE_HOURS;
 
     var staffIDProcessor = function(body) {
         var staffIDs = [];
@@ -131,19 +163,19 @@ cs10Cache.cacheStaffIDs = function(cb) {
  *
  * DATA ORGANIZATION: [{group_name: group_id}]
  */
-cs10Cache.cacheStudGroups = function(cb) {
+var cacheStudGroups = function(cb) {
     var url = `${cs10.baseURL}group_categories`,
         errMsg = 'There was a problem caching assignment groups :(',
         sucMsg = 'Successfully cached student groups! :)',
-        key = cs10Cache.STUD_GROUP_CACHE_KEY,
-        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;;
+        key = STUD_GROUP_CACHE_KEY,
+        cacheLength = DEFAULT_CACHE_HOURS;;
 
     function studGroupsProcessor(body) {
         var groups = {},
             cat;
         for (var i = 0; i < body.length; i++) {
             cat = body[i];
-            groups[cat.name] = cat.id
+            groups[cat.name] = cat;
         }
         return groups;
     };
@@ -157,15 +189,15 @@ cs10Cache.cacheStudGroups = function(cb) {
  *
  * DATA ORGANIZATION: [assign_obj...]
  */
-cs10Cache.cacheLabAssignments = function(cb) {
+var cacheLabAssignments = function(cb) {
     var url = `${cs10.baseURL}assignment_groups/${cs10.labsID}`,
         params = {
             'include[]': 'assignments'
         },
         errMsg = 'There was a problem caching lab assignments :(',
         sucMsg = 'Successfully cached lab assignments! :)',
-        key = cs10Cache.LAB_CACHE_KEY,
-        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;;
+        key = LAB_CACHE_KEY,
+        cacheLength = DEFAULT_CACHE_HOURS;;
 
     function labAssignmentProcessor(body) {
         return body.assignments;
@@ -180,17 +212,17 @@ cs10Cache.cacheLabAssignments = function(cb) {
  *
  * DATA ORGANIZATION: [{assign_id: assign_obj}...]
  */
-cs10Cache.cacheAllAssignments = function(cb) {
+var cacheAllAssignments = function(cb) {
     var url = `${cs10.baseURL}assignments`,
         params = {
             per_page: '100',
             override_assignment_dates: 'false',
             'include[]': 'overrides'
         }
-        errMsg = 'There was a problem caching all assignments :(',
+    errMsg = 'There was a problem caching all assignments :(',
         sucMsg = 'Successfully cached all assignments! :)',
-        key = cs10Cache.ALL_ASSIGNMENTS_KEY,
-        cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;;
+        key = ALL_ASSIGNMENTS_KEY,
+        cacheLength = DEFAULT_CACHE_HOURS;;
 
     function allAssignmentsProcessor(body) {
         var assignments = {},
@@ -212,11 +244,11 @@ cs10Cache.cacheAllAssignments = function(cb) {
  * Checks if a cacheObj is valid
  * Expects a cache object to be of the form {time: NUM, data: SOME_DATA_THING}
  */
-cs10Cache.cacheIsValid = function(cacheObj) {
+var cacheIsValid = function(cacheObj) {
     var exists = cacheObj && cacheObj.cacheVal,
         date = cacheObj.time,
         diff = (new Date()) - (new Date(date)),
-        cacheLife = cacheObj.cacheLength || cs10Cache.DEFAULT_CACHE_HOURS;
+        cacheLife = cacheObj.cacheLength || DEFAULT_CACHE_HOURS;
     return exists && diff / (1000 * 60 * 60) < cacheLife;
 };
 
@@ -230,9 +262,9 @@ cs10Cache.cacheIsValid = function(cacheObj) {
  *  LateAddPolicies is an array of objects representing the rows of a spreadsheet
  */
 var dataMap = {
-    'LateAddData': cs10Cache.LATE_ADD_DATA_KEY,
-    'LateAddPolicies': cs10Cache.LATE_ADD_POLICY_KEY,
-    'LaData': cs10Cache.LA_DATA_KEY
+    'LateAddData': LATE_ADD_DATA_KEY,
+    'LateAddPolicies': LATE_ADD_POLICY_KEY,
+    'LaData': LA_DATA_KEY
 }
 for (var dataName in dataMap) {
     cs10Cache['set' + dataName] = (function(key, data) {
@@ -256,26 +288,26 @@ for (var dataName in dataMap) {
  */
 var cacheMap = {
     'staffIDs': {
-        'key': cs10Cache.STAFF_CACHE_KEY,
-        'func': cs10Cache.cacheStaffIDs
+        'key': STAFF_CACHE_KEY,
+        'func': cacheStaffIDs
     },
     'studentGroups': {
-        'key': cs10Cache.STUD_GROUP_CACHE_KEY,
-        'func': cs10Cache.cacheStudGroups
+        'key': STUD_GROUP_CACHE_KEY,
+        'func': cacheStudGroups
     },
     'labAssignments': {
-        'key': cs10Cache.LAB_CACHE_KEY,
-        'func': cs10Cache.cacheLabAssignments
+        'key': LAB_CACHE_KEY,
+        'func': cacheLabAssignments
     },
     'allAssignments': {
-        'key': cs10Cache.ALL_ASSIGNMENTS_KEY,
-        'func': cs10Cache.cacheAllAssignments
+        'key': ALL_ASSIGNMENTS_KEY,
+        'func': cacheAllAssignments
     }
 }
 for (var funcName in cacheMap) {
     cs10Cache[funcName] = (function(accessor, cb) {
         var cacheObj = robot.brain.get(accessor['key']);
-        if (cs10Cache.isEnabled && cs10Cache.cacheIsValid(cacheObj)) {
+        if (isEnabled && cacheIsValid(cacheObj)) {
             return cb(null, cacheObj);
         }
 
@@ -285,25 +317,68 @@ for (var funcName in cacheMap) {
 }
 
 /**
+ * Returns all of the bcourses related cache objects as a bundle
+ *
+ * Currently your callback should be of the form:
+ *      cb(err, staffIDs, allAssignments, studentGroups)
+ *
+ * Keeping in mind that this will pass back cache objects 
+ * of the form listed at the top of this file
+ */
+cs10Cache.allBcoursesData = function(cb) {
+    var numBcoursesObjects = 3,
+        cachedSoFar = 0,
+        errors = [],
+        objects = {},
+        sharedCb = function(position, err, cacheObj) {
+            cachedSoFar++;
+            if (err) {
+                errors.push(err);
+            }
+
+            objects[position] = cacheObject;
+
+            if (cachedSoFar === numBcoursesObjects) {
+                finish();
+            }
+        },
+        finish = function() {
+            var err = null;
+            if (errors.length !== 0) {
+                err = {
+                    err: errors,
+                    msg: "There were errors in the all bcoursesData function"
+                };
+            }
+
+            cb(err, objects['0'], objects['1'], objects['2']);
+        }
+
+    cs10Cache.staffIDs(sharedCb.bind('0'));
+    cs10Cache.allAssignments(sharedCb.bind('1'));
+    cs10Cache.studentGroups(sharedCb.bind('2'));
+}
+
+/**
  * Refreshes course dependent cache objects.
  *
  * cb - a function of (error, resp) or null
  */
-cs10Cache.refreshCache = function(cb) {
-    cs10Cache.cacheStaffIDs(cb);
-    cs10Cache.cacheStudGroups(cb);
-    cs10Cache.cacheLabAssignments(cb);
-    cs10Cache.cacheAllAssignments(cb);
+var refreshCache = function(cb) {
+    cacheStaffIDs(cb);
+    cacheStudGroups(cb);
+    cacheLabAssignments(cb);
+    cacheAllAssignments(cb);
 };
 
 /**
  * Enable or disbale this cache
  */
 cs10Cache.enable = function() {
-    cs10Cache.isEnabled = true;
+    isEnabled = true;
 }
 cs10Cache.disable = function() {
-    cs10Cache.isEnabled = false;
+    isEnabled = false;
 }
 
 // Caching functions are allowed everywhere except the LA room
@@ -311,10 +386,10 @@ function isValidRoom(msg) {
     return msg.message.room !== cs10.LA_ROOM;
 }
 
+// Files can only be sent when using an adapter that supports it
 function sendAsFileOrMsg(text, fileName, msg) {
-    // Files can only be sent when using the hipchat adapter
     var filePath = './temp1234';
-    if (robot.adapterName == 'hipchat') {
+    if (msg.sendFile) {
         fs.writeFile(filePath, text, function(err) {
             if (err) {
                 msg.send('Error writing to file');
@@ -340,8 +415,10 @@ function sendAsFileOrMsg(text, fileName, msg) {
  * This exports the robot functionality for the caching module
  */
 var initialBrainLoad = true;
-module.exports = function(robot) {
+module.exports = function(rbot) {
 
+    robot = rbot;
+    
     // Refresh the cache on brain loaded
     robot.brain.on('loaded', function() {
         if (!initialBrainLoad) {
@@ -349,7 +426,7 @@ module.exports = function(robot) {
         }
 
         initialBrainLoad = false;
-        cs10Cache.refreshCache(function(err, resp) {
+        refreshCache(function(err, resp) {
             if (err) {
                 robot.logger.debug(err.msg);
                 return;
@@ -362,7 +439,7 @@ module.exports = function(robot) {
     robot.respond(/is\s*(bcourses)?\s*caching (enabled|on|off|disabled)\??/i, {
         id: 'cs10.caching.cache-check'
     }, function(msg) {
-        if (cs10Cache.isEnabled) {
+        if (isEnabled) {
             return msg.send('bCourses caching is currently enabled!');
         }
 
@@ -391,7 +468,7 @@ module.exports = function(robot) {
             return;
         }
         msg.send('Waiting on bCourses...');
-        cs10Cache.refreshCache(genericErrorCB.bind(null, msg));
+        refreshCache(genericErrorCB.bind(null, msg));
     });
 
 
@@ -457,9 +534,9 @@ module.exports = function(robot) {
 
         // Dump the contents of the key to a file (or a string if in shell) before clearing
         var objStr = util.inspect(robot.brain.get(key), {
-                showHidden: true,
-                depth: null
-            });
+            showHidden: true,
+            depth: null
+        });
         sendAsFileOrMsg(objStr, `deletion-dump-${key}`, msg);
 
         robot.brain.remove(key);
