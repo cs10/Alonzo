@@ -7,7 +7,7 @@
 
 var fs = require('fs');
 var Path = require('path');
-\
+
 module.exports = function (robot) {
     var scriptsPath,
         dirs = fs.readdirSync('./scripts');
