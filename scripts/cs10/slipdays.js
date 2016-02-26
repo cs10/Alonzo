@@ -80,81 +80,106 @@ function calculateSlipDays(sid, callback) {
         }
         
         var staffIDs = resp.cacheVal;
-
-        var assignmentsURL = `${cs10.baseURL}students/submissions`,
-            options = {
-                'include[]': ['submission_comments', 'assignment'],
-                'student_ids[]': cs10.normalizeSID(sid),
-                'assignment_ids[]': cs10.slipDayAssignmentIDs,
-                // parameters of the assingment object...they dont work
-                // 'override_assignment_dates' : false,
-                // 'all_dates' : true,
-                grouped: true
-            };
-
-        cs10.get(assignmentsURL, options, function(error, response, body) {
-            var results = {
-                totalDays: 0,
-                daysRemaining: cs10.allowedSlipDays,
-                assignments: [], // Assignment object described below
-                errors: []
-            };
-
-            if (!body || body.errors) {
-                results.errors.push('Oh, Snap! Something went wrong. :(');
-                if (body.errors.constructor != Array) {
-                    body.errors = [body.errors];
-                }
-                body.errors.forEach(function(err) {
-                    results.errors.push(err.message);
-                });
-                callback(results);
-                return;
+        cs10Cache.allAssignments(function (assnErr, assnResp) {
+            if (assnErr) {
+                return callback(null);
             }
-
-            var submissions = body[0].submissions;
-            // List of submissions contains only most recent submission
-            submissions.forEach(function(subm) {
-                var days, verified, submitted, state, assignment, displayDays;
-                state = subm.workflow_state;
-                submitted = subm.submitted_at !== null;
-                verified = false; // True IFF Reader explicitly left a comment
-
-                if (state === STATE_GRADED) { // Use Reader Comments, if avail.
-                    days = getReaderDays(subm.submission_comments, staffIDs);
-                    displayDays = days;
-                    verified = days != -1;
-                }
-
-                if (!verified) { // Use time of submission
-                    days = getSlipDays(subm.submitted_at, subm.assignment.due_at);
-                    displayDays = days;
-                    if (subm.assignment.has_overrides) {
-                        displayDays = 'Unknown!';
-                        results.errors.push('Could not calculate days for ' +
-                            subm.assignment.name);
-                    }
-                }
-                // No submissions result in days<0.
-                days = Math.max(0, days);
-
-                assignment = {
-                    title: subm.assignment.name,
-                    slipDays: displayDays,
-                    verified: verified,
-                    url: subm.preview_url,
-                    submitted: submitted
+            
+            var assignmentsCache = assnResp.cacheVal;
+            
+            var assignmentsURL = `${cs10.baseURL}students/submissions`,
+                options = {
+                    'include[]': ['submission_comments', 'assignment'],
+                    'student_ids[]': cs10.normalizeSID(sid),
+                    'assignment_ids[]': cs10.slipDayAssignmentIDs,
+                    grouped: true
                 };
 
-                results.totalDays += days;
-                results.daysRemaining -= days;
-                results.assignments.push(assignment);
-            });
+            cs10.get(assignmentsURL, options, function(error, response, body) {
+                var results = {
+                    totalDays: 0,
+                    daysRemaining: cs10.allowedSlipDays,
+                    assignments: [], // Assignment object described below
+                    errors: []
+                };
 
-            callback(results);
+                if (!body || body.errors) {
+                    results.errors.push('Oh, Snap! Something went wrong. :(');
+                    if (body.errors.constructor != Array) {
+                        body.errors = [body.errors];
+                    }
+                    body.errors.forEach(function(err) {
+                        results.errors.push(err.message);
+                    });
+                    callback(results);
+                    return;
+                }
+
+                var submissions = body[0].submissions;
+                // List of submissions contains only most recent submission
+                // TODO: Refactor this and pull out of call back.
+                submissions.forEach(function (subm) {
+                    var days,
+                        // True IFF Reader explicitly left a comment
+                        isVerified = false,
+                        subAssn, assnObj, displayDays, stundets_due_at;
+
+                    subAssn = subm.assignment;
+                    // Graded assignments should have reader comments.
+                    // TODO: Log errors when no reader comment is found.
+                    if (subm.workflow_state === STATE_GRADED) {
+                        days = getReaderDays(subm.submission_comments, staffIDs);
+                        displayDays = days;
+                        isVerified = days != -1;
+                    }
+
+                    if (!isVerified) { // Use time of submission
+                        students_due_at = subm.assignment.due_at;
+                        
+                        if (subAssn.has_overrides) {
+                            console.log('OVERRIDES');
+                            students_due_at = calculateOverrideDate(
+                                subm.user_id, // person submitting.
+                                assignmentsCache[subAssn.name]
+                            );
+                        }
+                        days = getSlipDays(subm.submitted_at, students_due_at);
+                        displayDays = days;
+                    }
+                    
+                    // No submissions result in days<0.
+                    days = Math.max(0, days);
+
+                    assnObj = {
+                        title: subm.assignment.name,
+                        slipDays: displayDays,
+                        verified: isVerified,
+                        url: subm.preview_url,
+                        submitted: subm.submitted_at !== null
+                    };
+
+                    results.totalDays += days;
+                    results.daysRemaining -= days;
+                    results.assignments.push(assnObj);
+                }); // end forEach
+
+                callback(results);
+            });
         });
     });
 }
+
+/*
+    When an assignment has overrides in Canvas, calculate the due date for this
+    particular student.
+*/
+function calculateOverrideDate(user_id, assign) {
+    var override = 0
+    console.log('USER:', user_id);
+    console.log(assign);
+    return assign.due_at;
+}
+
 
 // Get an array of comments on a submission
 // Filter for comments w/ valid author ID

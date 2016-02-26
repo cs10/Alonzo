@@ -181,6 +181,7 @@ cs10Cache.cacheLabAssignments = function(cb) {
  * DATA ORGANIZATION: [{assign_id: assign_obj}...]
  */
 cs10Cache.cacheAllAssignments = function(cb) {
+    console.log('cache all assignments called');
     var url = `${cs10.baseURL}assignments`,
         params = {
             per_page: '100',
@@ -193,18 +194,17 @@ cs10Cache.cacheAllAssignments = function(cb) {
         cacheLength = cs10Cache.DEFAULT_CACHE_HOURS;;
 
     function allAssignmentsProcessor(body) {
-        var assignments = {},
-            asgn;
-
-        for (var i = 0; i < body.length; i++) {
-            asgn = body[i];
-            assignments[asgn.id] = asgn;
-        }
+        var assignments = {};
+        
+        body.forEach(function (assn) {
+            assignments[assn.id] = assn;
+        });
 
         return assignments;
     };
 
     robot.logger.info('Attempting to cache all assignments');
+
     cacheObject(url, params, key, allAssignmentsProcessor, errMsg, sucMsg, cacheLength, cb);
 }
 
@@ -275,6 +275,7 @@ var cacheMap = {
 for (var funcName in cacheMap) {
     cs10Cache[funcName] = (function(accessor, cb) {
         var cacheObj = robot.brain.get(accessor['key']);
+
         if (cs10Cache.isEnabled && cs10Cache.cacheIsValid(cacheObj)) {
             return cb(null, cacheObj);
         }
@@ -314,7 +315,7 @@ function isValidRoom(msg) {
 function sendAsFileOrMsg(text, fileName, msg) {
     // Files can only be sent when using the hipchat adapter
     var filePath = './temp1234';
-    if (robot.adapterName == 'hipchat') {
+    if (msg.sendFile) {
         fs.writeFile(filePath, text, function(err) {
             if (err) {
                 msg.send('Error writing to file');
