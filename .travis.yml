@@ -12,11 +12,3 @@ addons:
     - heroku
     packages:
     - heroku-toolbelt
-
-# Run toolbelt to make sure it works
-before_script:
-- heroku --version #just test if this works
-
-# Run tests
-# script:
-# - npm test
