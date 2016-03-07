@@ -39,9 +39,9 @@ var containsSIDExp = /.*x?\d{5,}/gi;
 // Global-ish stuff for successful lab checkoff submissions.
 var successes,
     failures,
+    snames,
     expectedScores,
     timeoutID;
-
 
 /*************************************
  * REVIEW LA DATA AND DO BULK UPLOAD *
@@ -244,21 +244,22 @@ function processCheckOff(msg) {
             return;
     }
 
-    parsed = extractMessage(msg.message.text);
-    errors = verifyErrors(parsed);
-    if (errors.length) {
-        msg.send('Your check off was NOT saved!',
-            'ERROR: The following errors occurred.',
-            errors.join('\n'));
-        return;
-    }
-
     cs10Cache.labAssignments(function(err, resp) {
         if (err) {
             return msg.send('There was a problem with the bcourses assignment cache.' + 
                             '\nYour checkoff was not uploaded :(');
         }
         var assignments = resp.cacheVal;
+
+        parsed = extractMessage(msg.message.text);
+        errors = verifyErrors(parsed, assignments);
+        if (errors.length) {
+            msg.send('Your check off was NOT saved!',
+                'ERROR: The following errors occurred.',
+                errors.join('\n'));
+            return;
+        }
+
         roomFn(assignments, parsed, msg);
     });
 }
@@ -289,11 +290,15 @@ function extractMessage(text) {
 /**
  * Return an array of error messages that prevent the checkoff from being saved.
  */
-function verifyErrors(parsed) {
+function verifyErrors(parsed, assignments) {
     var errors = [];
     if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB || EXTRA_LABS.has(parsed.lab)) {
         errors.push(`The lab number: ${parsed.lab} is not a valid lab!`);
         errors.push('Please specify the lab number before all student ids.');
+        errors.push('Here is a list of the current Labs and their numbers:');
+        assignments.forEach(function(assgn) {
+            errors.push(assgn.name);
+        });
     }
     if (parsed.sids.length < 1) {
         errors.push('No SIDs were found.');
@@ -328,8 +333,7 @@ function getAssignmentID(num, assignments) {
 
 function doTACheckoff(assignments, data, msg) {
     msg.send(`TA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
-
-    uploadCheckoff(doTACheckoff, assignments, data, msg);
+    uploadCheckoff(doTACheckoff, assignments, data, msg, true);
 }
 
 function doLACheckoff(assignments, data, msg) {
@@ -363,7 +367,7 @@ function doLACheckoff(assignments, data, msg) {
 
     msg.send(`LA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
 
-    uploadCheckoff(doLACheckoff, assignments, data, msg);
+    uploadCheckoff(doLACheckoff, assignments, data, msg, false);
 
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
     msg.send(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
@@ -371,65 +375,105 @@ function doLACheckoff(assignments, data, msg) {
 }
 
 /**
+ * Send the appropriate error message based on whether 
+ * the checkoff was done by an LA or TA
+ */
+function sendErrorMsg(sid, body, msg, isTA) {
+    var errorMsg = `Problem encountered for ID: ${sid.replace(cs10.uid, '')}\n`;
+    if (body && body.errors && body.errors[0]) {
+        errorMsg += `ERROR:\t ${body.errors[0].message}\n`;
+    }
+
+    if (isTA) {
+        errorMsg += `Please enter the score directly into bCoureses: ${cs10.gradebookURL}\n`;
+    } else {
+        errorMsg += 'Make sure you typed the correct sid, otherwise speak to your lab TA.\n'
+    }
+    msg.reply(errorMsg);
+}
+
+/**
+ * Checks if all request have completed and messages the user if completed
+ */
+function attemptToCompleteRequest(msg) {
+    if (successes + failures === expectedScores) {
+        clearTimeout(timeoutID);
+        if (successes) {
+            var scores = successes + ' score' + (successes == 1 ? '' : 's');
+            var successMsg = `${scores} successfully updated for:\n`;
+            for (var sid in snames) {
+                if (snames.hasOwnProperty(sid)) {
+                    successMsg += `name: ${snames[sid]}, sid: ${sid.replace(cs10.uid, '')}\n`;
+                }
+            }
+            msg.reply(successMsg);
+        }
+        if (failures) {
+            msg.reply('WARING: ' + failures + ' submissions failed.');
+        }
+    }
+}
+
+/**
  * Error Handler for posting lab check off scores.
  */
-function verifyScoreSubmission(sid, points, msg) {
+function verifyScoreSubmission(sid, points, msg, isTA) {
     return function(error, response, body) {
-        var errorMsg = 'Problem encountered for ID: ' + sid.replace(cs10.uid, '');
         if (body.errors || !body.grade || body.grade != points.toString()) {
             failures += 1;
-            if (body.errors && body.errors[0]) {
-                errorMsg += '\nERROR:\t' + body.errors[0].message;
-            }
-            errorMsg += '\n' + 'Please enter the score directly in bCoureses.';
-            errorMsg += '\n' + cs10.gradebookURL;
-            msg.send(errorMsg);
+            sendErrorMsg(sid, body, msg, isTA);
         } else {
             successes += 1;
         }
-        if (successes + failures === expectedScores) {
-            clearTimeout(timeoutID);
-            if (successes) {
-                var scores = successes + ' score' + (successes == 1 ? '' : 's');
-                msg.send(scores + ' successfully updated.');
-            }
-            if (failures) {
-                msg.send('WARING: ' + failures + ' submissions failed.');
-            }
-        }
+        attemptToCompleteRequest(msg);
     };
 }
 
-function postSingleAssignment(assnID, sid, score, msg) {
+/**
+ * Post a single score to bcourses
+ */
+function postSingleAssignment(assnID, sid, score, msg, isTA) {
     var scoreForm = 'submission[posted_grade]=' + score,
         url = `${cs10.baseURL}assignments/${assnID}/submissions/${sid}`;
 
-    cs10.put(url, '', scoreForm, verifyScoreSubmission(sid, score, msg));
+    // Try to get the student's name for better feedback then make the grade request
+    cs10.get(`${cs10.baseURL}users/${sid}`, '', function(err, resp, body) {
+        if (err || resp.statusCode >= 400) {
+            failures += 1;
+            sendErrorMsg(sid, null, msg, isTA);
+            attemptToCompleteRequest(msg);
+            return;
+        }
+        snames[sid] = body.name;
+        cs10.put(url, '', scoreForm, verifyScoreSubmission(sid, score, msg, isTA));
+    });
 }
 
-function uploadCheckoff(roomFn, assignments, data, msg) {
+function uploadCheckoff(roomFn, assignments, data, msg, isTA) {
     var assnID = getAssignmentID(data.lab, assignments);
 
     if (!assnID) {
-        msg.send(`Well, crap...I can\'t find lab ${data.lab} .\n` +
-            'Check to make sure you put in a correct lab number.\n' +
-            cs10.gradebookURL);
+        var labNotFoundMsg = `Well, crap...I can\'t find lab ${data.lab} .\n`;
+        labNotFoundMsg += 'Here is a list of the current Labs and their numbers:\n';
+        labNotFoundMsg += assignments.map(function(assgn) { return assgn.name }).join("\n");
+        msg.reply(labNotFoundMsg);
         return;
     }
 
     // FIXME -- check whether 1 or more scores.
     successes = 0;
     failures = 0;
+    snames = {};
     expectedScores = data.sids.length;
     data.sids.forEach(function(sid) {
-        postSingleAssignment(assnID, sid, data.points, msg);
+        postSingleAssignment(assnID, sid, data.points, msg, isTA);
     });
 
     // wait till all requests are complete...hopefully.
     // Or send a message after 30 seconds
     timeoutID = setTimeout(function() {
         var scores = `${successes} score${(successes == 1 ? '' : 's')}`;
-        msg.send(`After 30 seconds: ${scores} successfully submitted.`);
+        msg.reply(`After 30 seconds: ${scores} successfully submitted.`);
     }, 30 * 1000);
 }
 

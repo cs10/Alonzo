@@ -16,6 +16,9 @@ var cs10 = new Canvas(host, {
     token: authToken
 });
 
+// This is used by CI to make sure that we never deploy with test set to true
+cs10.test = TEST;
+
 
 /************************************************
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *

@@ -16,7 +16,7 @@ Promise = require('bluebird')
 co      = require('co')
 expect  = require('chai').expect
 
-start_wait_time = 6000
+start_wait_time = 10000
 
 describe 'cs10.caching', ->
   @timeout(1.5 * start_wait_time)

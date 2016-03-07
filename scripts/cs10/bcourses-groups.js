@@ -9,7 +9,7 @@
 //   See bcourses
 //
 // Commands:
-//   hubot <group-name> group for <sid>  --> example: Final project group for 23456778
+//   hubot <group-name> group for <sid>  --> example: Final Project group for 23456778
 //
 // Author:
 //  Andrew Schmitt
