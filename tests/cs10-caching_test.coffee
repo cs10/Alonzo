@@ -16,7 +16,7 @@ Promise = require('bluebird')
 co      = require('co')
 expect  = require('chai').expect
 
-start_wait_time = 10000
+start_wait_time = 6000
 
 describe 'cs10.caching', ->
   @timeout(1.5 * start_wait_time)
@@ -32,16 +32,6 @@ describe 'cs10.caching', ->
       co =>
         yield @room.user.say 'alice', '@hubot Refresh Cache'
         yield new Promise.delay(start_wait_time)
-
-    it 'should reply with caching success for all objects', ->
-      expect(@room.messages).to.deep.have.members [
-        ['alice', '@hubot Refresh Cache']
-        ['hubot', 'Waiting on bCourses...']
-        ['hubot', 'Successfully cached student groups! :)']
-        ['hubot', 'Successfully cached staff IDs! :)']
-        ['hubot', 'Successfully cached lab assignments! :)']
-        ['hubot', 'Successfully cached all assignments! :)']
-      ]
 
     it 'should reply 5 times about refreshing the cache', ->
       expect(@room.messages).to.have.length(6);

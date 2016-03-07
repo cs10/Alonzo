@@ -240,13 +240,13 @@ function processCheckOff(msg) {
             roomFn = doTACheckoff;
             break;
         default:
-            msg.send('Lab Check offs are not allowed from this room');
+            msg.reply('Lab Check offs are not allowed from this room');
             return;
     }
 
     cs10Cache.labAssignments(function(err, resp) {
         if (err) {
-            return msg.send('There was a problem with the bcourses assignment cache.' + 
+            return msg.reply('There was a problem with the bcourses assignment cache.' + 
                             '\nYour checkoff was not uploaded :(');
         }
         var assignments = resp.cacheVal;
@@ -254,7 +254,7 @@ function processCheckOff(msg) {
         parsed = extractMessage(msg.message.text);
         errors = verifyErrors(parsed, assignments);
         if (errors.length) {
-            msg.send('Your check off was NOT saved!',
+            msg.reply('Your check off was NOT saved!',
                 'ERROR: The following errors occurred.',
                 errors.join('\n'));
             return;
@@ -332,7 +332,7 @@ function getAssignmentID(num, assignments) {
 }
 
 function doTACheckoff(assignments, data, msg) {
-    msg.send(`TA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
+    msg.reply(`TA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
     uploadCheckoff(doTACheckoff, assignments, data, msg, true);
 }
 
@@ -359,18 +359,18 @@ function doLACheckoff(assignments, data, msg) {
     cs10Cache.setLaData(laData);
 
     if (wasSketchy) {
-        msg.send('ERROR: You\'re being sketchy right now...\n',
+        msg.reply('ERROR: You\'re being sketchy right now...\n',
             sketchy.join('\n'),
             'This checkoff will not be uploaded to bCourses. :(');
         return;
     }
 
-    msg.send(`LA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
+    msg.reply(`LA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
 
     uploadCheckoff(doLACheckoff, assignments, data, msg, false);
 
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-    msg.send(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
+    msg.reply(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
 
 }
 
