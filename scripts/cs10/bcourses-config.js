@@ -5,7 +5,7 @@ var testURL = 'https://ucberkeley.test.instructure.com';
 var bCoursesURL = 'https://bcourses.berkeley.edu';
 
 // TOGGLE WHETHER TO USE THE TEST INSTANCE OR THE REAL INSTANCE OF BCOURSES
-var TEST = true;
+var TEST = false;
 
 // NODE-CANVAS-LMS CREATION
 var host = bCoursesURL;
