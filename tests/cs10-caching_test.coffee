@@ -35,3 +35,4 @@ describe 'cs10.caching', ->
 
     it 'should reply 5 times about refreshing the cache', ->
       expect(@room.messages).to.have.length(6);
+      done();
