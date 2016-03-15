@@ -34,5 +34,4 @@ describe 'cs10.caching', ->
         yield new Promise.delay(start_wait_time)
 
     it 'should reply 5 times about refreshing the cache', ->
-      expect(@room.messages).to.have.length(6);
-      done();
+      expect(@room.messages).to.have.length(6)
