@@ -5,10 +5,16 @@ node_js:
 # Run on new infrastructure
 sudo: false
 
+# Some newer nodejs modules need a c++ compiler
+env:
+  - CXX=g++-4.8
+
 # Get heroku toolbelt
 addons:
   apt:
     sources:
     - heroku
+    - ubuntu-toolchain-r-test
     packages:
     - heroku-toolbelt
+    - g++-4.8
