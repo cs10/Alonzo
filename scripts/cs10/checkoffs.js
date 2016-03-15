@@ -164,7 +164,7 @@ function isSketchy(co, assignments) {
 };
 
 /** 
- * A way of building a function and an a corresponding error message.
+ * A way of building a function and a corresponding error message.
  *  If test fails → error is shown
  *  The tests are a map of name: {test-object}
  *  A test object has two keys inside:
@@ -358,6 +358,9 @@ function doLACheckoff(assignments, data, msg) {
     laData.push(checkoff);
     cs10Cache.setLaData(laData);
 
+    var scores = 'score' + (data.sids.length === 1 ? '' : 's');
+    msg.reply(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
+
     if (wasSketchy) {
         msg.reply('ERROR: You\'re being sketchy right now...\n',
             sketchy.join('\n'),
@@ -368,10 +371,6 @@ function doLACheckoff(assignments, data, msg) {
     msg.reply(`LA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
 
     uploadCheckoff(doLACheckoff, assignments, data, msg, false);
-
-    var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-    msg.reply(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
-
 }
 
 /**
