@@ -29,7 +29,7 @@ var SECS_ALLOWED_LATE = cs10.labSecsAllowedLate;
 // Lab Numbers that people can be checked off for
 var MIN_LAB = cs10.firstLab;
 var MAX_LAB = cs10.lastLab;
-var EXTRA_LABS = cs10.extraLabs;
+var SPECIAL_LABS = cs10.specialLabs;
 
 // A long regex to parse a lot of different check off commands.
 var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
@@ -292,7 +292,7 @@ function extractMessage(text) {
  */
 function verifyErrors(parsed, assignments) {
     var errors = [];
-    if (parsed.lab < MIN_LAB || parsed.lab > MAX_LAB || !EXTRA_LABS.has(parsed.lab)) {
+    if ((parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) && (SPECIAL_LABS.indexOf(parsed.lab) === -1)) {
         errors.push(`The lab number: ${parsed.lab} is not a valid lab!`);
         errors.push('Please specify the lab number before all student ids.');
         errors.push('Here is a list of the current Labs and their numbers:');
