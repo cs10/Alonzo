@@ -398,15 +398,14 @@ for (var funcName in cacheMap) {
 
 /**
  * Returns all of the bcourses related cache objects as a bundle
- *
- * Currently your callback should be of the form:
- *      cb(err, staffIDs, allAssignments, studentGroups)
- *
  * Keeping in mind that this will pass back cache objects 
  * of the form listed at the top of this file
+ *
+ * @param  requestedObjects  an array of string corresponding to cache functions
+ *                           ex: ["staffIDs", "allAssignments"]
  */
-cs10Cache.allBcoursesData = function(cb) {
-    var numBcoursesObjects = 3,
+cs10Cache.allBcoursesData = function(requestedObjects, cb) {
+    var numBcoursesObjects = requestedObjects.length,
         cachedSoFar = 0,
         errors = [],
         objects = {},
@@ -416,7 +415,7 @@ cs10Cache.allBcoursesData = function(cb) {
                 errors.push(err);
             }
 
-            objects[position] = cacheObject;
+            objects[position] = cacheObj;
 
             if (cachedSoFar === numBcoursesObjects) {
                 finish();
@@ -431,12 +430,20 @@ cs10Cache.allBcoursesData = function(cb) {
                 };
             }
 
-            cb(err, objects['0'], objects['1'], objects['2']);
+            var args = [err];
+            for (var i = 0; i < numBcoursesObjects; i++) {
+                args.push(objects[i.toString()]);
+            }
+
+            cb.apply(null, args);
         }
 
-    cs10Cache.staffIDs(sharedCb.bind('0'));
-    cs10Cache.allAssignments(sharedCb.bind('1'));
-    cs10Cache.studentGroups(sharedCb.bind('2'));
+    var i = 0;
+    requestedObjects.forEach(function(objStr) {
+        var indexCb = sharedCb.bind(null, i.toString());
+        cs10Cache[objStr](indexCb);
+        i++;
+    });
 }
 
 /**

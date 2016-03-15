@@ -5,7 +5,7 @@ var testURL = 'https://ucberkeley.test.instructure.com';
 var bCoursesURL = 'https://bcourses.berkeley.edu';
 
 // TOGGLE WHETHER TO USE THE TEST INSTANCE OR THE REAL INSTANCE OF BCOURSES
-var TEST = false;
+var TEST = true;
 
 // NODE-CANVAS-LMS CREATION
 var host = bCoursesURL;
@@ -70,6 +70,9 @@ cs10.TA_EMAILS = {
     'Andy': 'andy@cs10.org'
 }
 
+// Use the name that you would use in hipchat for example @Steven --> "Steven"
+cs10.LAB_ASSISTANT_MANAGER = "Steven";
+
 // ASSIGNMENT IDS
 // Internal bCourses assignment IDs, as intergers
 // They need to be updated every semester.
@@ -81,6 +84,12 @@ var hw1_id = 7259694,
     midtermProj_id = 7259697,
     explorePost_id = 4632124,
     finalProj_id = 7259691;
+
+// We had some assignmentst that were created by mistake or had errors
+// Put them here if you want the slip day tracker to ignore them in its calculations
+cs10.ignoreAssignments = [
+    7259696
+]
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [

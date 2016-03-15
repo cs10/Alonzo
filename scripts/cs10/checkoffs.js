@@ -232,10 +232,10 @@ var sketchyTests = {
 function processCheckOff(msg) {
     var roomFn, parsed, errors;
     switch (msg.message.room) {
+        case 'Shell': // Move this condition around for command line testing
         case cs10.LA_ROOM:
             roomFn = doLACheckoff;
             break;
-        case 'Shell': // Move this condition around for command line testing
         case cs10.TA_ROOM:
             roomFn = doTACheckoff;
             break;
@@ -332,7 +332,7 @@ function getAssignmentID(num, assignments) {
 }
 
 function doTACheckoff(assignments, data, msg) {
-    msg.reply(`TA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
+    msg.send(`TA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
     uploadCheckoff(doTACheckoff, assignments, data, msg, true);
 }
 
@@ -348,8 +348,8 @@ function doLACheckoff(assignments, data, msg) {
     };
 
     // See sketchy tests section
-    var sketchy = isSketchy(checkoff, assignments),
-        wasSketchy = sketchy.length > 0;
+    var sketchyErrors = isSketchy(checkoff, assignments),
+        wasSketchy = sketchyErrors.length > 0;
 
     checkoff.sketchy = wasSketchy;
 
@@ -359,18 +359,22 @@ function doLACheckoff(assignments, data, msg) {
     cs10Cache.setLaData(laData);
 
     var scores = 'score' + (data.sids.length === 1 ? '' : 's');
-    msg.reply(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
+    msg.send(`LA: Saved ${data.sids.length} student ${scores} for lab ${data.lab}.`);
 
     if (wasSketchy) {
-        msg.reply('ERROR: You\'re being sketchy right now...\n',
-            sketchy.join('\n'),
-            'This checkoff will not be uploaded to bCourses. :(');
+        sendSketchyWarning(msg, sketchyErrors);
         return;
     }
 
-    msg.reply(`LA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
-
+    msg.send(`LA: Checking Off ${data.sids.length} students for lab ${data.lab}.`);
     uploadCheckoff(doLACheckoff, assignments, data, msg, false);
+}
+
+function sendSketchyWarning(msg, errors) {
+    msg.reply('ERROR: You\'re being sketchy right now...',
+            errors.join('\n'),
+            'This checkoff will not be uploaded to bCourses. :(');
+    msg.send(`@${cs10.LAB_ASSISTANT_MANAGER} has now been alerted...`);
 }
 
 /**
@@ -400,9 +404,11 @@ function attemptToCompleteRequest(msg) {
         if (successes) {
             var scores = successes + ' score' + (successes == 1 ? '' : 's');
             var successMsg = `${scores} successfully updated for:\n`;
+            i = 1;
             for (var sid in snames) {
                 if (snames.hasOwnProperty(sid)) {
-                    successMsg += `name: ${snames[sid]}, sid: ${sid.replace(cs10.uid, '')}\n`;
+                    successMsg += `${i}.) ${snames[sid]}, ${sid.replace(cs10.uid, '')}\n`;
+                    i++;
                 }
             }
             msg.reply(successMsg);
