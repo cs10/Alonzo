@@ -115,7 +115,7 @@ function calculateSlipDays(sid, callback) {
             }
 
             // List of submissions contains only most recent submission
-            var submissions = body[0].submissions.filter(isValidAssignment);
+            var submissions = body[0].submissions;
             submissions.forEach(function(subm) {
                 var days, 
                     assignment, 
@@ -134,11 +134,6 @@ function calculateSlipDays(sid, callback) {
                 // Use time of submission if reader days can't be determined
                 if (!verified) { 
                     var dueDate = findAssignmentDueDate(subm.user_id, subm.assignment, cachedAssignments);
-                    if (dueDate == null) {
-                        cb({
-                            err: "Could not find assignment for submission"
-                        });
-                    }
                     days = getSlipDays(subm.submitted_at, dueDate);
                     displayDays = days;
                 }
@@ -165,19 +160,6 @@ function calculateSlipDays(sid, callback) {
 }
 
 /**
- * Takes a submission and returns whether it is linked to an assignment that we want to calculate for.
- * For now this just means making sure that the assignment isn't in the ignoreAssignments list.
- *
- * Why this? 
- * Sometimes there are assignments that we want to ignore if it was created in error or by mistake.
- * The dates on these assignments may really mess up the slip day tracker.
- */
-function isValidAssignment(submission) {
-    var assignId = submission.assignment.id;
-    return cs10.ignoreAssignments.indexOf(assignId) === -1 
-}
-
-/**
  * Given an assignment object associated with a submission, Returns
  * the true due date of the assignment for the particular student.
  * 
@@ -190,7 +172,9 @@ function findAssignmentDueDate(userId, submittedAssignment, cachedAssignments) {
     // and also any override due dates
     var assignment = cachedAssignments[submittedAssignment.id];
     if (!assignment) {
-        return null;
+        robot.logger.debug(`Cache is potentially corrupted. Could not find cached 
+            assignment with id: ${submittedAssignment.id} in slip day tracker`);
+        return submittedAssignment.due_at;
     }
 
     // If the assignment has overrides parse through the id list and 

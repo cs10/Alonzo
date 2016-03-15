@@ -9,7 +9,7 @@
 //   csv
 //   nodemailer
 //   bcourses library see ./bcourses-config.js
-//	 cs10 caching library see ./caching.js
+//   cs10 caching library see ./caching.js
 //   cs10 emailing library see ./emailer.js
 //
 // Configuration:
@@ -19,7 +19,7 @@
 //   cs10.LATE_ADD_RESPONSES_DRIVE_ID - drive id of the late add form RESPONSES!
 //
 // Commands:
-// 	 hubot refresh (force)? late data -  pulls the late data and uploads it to bcourses, optional include force
+//   hubot refresh (force)? late data -  pulls the late data and uploads it to bcourses, optional include force
 //   hubot test late add email - send a test email to andy@cs10.org
 //   hubot test late add email all - send a test email to all the emails list in cs10.TA_EMAILS (see ./bcourses-config.js)
 //
@@ -128,7 +128,7 @@ var downloadCsvFromLink = function(link, cb) {
  */
 var downloadDriveCsvFile = function(fileId, cb) {
     var authMsg = `Please authorize this app by visiting this url: ${auth.generateAuthUrl()}` +
-        'then use the command @Alonzo drive set code <code>';
+        'then use the command @${robot.name} drive set code <code>';
     if (!auth.getTokens()) {
         return errorHandler(authMsg, cb);
     }
@@ -381,8 +381,8 @@ var setAssignmentDates = function(joinDate, studs, allAssignments, cb) {
         }
 
         studentIds = students.map(stud => stud.sid),
-        studentNames = students.map(stud => stud.name).join(','),
-        newDueDate = new Date(assignment.new_due_date);
+            studentNames = students.map(stud => stud.name).join(','),
+            newDueDate = new Date(assignment.new_due_date);
         title = `Due at: ${newDueDate.toDateString()}, For: ${studentNames}`;
 
         setTimeout(postOverride, waitTime, assignment, studentIds, newDueDate, title, studCb.bind(this, studs, assignment.id));
@@ -670,7 +670,14 @@ var testAllTAs = {
 module.exports = function(robot) {
 
     robot.brain.on('loaded', function() {
-        auth = new HubotGoogleAuth('HUBOT_DRIVE', CLIENT_ID, CLIENT_SECRET, REDIRECT_URL, SCOPES, robot.brain);
+        auth = new HubotGoogleAuth(
+            'HUBOT_DRIVE',
+            CLIENT_ID,
+            CLIENT_SECRET,
+            REDIRECT_URL,
+            SCOPES,
+            robot.brain
+        );
     });
 
     robot.respond(/(force)?\s*refresh\s*(force)?\s*late\s*(?:add)?\s*data/i, {

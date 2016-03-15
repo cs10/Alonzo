@@ -19,7 +19,6 @@ var cs10 = new Canvas(host, {
 // This is used by CI to make sure that we never deploy with test set to true
 cs10.test = TEST;
 
-
 /************************************************
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
  ************************************************/
@@ -34,6 +33,12 @@ cs10.test = TEST;
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
 cs10.courseID = 1408649;
+
+// DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
+cs10.baseURL = `/courses/${cs10.courseID}/`;
+
+// DOES NOT CHANGE: Shortcut for use in chat error messages
+cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 // This is the ID of the "labs" assignment group
 // Get the id from this URL:
@@ -80,16 +85,10 @@ cs10.LAB_ASSISTANT_MANAGER = "Steven";
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
 var hw1_id = 7259694,
     hw2_id = 7259695,
-    hw3_id = 7259696,
+    hw3_id = 7515294,
     midtermProj_id = 7259697,
     explorePost_id = 4632124,
     finalProj_id = 7259691;
-
-// We had some assignmentst that were created by mistake or had errors
-// Put them here if you want the slip day tracker to ignore them in its calculations
-cs10.ignoreAssignments = [
-    7259696
-]
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
@@ -98,7 +97,7 @@ cs10.HELP_LINKS = [
     'Late Add From: http://bjc.link/sp16lateadd',
     `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
-    `Grade book: ${bCoursesURL}` + `/courses/${cs10.courseID}/` + 'gradebook',
+    `Grade book: ${cs10.gradebookURL}`,
     'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
     'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'
 ]
@@ -135,8 +134,8 @@ cs10.ADMIN_EMAIL = 'alonzo-bot@berkeley.edu';
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays = 3;
 cs10.slipDayAssignmentIDs = [
-    hw1_id, 
-    hw2_id, 
+    hw1_id,
+    hw2_id,
     hw3_id,
     midtermProj_id,
     //TODO: this is tricky to get if it's a discussion -- must use the API
@@ -188,12 +187,6 @@ cs10.TA_ROOM = 'lab_check-off_room';
 // The default are internal bCourses IDs, but no one knows those.
 // See https://bcourses.berkeley.edu/doc/api/file.object_ids.html
 cs10.uid = 'sis_user_id:';
-
-// all endpoints are based of the course, at least for our usage
-cs10.baseURL = `/courses/${cs10.courseID}/`;
-
-// Shortcut for use in chat error messages
-cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 
 // Trim an SID and check off extenstion students
 // This must be called whenever a SID is used to make sure its the proper format
