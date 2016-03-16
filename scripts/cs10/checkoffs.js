@@ -68,7 +68,7 @@ function postGrades(ladata, msg) {
         var assignments = resp.cacheVal;
         var grades = ladata.safe;
         for (lab in grades) {
-            var assnID = getAssignmentID(lab, assignments); 
+            var assnID = getAssignmentID(lab, assignments);
             cs10.postMultipleGrades(assnID, grades[lab], msg);
         }
     });
@@ -246,8 +246,8 @@ function processCheckOff(msg) {
 
     cs10Cache.labAssignments(function(err, resp) {
         if (err) {
-            return msg.reply('There was a problem with the bcourses assignment cache.' + 
-                            '\nYour checkoff was not uploaded :(');
+            return msg.reply('There was a problem with the bcourses assignment cache.' +
+                '\nYour checkoff was not uploaded :(');
         }
         var assignments = resp.cacheVal;
 
@@ -315,7 +315,7 @@ function findLabByNum(num, labs) {
     var result;
     labs.some(function(lab) {
         var labNo = lab.name.match(/^(\d{1,2})/);
-        if (labNo[1] == num) {
+        if (labNo && labNo[1] == num) {
             result = lab;
             return true;
         }
@@ -372,8 +372,8 @@ function doLACheckoff(assignments, data, msg) {
 
 function sendSketchyWarning(msg, errors) {
     msg.reply('ERROR: You\'re being sketchy right now...',
-            errors.join('\n'),
-            'This checkoff will not be uploaded to bCourses. :(');
+        errors.join('\n'),
+        'This checkoff will not be uploaded to bCourses. :(');
     msg.send(`@${cs10.LAB_ASSISTANT_MANAGER} has now been alerted...`);
 }
 
@@ -458,9 +458,10 @@ function uploadCheckoff(roomFn, assignments, data, msg, isTA) {
     var assnID = getAssignmentID(data.lab, assignments);
 
     if (!assnID) {
-        var labNotFoundMsg = `Well, crap...I can\'t find lab ${data.lab} .\n`;
-        labNotFoundMsg += 'Here is a list of the current Labs and their numbers:\n';
-        labNotFoundMsg += assignments.map(function(assgn) { return assgn.name }).join("\n");
+        var labNotFoundMsg = `Well, crap...I can\'t find lab ${data.lab}.\n
+                            It's possible that you shouldn't be checking that lab off!\n
+                            Here is a list of the current Labs and their numbers:\n
+                            ${assignments.map(function(assgn) { return assgn.name }).join("\n")}`;
         msg.reply(labNotFoundMsg);
         return;
     }
@@ -515,7 +516,7 @@ module.exports = function(robot) {
         if (!isValidRoom(msg)) {
             return;
         }
-        
+
         var processedLaData = reviewLAData(cs10Cache.getLaData())
         sendLAStats(processedLaData, msg);
     });
@@ -527,7 +528,7 @@ module.exports = function(robot) {
         if (!isValidRoom(msg)) {
             return;
         }
-        
+
         var processedData = reviewLAData(cs10Cache.getLaData());
 
         sendLAStats(processedData, msg);

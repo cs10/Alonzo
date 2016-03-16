@@ -170,7 +170,7 @@ var cacheStudGroups = function(cb) {
         errMsg = 'There was a problem caching assignment groups :(',
         sucMsg = 'Successfully cached student groups! :)',
         key = STUD_GROUP_CACHE_KEY,
-        cacheLength = DEFAULT_CACHE_HOURS;;
+        cacheLength = DEFAULT_CACHE_HOURS;
 
     function studGroupsProcessor(body) {
         var groups = {},
@@ -200,10 +200,18 @@ var cacheLabAssignments = function(cb) {
         errMsg = 'There was a problem caching lab assignments :(',
         sucMsg = 'Successfully cached lab assignments! :)',
         key = LAB_CACHE_KEY,
-        cacheLength = DEFAULT_CACHE_HOURS;;
+        cacheLength = DEFAULT_CACHE_HOURS;
 
+    // Only cache labs that have a valid name of the form: <#>. Lab Name
     function labAssignmentProcessor(body) {
-        return body.assignments;
+        var labs = body.assignments,
+            res = [];
+        body.assignments.forEach(function(lab) {
+            if (lab.name.match(/^(\d{1,2})/)) {
+                res.push(lab);
+            }
+        });
+        return res;
     };
 
     robot.logger.info('Attempting to cache lab assignments');
@@ -225,7 +233,7 @@ var cacheAllAssignments = function(cb) {
     errMsg = 'There was a problem caching all assignments :(',
         sucMsg = 'Successfully cached all assignments! :)',
         key = ALL_ASSIGNMENTS_KEY,
-        cacheLength = DEFAULT_CACHE_HOURS;;
+        cacheLength = DEFAULT_CACHE_HOURS;
 
     function allAssignmentsProcessor(body) {
         var assignments = {},
