@@ -3,9 +3,8 @@
 
 ---
 
-# TODO: Refactor the exsting docs
 ## Setup Alonzo
-Alonzo is designed to be deployed on Heroku and connected to HipChat. The initial setup has already been done, so adapting Alonzo should be easy.
+Alonzo is designed to be deployed on Heroku and connected to HipChat. The initial setup has already been done, so adapting Alonzo should be easy. This section gives a high level overview of how to develop Alonzo. We'll get more detailed later and in other docs.
 
 1. Clone this repo to your machine.
 2. These are the dependencies you should have:
@@ -19,26 +18,28 @@ Alonzo is designed to be deployed on Heroku and connected to HipChat. The initia
     ```
     heroku git:remote -a alonzo
     ```
+7. To update alonzo on Herkou just push to this repo (this will deploy live to the chatbot):
 
-6. To update alonzo on Herkou (this pushes live to the chatbot!):
-
-    ```bash
-    git push heroku master
-    heroku logs # make sure nothing broke!
+    ```
+    git push origin master
     ```
 
-7. Also push to this repo so that your changes get saved here.
-8. All of the CS10 config values can be found in the file `.env [Alonzo]` (in a separate, secret, repo). The values are on Heroku or other places. You should be able to find where it is, if you have access. :) **If you want to test alonzo locally you'll need to copy this file into the root directory of this repo and name it `.env`.**
-
-More detailed documentation can be found on the
-[deploying Hubot to Heroku][deploy-heroku] wiki page.
+8. All of the CS10 config values (these are things like api keys, usernames, passwords, etc...) are held in a separate private repo. However, all of the config variables that alonzo actually uses live on Heroku (Heroku.com > Alonzo > Settings > Config Vars).
 
 ## Other Notes
+* Before developing always run npm -i. This will install any new scripts that might have been added since you last worked on Alonzo.
 * When you're adding third party scripts be sure to `npm install --save SCRIPT` so others don't run into any issues!
 
 ### Testing Alonzo Locally
 
-You can test Alonzo by running the following.
+#### Unit Testing
+The framework is in place such that you can run the command `npm test` and a series of automated unit tests will run on alonzo.  To see how to write these tests check out [this package][hubot-testing] and also check out the testing scripts in the tests/ folder.  It is a good idea to run `npm test` before pushing any changes to Alonzo.  These tests are faily difficult to get right, but with some time could prove to be really cool.
+
+#### Bcourses Testing
+Sometimes you might want to test out a script that uses the bcourses api \(for an example see scripts/cs/checkoffs.js\). However, maybe you don't want whatever changes you make to be refelcted in the actual course. To solve this problem canvas \(Bcourses\) provides a test instance that is an almost exact replica of the current cs10 site \(the one catch is that it is a 3 week old version of the course site\). To have Alonzo use this test instance instead go to scripts/cs10/bcourses-config.js and chang the TEST variable at the top to `true`.  MAKE SURE NOT TO PUSH TO GITHUB WITH THIS VARIABLE SET TO TRUE!!! There is an `npm test` unit test that will fail if the value is set to true, so it's good to always run `npm test` as a sanity check.
+
+#### Testing By Hand
+You can test Alonzo by hand by running the following:
 
     $ ./alonzo
 
@@ -75,16 +76,20 @@ Please don't use scripts from [hubot-scripts][hubot-scripts]. The repo is offici
 Alonzo is able to load scripts from third-party `npm` packages! To enable
 this functionality you can follow the following steps.
 
-1. Add the packages as dependencies into your `package.json`
-2. `npm install --saves` to make sure those packages are installed
+1. `npm install --saves` to make sure those packages are installed. The --save option will save the packages into the package.json file.
 
 To enable third-party scripts that you've added you will need to add the package
 name as a double quoted string to the `external-scripts.json` file in this repo.
 
-A good collection of scripts can be found in the [hubot-scripts organization](https://github.com/hubot-scripts).
+A good collection of scripts can be found in the [hubot-scripts organization](https://github.com/hubot-scripts).  This organization is technically closed now, so many of the newest hubot scripts are hosted just on npm.
+
+## Next Steps
+* If you want to get more into development check out the deployment.md document in this repo.
+* Otherwise have fun writing new features for Alonzo \(or fixing old ones....\)!
 
 [help]: http://alonzo.herokuapp.com/Alonzo/help
 [hubot-scripts]: https://github.com/github/Hubot-scripts
 [scripts]: https://github.com/github/Alonzo/blob/master/docs/scripting.md
 [heroku-node-docs]: http://devcenter.heroku.com/articles/node-js
 [deploy-heroku]: https://github.com/github/Hubot/blob/master/docs/deploying/heroku.md
+[hubot-testing]: https://github.com/mtsmfm/hubot-test-helper
