@@ -23,7 +23,7 @@ cs10.test = TEST;
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
  ************************************************/
 
-// LAST UPDATED FOR: SPRING 2016 - ANDY
+// LAST UPDATED FOR: Summer 2016 - Lara
 
 /**
  * COURSE AND ASSIGNMENT IDS
@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1408649;
+cs10.courseID = 1442012;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,35 +44,35 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 1947116;
+cs10.labsID = 2014168;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
-cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE'; // ACTUAL FORM
+cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE'; // ACTUAL FORM not updated for su16
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('1/19/2016');
+cs10.START_DATE = new Date('6/20/2016');
 
 // The quest due date (this just needs to be a string)
 cs10.questDate = new Date('2/17/2016');
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
-    'Adam': 'adam@cs10.org',
-    'Rachel': 'rachel@cs10.org',
+    // 'Adam': 'adam@cs10.org',
+    // 'Rachel': 'rachel@cs10.org',
     'Alex': 'alex@cs10.org',
-    'Amruta': 'amruta@cs10.org',
-    'Arany': 'arany@cs10.org',
-    'Will': 'william@cs10.org',
-    'Yifat': 'yifat@cs10.org',
-    'Lara': 'lara@cs10.org',
-    'Erik': 'erik@cs10.org',
-    'Janna': 'janna@cs10.org',
-    'Joseph': 'joseph@cs10.org',
-    'Steven': 'steven@cs10.org',
-    'Victoria': 'victoria@cs10.org',
-    'Andy': 'andy@cs10.org'
+    // 'Amruta': 'amruta@cs10.org',
+    // 'Arany': 'arany@cs10.org',
+    // 'Will': 'william@cs10.org',
+    // 'Yifat': 'yifat@cs10.org',
+    // 'Lara': 'lara@cs10.org',
+    // 'Erik': 'erik@cs10.org',
+    // 'Janna': 'janna@cs10.org',
+    // 'Steven': 'steven@cs10.org',
+    'Ian' : 'ibirnam@berkeley.edu',
+    'Lizzy' : 'lizzy.steger@gmail',
+    'Carlos' : 'Carlos@cs10.org'
 }
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
@@ -83,19 +83,19 @@ cs10.LAB_ASSISTANT_MANAGER = "Steven";
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7259694,
-    hw2_id = 7259695,
-    hw3_id = 7515294,
-    midtermProj_id = 7259697,
-    explorePost_id = 7259670,
-    finalProj_id = 7259691;
+var hw1_id = 7645402,
+    hw2_id = 7645403,
+    hw3_id = 7645404,
+    midtermProj_id = 7645406,
+    explorePost_id = 4979089,
+    finalProj_id = 7645397;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
     // 'LA Attendance: https://bcourses.berkeley.edu/courses/1301477/external_tools/36957';
-    'Late Assignments Form: http://bjc.link/lateAssignmentsSP16',
-    'Late Add From: http://bjc.link/sp16lateadd',
-    `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
+    'Late Assignments Form: http://goo.gl/forms/GsLMb8fKX62ilTEM2',
+    'Late Add From: http://goo.gl/forms/YDKopN6YX1LHzy782',
+    // `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
     `Grade book: ${cs10.gradebookURL}`,
     'Checkoff Answers: http://bjc.link/cs10checkoffquestions',
