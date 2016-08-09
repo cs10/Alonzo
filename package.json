@@ -27,7 +27,7 @@
     "githubot": "^1.0.0",
     "googleapis": "^2.1.7",
     "hubot": "latest",
-    "hubot-auth": "^1.2.0",
+    "hubot-auth": "1.2.0",
     "hubot-google-auth": "git://github.com/aaaschmitt/hubot-google-auth.git",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-google-images": "^0.2.6",
