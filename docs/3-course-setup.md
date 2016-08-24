@@ -30,7 +30,7 @@ You can find the list of config variables that Alonzo will need to use on Heroku
 * [HUBOT_CANVAS_KEY][canvas-key] - this is what allows hubot to interact with bcourses.
 * [HUBOT_GITHUB_TOKEN][github-token] - this should be set to whoever is currently the cs10 dev position (or a Head TA)
 
-There are many other varibales that are used by more specific scripts. If you run into problems with these scripts it is likely that there associated config variables need to be updated. Google will help with this, but looking the documentation for that specific package can also be very helpful.
+There are many other variables that are used by more specific scripts. If you run into problems with these scripts it is likely that there associated config variables need to be updated. Google will help with this, but looking the documentation for that specific package can also be very helpful.
 
 
 [canvas-key]: https://guides.instructure.com/m/4214/l/40399-how-do-i-obtain-an-api-access-token-for-an-account
