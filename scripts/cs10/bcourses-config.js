@@ -73,7 +73,7 @@ cs10.TA_EMAILS = {
 }
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
-cs10.LAB_ASSISTANT_MANAGER = "Lara";
+cs10.LAB_ASSISTANT_MANAGER = "Steven";
 
 // ASSIGNMENT IDS
 // Internal bCourses assignment IDs, as intergers
