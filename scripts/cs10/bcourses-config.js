@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1442012;
+cs10.courseID = 1453061;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2014168;
+cs10.labsID = 2031198;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -52,27 +52,24 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('6/20/2016');
+cs10.START_DATE = new Date('8/24/2016');
 
 // The quest due date (this just needs to be a string)
-cs10.questDate = new Date('2/17/2016');
+cs10.questDate = new Date('9/21/2016');
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
-    // 'Adam': 'adam@cs10.org',
-    // 'Rachel': 'rachel@cs10.org',
-    'Alex': 'alex@cs10.org',
-    // 'Amruta': 'amruta@cs10.org',
-    // 'Arany': 'arany@cs10.org',
-    // 'Will': 'william@cs10.org',
-    // 'Yifat': 'yifat@cs10.org',
-    // 'Lara': 'lara@cs10.org',
-    // 'Erik': 'erik@cs10.org',
-    // 'Janna': 'janna@cs10.org',
-    // 'Steven': 'steven@cs10.org',
-    'Ian' : 'ibirnam@berkeley.edu',
+    'Adam': 'adam@cs10.org',
+    'Rachel': 'rachel@cs10.org',
+    'Arany': 'arany@cs10.org',
+    'Will': 'william@cs10.org',
+    'Yifat': 'yifat@cs10.org',
+    'Lara': 'lara@cs10.org',
+    'Erik': 'erik@cs10.org',
+    'Janna': 'janna@cs10.org',
+    'Steven': 'steven@cs10.org',
     'Lizzy' : 'lizzy.steger@gmail',
-    'Carlos' : 'Carlos@cs10.org'
+    'Carlos' : 'carlos@cs10.org'
 }
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
@@ -83,12 +80,12 @@ cs10.LAB_ASSISTANT_MANAGER = "Lara";
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7645402,
-    hw2_id = 7645403,
-    hw3_id = 7645404,
-    midtermProj_id = 7645406,
-    explorePost_id = 4979089,
-    finalProj_id = 7645397;
+var hw1_id = 7725682,
+    hw2_id = 7725961,
+    hw3_id = 7725684,
+    midtermProj_id = 7725685,
+    explorePost_id = 5042373,
+    finalProj_id = 7725679;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
@@ -144,12 +141,12 @@ cs10.slipDayAssignmentIDs = [
 ];
 
 // LABS
-cs10.labCheckOffPoints = 4;
-cs10.labCheckOffLatePts = 2;
+cs10.labCheckOffPoints = 2;
+cs10.labCheckOffLatePts = 1;
 var oneWeek = 1000 * 60 * 60 * 24 * 7;
 cs10.labSecsAllowedLate = oneWeek;
 cs10.firstLab = 2;
-cs10.lastLab = 18;
+cs10.lastLab = 19;
 
 // Add special labs to the array below such as [1,2,3,4]
 // For summer there was special extra credit lab 42
