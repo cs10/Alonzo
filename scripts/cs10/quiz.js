@@ -19,7 +19,7 @@ var crypto = require('crypto');
 var cs10 = require('./bcourses-config.js');
 
 // Resetting a password can only be done in the TA room
-var TA_ROOM = 'CS10_Staff_Room(private)',
+var TA_ROOM = 'cs10_staff_room(private)',
     RQ_GROUP_NAME = 'Reading Quizzes',
     RESET_MINS = 30,
     TIMEOUT = 1000 * 60 * RESET_MINS,
