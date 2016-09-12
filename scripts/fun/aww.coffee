@@ -13,6 +13,11 @@
 module.exports = (robot) ->
 
   robot.respond /aww/i, (msg) ->
-    msg.http("http://thecatapi.com/api/images/get")
-      .get() (err, res, body) ->
-        msg.send res.headers.location
+    srcs = [(-> (msg.http("http://thecatapi.com/api/images/get")
+              .get() (err, res, body) ->
+                msg.send res.headers.location)),
+            (-> (msg.http("http://random.cat/meow")
+              .get() (err, res, body) ->
+                msg.send JSON.parse(body).file))
+           ]
+    srcs[Math.floor(Math.random() * srcs.length)]()
