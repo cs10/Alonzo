@@ -36,7 +36,7 @@
     "hubot-heroku-keepalive": "^1.0.0",
     "hubot-hipchat": "git://github.com/aaaschmitt/hubot-hipchat.git",
     "hubot-meme": "latest",
-    "hubot-piazza": "latest",
+    "hubot-piazza": "^0.7.2",
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
     "hubot-pusheen": "0.0.1",
     "hubot-redis-brain": "0.0.3",
