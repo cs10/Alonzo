@@ -18,6 +18,9 @@ module.exports = (robot) ->
                 msg.send res.headers.location)),
             (-> (msg.http("http://random.cat/meow")
               .get() (err, res, body) ->
-                msg.send JSON.parse(body).file))
+                msg.send JSON.parse(body).file)),
+            (-> (msg.http("http://pugme.herokuapp.com/random")
+              .get() (err, res, body) ->
+                msg.send JSON.parse(body).pug))
            ]
     srcs[Math.floor(Math.random() * srcs.length)]()
