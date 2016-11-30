@@ -84,7 +84,7 @@ var hw1_id = 7725682,
     hw2_id = 7725961,
     hw3_id = 7725684,
     midtermProj_id = 7725685,
-    explorePost_id = 7751901,
+    explorePost_id = 7725659,
     finalProj_id = 7725679;
 
 // Helpful link for TAs
