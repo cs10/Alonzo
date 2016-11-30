@@ -84,7 +84,7 @@ var hw1_id = 7725682,
     hw2_id = 7725961,
     hw3_id = 7725684,
     midtermProj_id = 7725685,
-    explorePost_id = 5042373,
+    explorePost_id = 7751901,
     finalProj_id = 7725679;
 
 // Helpful link for TAs
@@ -156,7 +156,7 @@ cs10.lastLab = 18;
 cs10.specialLabs = [];
 
 // LATE ADD POLICIES
-// For example an entry below of the form: 
+// For example an entry below of the form:
 //  1234567 : {days: 4, name: 'Homework'}
 // --> means that assignment with id 1234567 is due 4 days after a student joins the class and is named Homework
 // Put the ids as variables in the section above entitled 'UPDATE EVERY SEMESTER'
