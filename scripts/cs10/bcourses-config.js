@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1453061;
+cs10.courseID = 1458271;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2031198;
+cs10.labsID = 2042795;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -76,16 +76,16 @@ cs10.TA_EMAILS = {
 cs10.LAB_ASSISTANT_MANAGER = "Steven";
 
 // ASSIGNMENT IDS
-// Internal bCourses assignment IDs, as intergers
+// Internal bCourses assignment IDs, as integers
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7725682,
-    hw2_id = 7725961,
-    hw3_id = 7725684,
-    midtermProj_id = 7725685,
-    explorePost_id = 7725659,
-    finalProj_id = 7725679;
+var hw1_id = 7768716,
+    hw2_id = 7768717,
+    hw3_id = 7768718,
+    midtermProj_id = 7768719,
+    explorePost_id = 7768712,
+    finalProj_id = 7768713;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
