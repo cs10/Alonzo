@@ -91,7 +91,7 @@ var hw1_id = 7768716,
 cs10.HELP_LINKS = [
     'LA Attendance: http://checkaroo.herokuapp.com/home',
     //'Late Add From: https://goo.gl/forms/YIdmO6VWtPFSEvrg2',
-    'Late Assignments Form: https://goo.gl/forms/VOBd4JotAlgRyPfP2',
+    'Late Assignments Form: https://goo.gl/forms/2hLOJmN7GMYY3Q3i2',
      //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
     `Grade book: ${cs10.gradebookURL}`,
