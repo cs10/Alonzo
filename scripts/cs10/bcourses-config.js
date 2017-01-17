@@ -89,7 +89,7 @@ var hw1_id = 7768716,
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-    'LA Attendance: http://checkaroo.herokuapp.com/home',
+    'LA Attendance: https://goo.gl/forms/0KChGJX2XBsrNpLR2',
     //'Late Add From: https://goo.gl/forms/YIdmO6VWtPFSEvrg2',
     'Late Assignments Form: https://goo.gl/forms/2hLOJmN7GMYY3Q3i2',
      //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
