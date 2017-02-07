@@ -96,8 +96,9 @@ cs10.HELP_LINKS = [
     'Contacts Sheet: http://bjc.link/cs10contacts',
     `Grade book: ${cs10.gradebookURL}`,
     'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
-    'iClicker Checkout: http://bjc.link/2bXbzWs',
-    'Register iClicker: http://bjc.link/fa16iclicker'
+    'Student Billing Account Verification: http://bjc.link/2lkPgvd',
+    'iClicker Checkout: http://bjc.link/2kPh8uk',
+    'Register iClicker: http://bjc.link/2kPhHo0'
 ]
 
 // Links to backup sites for when things go to hell
