@@ -79,7 +79,7 @@ cs10.labCheckOffLatePts = 1;
 var oneWeek = 1000 * 60 * 60 * 24 * 7;
 cs10.labSecsAllowedLate = oneWeek;
 cs10.firstLab = 2;
-cs10.lastLab = 18;
+cs10.lastLab = 19;
 // Add special labs to the array below such as [1,2,3,4]
 // For summer there was special extra credit lab 42
 // var extraLabs = [42];
