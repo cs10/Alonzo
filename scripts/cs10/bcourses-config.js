@@ -154,7 +154,7 @@ cs10.lastLab = 19;
 // For summer there was special extra credit lab 42
 // var extraLabs = [42];
 // This semester (sp2016) there are no extra labs:
-cs10.specialLabs = [];
+cs10.specialLabs = [19];
 
 // LATE ADD POLICIES
 // For example an entry below of the form:
