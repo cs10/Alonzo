@@ -71,7 +71,7 @@ cs10.SWAP_IDS = {};
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays = 3;
 cs10.firstLab = 2;
-cs10.lastLab = 18;
+cs10.lastLab = 19;
 cs10.labCheckOffPoints = 2;
 cs10.labCheckOffLatePts = 1;
 
