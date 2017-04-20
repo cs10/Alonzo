@@ -292,7 +292,7 @@ function extractMessage(text) {
  */
 function verifyErrors(parsed, assignments) {
     var errors = [];
-    if (parsed.lab > MAX_LAB) {
+    if (True) {
 //     if ((parsed.lab < MIN_LAB || parsed.lab > MAX_LAB) && (SPECIAL_LABS.indexOf(parsed.lab) === -1)) {
         errors.push(`The lab number: ${parsed.lab} is not a valid lab!`);
         errors.push('Please specify the lab number before all student ids.');
