@@ -2,7 +2,7 @@
 #   We are out of sweet rolls.
 #
 # Commands:
-#   mention "sweet rolls" - Make sure hubot still knows the rules.
+#   mention "sweet rolls"
 #
 
 # module.exports = (robot) ->
