@@ -131,7 +131,7 @@ cs10.ADMIN_EMAIL = 'alonzo-bot@berkeley.edu';
 
 // SLIP DAY ASSIGNMENTS
 cs10.gracePeriodMinutes = 15;
-cs10.allowedSlipDays = 3;
+cs10.allowedSlipDays = 4;
 cs10.slipDayAssignmentIDs = [
     hw1_id,
     hw2_id,
