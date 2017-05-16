@@ -82,7 +82,7 @@ cs10.LAB_ASSISTANT_MANAGER = "Steven";
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
 var hw1_id = 7768716,
     hw2_id = 7768717,
-    hw3_id = 7768718,
+    hw3_id = 7786666,
     midtermProj_id = 7768719,
     explorePost_id = 7768712,
     finalProj_id = 7768713;
