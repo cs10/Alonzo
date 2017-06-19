@@ -11,7 +11,7 @@ var TEST = false;
 var host = bCoursesURL;
 if (TEST) {
     host = testURL;
-} 
+}
 var cs10 = new Canvas(host, {
     token: authToken
 });
