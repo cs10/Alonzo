@@ -52,7 +52,7 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('6/19/2017');
+cs10.START_DATE = new Date('6/18/2017');
 
 // The quest due date (this just needs to be a string)
 cs10.questDate = new Date('6/30/2017');
