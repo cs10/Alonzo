@@ -21,7 +21,7 @@
 // Author:
 //  Michael Ball, amended by Steven Traversi
 var cs10 = require('./bcourses-config-bridge.js');
-var cs10Cache = require('./caching.js');
+var cs10Cache = require('./caching-bridge.js');
 
 // Checkoff policies
 var FULL_POINTS = cs10.labCheckOffPoints;
