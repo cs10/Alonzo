@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1461905;
+cs10.courseID = 1461896;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2051339;
+cs10.labsID = 2051345;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -59,11 +59,10 @@ cs10.questDate = new Date('6/30/2017');
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
-    'Steven': 'steven@cs10.org',
-    'Yifat': 'yifat@cs10.org',
     'Lara': 'lara@cs10.org',
-    'Jobel' : 'jobel@cs10.org',
-    'Angela' : 'angela@cs10.org'
+    'Lizzy' : 'lizzy@cs10.org',
+    'Steven': 'steven@cs10.org',
+    'Carlos' : 'carlos@cs10.org',
 }
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
@@ -74,12 +73,12 @@ cs10.LAB_ASSISTANT_MANAGER = "Steven";
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7803842,
-    hw2_id = 7803843,
-    hw3_id = 7803844,
-    midtermProj_id = 7803846,
-    explorePost_id = 7803837,
-    finalProj_id = 7803839;
+var hw1_id = 7803899,
+    hw2_id = 7803900,
+    hw3_id = 7803901,
+    midtermProj_id = 7803903,
+    explorePost_id = 7803894,
+    finalProj_id = 7803896;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [

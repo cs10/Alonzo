@@ -1,24 +1,26 @@
 // Description:
+//   Same as checkoffs.js but for summer bridge. Can be deleted
+//   if there is not currently a summer bridge class!
 //   Handle lab check offs in hipchat. No more paper needed! :D
 //
 //   If you're just getting started with this file take a look at
 //   the MAIN CHECKOFF CODE section near the bottom of this file
 //
 // Dependencies:
-//   bcourses library see ./bcourses-config.js
+//   bcourses library see ./bcourses-config-bridge.js
 //   cs10 Caching see ./cs10-caching.js
 //
 // Configuration:
 //   See bcourses
 //
 // Commands:
-//   hubot (late) check off <NUM> <SIDs> -- CS10: input lab check offs for these students
-//   hubot show la data -- CS10: dump the raw saved Lab Assistant check offs.
-//   hubot review la scores -- CS10: stats about LA scores. Will publish the safe scores to bCourses
+//   hubot bridge (late) check off <NUM> <SIDs> -- CS10: input lab check offs for these students
+//   hubot bridge show la data -- CS10: dump the raw saved Lab Assistant check offs.
+//   hubot bridge review la scores -- CS10: stats about LA scores. Will publish the safe scores to bCourses
 //
 // Author:
-//  Michael Ball
-var cs10 = require('./bcourses-config.js');
+//  Michael Ball, amended by Steven Traversi
+var cs10 = require('./bcourses-config-bridge.js');
 var cs10Cache = require('./caching.js');
 
 // Checkoff policies
@@ -493,13 +495,13 @@ function isValidRoom(msg) {
 
 module.exports = function(robot) {
     // Loosely look for the phrase check off and the possibility of a number.
-    var couldBeCheckOff = /check.*off.*x?\d{1,}/i;
+    var couldBeCheckOff = /bridge check.*off.*x?\d{1,}/i;
     robot.hear(couldBeCheckOff, {
         id: 'cs10.checkoff.check-off-all'
     }, processCheckOff);
 
     // Commands for managing LA check-off publishing
-    robot.respond(/show la data/i, {
+    robot.respond(/bridge show la data/i, {
         id: 'cs10.checkoff.la-data'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -510,7 +512,7 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/review la (scores|data)/i, {
+    robot.respond(/bridge review la (scores|data)/i, {
         id: 'cs10.checkoff.send-la-data'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -522,7 +524,7 @@ module.exports = function(robot) {
     });
 
     // submit LA scores
-    robot.respond(/post la scores/i, {
+    robot.respond(/bridge post la scores/i, {
         id: 'cs10.checkoff.post-la-scores'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -536,7 +538,7 @@ module.exports = function(robot) {
     });
 
     // See the most recent checkoff for debugging
-    robot.respond(/see last checkoff/i, {
+    robot.respond(/bridge see last checkoff/i, {
         id: 'cs10.checkoff.see-last-checkoff'
     }, function(msg) {
         if (!isValidRoom(msg)) {
