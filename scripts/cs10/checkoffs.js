@@ -493,13 +493,13 @@ function isValidRoom(msg) {
 
 module.exports = function(robot) {
     // Loosely look for the phrase check off and the possibility of a number.
-    var couldBeCheckOff = /10 check.*off.*x?\d{1,}/i;
+    var couldBeCheckOff = /summer check.*off.*x?\d{1,}/i;
     robot.hear(couldBeCheckOff, {
         id: 'cs10.checkoff.check-off-all'
     }, processCheckOff);
 
     // Commands for managing LA check-off publishing
-    robot.respond(/10 show la data/i, {
+    robot.respond(/summer show la data/i, {
         id: 'cs10.checkoff.la-data'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -510,7 +510,7 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/10 review la (scores|data)/i, {
+    robot.respond(/summer review la (scores|data)/i, {
         id: 'cs10.checkoff.send-la-data'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -522,7 +522,7 @@ module.exports = function(robot) {
     });
 
     // submit LA scores
-    robot.respond(/10 post la scores/i, {
+    robot.respond(/summer post la scores/i, {
         id: 'cs10.checkoff.post-la-scores'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -536,7 +536,7 @@ module.exports = function(robot) {
     });
 
     // See the most recent checkoff for debugging
-    robot.respond(/10 see last checkoff/i, {
+    robot.respond(/summer see last checkoff/i, {
         id: 'cs10.checkoff.see-last-checkoff'
     }, function(msg) {
         if (!isValidRoom(msg)) {
