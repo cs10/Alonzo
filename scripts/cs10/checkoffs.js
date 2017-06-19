@@ -246,7 +246,6 @@ function processCheckOff(msg) {
 
     cs10Cache.labAssignments(function(err, resp) {
         if (err) {
-            robot.logger.info(err);
             return msg.reply('There was a problem with the bcourses assignment cache.' +
                 '\nYour checkoff was not uploaded :(');
         }
