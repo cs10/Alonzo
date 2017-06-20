@@ -22,7 +22,7 @@
 
 /**
  * LIST OF EXPORTS FOR THIS MODULE
- *  
+ *
  * GETTERS/SETTERS
  * 1.) Does not do any auto refreshing, just get and set data for a key
  * 2.) Does not take a callback (i.e. they are synchronous)
@@ -33,7 +33,7 @@
     - cs10Cahce.getLaData()
     - cs10Cahce.setLaData(obj)
  *
- * CACHED VALUES 
+ * CACHED VALUES
  * 1.) Does autorefreshing if needed according to cache length
  * 2.) Need to provide a cb of the form (err, cacheObject)
  * 3.) A cacheObject looks like: {time: <last-cached-at>, cacheVal: <data>, cacheLength: <how-long-im-valid>}
@@ -337,7 +337,7 @@ var cacheIsValid = function(cacheObj) {
 /**
  * We don't want to do auto refreshing and setting for these sets of data.
  * Instead we generate getters and setters
- * 
+ *
  * Data format:
  *  LaData is an array of checkoff objects. See checkoffs.js
  *  LateAddData is an array of late add student data see late-add-updater.hs
@@ -364,7 +364,7 @@ for (var dataName in dataMap) {
  * the function will attempt to refresh the cache for you.
  *
  * If the cache is disabled then the values will always be refreshed
- * 
+ *
  * All values returned are objects of the form:
  * {cacheVal: <data>, time: <time-stamp>}
  */
@@ -407,7 +407,7 @@ for (var funcName in cacheMap) {
 
 /**
  * Returns all of the bcourses related cache objects as a bundle
- * Keeping in mind that this will pass back cache objects 
+ * Keeping in mind that this will pass back cache objects
  * of the form listed at the top of this file
  *
  * @param  requestedObjects  an array of string corresponding to cache functions
@@ -514,7 +514,7 @@ var initialBrainLoad = true;
 module.exports = function(rbot) {
 
     robot = rbot;
-    
+
     // Refresh the cache on brain loaded
     robot.brain.on('loaded', function() {
         if (!initialBrainLoad) {

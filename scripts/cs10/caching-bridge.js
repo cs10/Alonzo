@@ -66,15 +66,17 @@ isEnabled = true;
  * and that are cs10 related
  * robot.brain.get(KEY) --> gets the data associated with the key
  * robot.brain.set(KEY, data) --> sets data for that cache key
+ * SUMMER has two classes, need key prefixes. Also prefix further keys.
  */
-var STAFF_CACHE_KEY = 'STAFF_IDS',
-    LAB_CACHE_KEY = 'LAB_ASSIGNMENTS',
-    STUD_GROUP_CACHE_KEY = 'STUD_GROUPS',
-    LA_DATA_KEY = 'LA_DATA',
-    LATE_ADD_DATA_KEY = 'LATE_ADD_DATA',
-    LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES',
-    ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS',
-    STUDENT_CACHE_KEY = 'ALL_STUDENTS';
+var prefix = cs10.courseID.toString() + '_';
+var STAFF_CACHE_KEY = prefix + 'STAFF_IDS',
+    LAB_CACHE_KEY = prefix + 'LAB_ASSIGNMENTS',
+    STUD_GROUP_CACHE_KEY = prefix + 'STUD_GROUPS',
+    LA_DATA_KEY = prefix + 'LA_DATA',
+    LATE_ADD_DATA_KEY = prefix + 'LATE_ADD_DATA',
+    LATE_ADD_POLICY_KEY = prefix + 'LATE_ADD_POLICIES',
+    ALL_ASSIGNMENTS_KEY = prefix + 'ALL_ASSIGNMENTS',
+    STUDENT_CACHE_KEY = prefix + 'ALL_STUDENTS';
 
 /**
  * Expects two objects (error, resp) which will each have a msg attribute
@@ -344,9 +346,9 @@ var cacheIsValid = function(cacheObj) {
  *  LateAddPolicies is an array of objects representing the rows of a spreadsheet
  */
 var dataMap = {
-    'LateAddData': LATE_ADD_DATA_KEY,
-    'LateAddPolicies': LATE_ADD_POLICY_KEY,
-    'LaData': LA_DATA_KEY
+    'LateAddData': prefix + LATE_ADD_DATA_KEY,
+    'LateAddPolicies': prefix + LATE_ADD_POLICY_KEY,
+    'LaData': prefix + LA_DATA_KEY
 }
 for (var dataName in dataMap) {
     cs10Cache['set' + dataName] = (function(key, data) {
