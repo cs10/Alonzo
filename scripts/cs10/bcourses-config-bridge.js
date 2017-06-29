@@ -87,7 +87,7 @@ cs10.HELP_LINKS = [
     'Late Assignments Form: https://goo.gl/forms/2hLOJmN7GMYY3Q3i2',
      //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
-    `Grade book: ${cs10.gradebookURL}`,
+    'Grade book: ${cs10.gradebookURL}',
     'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
     'Student Billing Account Verification: http://bjc.link/2lkPgvd',
     'iClicker Checkout: http://bjc.link/2kPh8uk',
