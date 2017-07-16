@@ -136,7 +136,7 @@ cs10.slipDayAssignmentIDs = [
 ];
 
 // LABS
-cs10.labCheckOffPoints = 2;
+cs10.labCheckOffPoints = 3;
 cs10.labCheckOffLatePts = 1;
 var oneWeek = 1000 * 60 * 60 * 24 * 7;
 cs10.labSecsAllowedLate = oneWeek;
