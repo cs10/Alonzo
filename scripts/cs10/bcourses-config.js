@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1461905;
+cs10.courseID = 1458271;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2051339;
+cs10.labsID = 2042795;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -52,18 +52,24 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('6/18/2017');
+cs10.START_DATE = new Date('8/24/2016');
 
 // The quest due date (this just needs to be a string)
-cs10.questDate = new Date('6/30/2017');
+cs10.questDate = new Date('9/21/2016');
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
-    'Steven': 'steven@cs10.org',
+    'Adam': 'adam@cs10.org',
+    'Rachel': 'rachel@cs10.org',
+    'Arany': 'arany@cs10.org',
+    'Will': 'william@cs10.org',
     'Yifat': 'yifat@cs10.org',
     'Lara': 'lara@cs10.org',
-    'Jobel' : 'jobel@cs10.org',
-    'Angela' : 'angela@cs10.org'
+    'Erik': 'erik@cs10.org',
+    'Janna': 'janna@cs10.org',
+    'Steven': 'steven@cs10.org',
+    'Lizzy' : 'lizzy.steger@gmail',
+    'Carlos' : 'carlos@cs10.org'
 }
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
@@ -74,24 +80,25 @@ cs10.LAB_ASSISTANT_MANAGER = "Steven";
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7803842,
-    hw2_id = 7803843,
-    hw3_id = 7803844,
-    midtermProj_id = 7803846,
-    explorePost_id = 7803837,
-    finalProj_id = 7803839;
+var hw1_id = 7768716,
+    hw2_id = 7768717,
+    hw3_id = 7786666,
+    midtermProj_id = 7768719,
+    explorePost_id = 7768712,
+    finalProj_id = 7768713;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-    'LA Attendance: https://goo.gl/forms/GSzSLst9DTYx91Nj1',
-    'Student Billing Account Verification: http://bjc.link/su17iclicker',
-    'iClicker Checkout: http://bjc.link/2rLZj46',
-//  'Late Add From: https://goo.gl/forms/YIdmO6VWtPFSEvrg2',
-//  'Late Assignments Form: https://goo.gl/forms/2hLOJmN7GMYY3Q3i2',
-//  `Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
-//  'Contacts Sheet: http://bjc.link/cs10contacts',
-    'Grade book: ${cs10.gradebookURL}',
-    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html'
+    'LA Attendance: https://goo.gl/forms/0KChGJX2XBsrNpLR2',
+    //'Late Add From: https://goo.gl/forms/YIdmO6VWtPFSEvrg2',
+    'Late Assignments Form: https://goo.gl/forms/2hLOJmN7GMYY3Q3i2',
+     //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
+    'Contacts Sheet: http://bjc.link/cs10contacts',
+    `Grade book: ${cs10.gradebookURL}`,
+    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
+    'Student Billing Account Verification: http://bjc.link/2lkPgvd',
+    'iClicker Checkout: http://bjc.link/2kPh8uk',
+    'Register iClicker: http://bjc.link/2kPhHo0'
 ]
 
 // Links to backup sites for when things go to hell
@@ -136,12 +143,12 @@ cs10.slipDayAssignmentIDs = [
 ];
 
 // LABS
-cs10.labCheckOffPoints = 3;
+cs10.labCheckOffPoints = 2;
 cs10.labCheckOffLatePts = 1;
 var oneWeek = 1000 * 60 * 60 * 24 * 7;
 cs10.labSecsAllowedLate = oneWeek;
 cs10.firstLab = 2;
-cs10.lastLab = 20;
+cs10.lastLab = 19;
 
 // Add special labs to the array below such as [1,2,3,4]
 // For summer there was special extra credit lab 42

@@ -11,4 +11,4 @@
 
 module.exports = (robot) ->
   robot.hear /(sweet rolls?)/i, (msg) ->
-    msg.send 'we are out of sweet rolls.'
+    msg.send 'We are out of sweet rolls.'

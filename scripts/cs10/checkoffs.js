@@ -1,7 +1,7 @@
 // Description:
 //   Handle lab check offs in hipchat. No more paper needed! :D
 //
-//   If you're just getting started with this file take a look at
+//   If you're just getting started with this file take a look at 
 //   the MAIN CHECKOFF CODE section near the bottom of this file
 //
 // Dependencies:
@@ -88,9 +88,9 @@ function getSIDCount(labs) {
     };
 }
 
-/**
+/** 
  * Verify and Group all the LA data for easy assignment posting
- * Each set of checkoffs creates:
+ * Each set of checkoffs creates: 
  *      <num>: { ontime: [], late: [] }
  * There is one object for safe check-offs and one for sketchy checkoffs
  */
@@ -143,7 +143,7 @@ function reviewLAData(data) {
  * SKETCHY TESTS *
  *****************/
 
-/**
+/** 
  * Determine whether an LA checkoff is sketchy.
  *  "Sketchy" means that something about the check off isn't normal.
  *  The conditions are defined below in sketchyTests.
@@ -163,7 +163,7 @@ function isSketchy(co, assignments) {
     return results;
 };
 
-/**
+/** 
  * A way of building a function and a corresponding error message.
  *  If test fails → error is shown
  *  The tests are a map of name: {test-object}
@@ -265,7 +265,7 @@ function processCheckOff(msg) {
 }
 
 /**
- * Proccess the regex match into a common formatted object
+ * Proccess the regex match into a common formatted object 
  */
 function extractMessage(text) {
     // Parse the following components out of a message.
@@ -378,7 +378,7 @@ function sendSketchyWarning(msg, errors) {
 }
 
 /**
- * Send the appropriate error message based on whether
+ * Send the appropriate error message based on whether 
  * the checkoff was done by an LA or TA
  */
 function sendErrorMsg(sid, body, msg, isTA) {
@@ -493,13 +493,13 @@ function isValidRoom(msg) {
 
 module.exports = function(robot) {
     // Loosely look for the phrase check off and the possibility of a number.
-    var couldBeCheckOff = /summer check.*off.*x?\d{1,}/i;
+    var couldBeCheckOff = /check.*off.*x?\d{1,}/i;
     robot.hear(couldBeCheckOff, {
         id: 'cs10.checkoff.check-off-all'
     }, processCheckOff);
 
     // Commands for managing LA check-off publishing
-    robot.respond(/summer show la data/i, {
+    robot.respond(/show la data/i, {
         id: 'cs10.checkoff.la-data'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -510,7 +510,7 @@ module.exports = function(robot) {
 
     // Command Review LA data
     // Output total, num sketchy
-    robot.respond(/summer review la (scores|data)/i, {
+    robot.respond(/review la (scores|data)/i, {
         id: 'cs10.checkoff.send-la-data'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -522,7 +522,7 @@ module.exports = function(robot) {
     });
 
     // submit LA scores
-    robot.respond(/summer post la scores/i, {
+    robot.respond(/post la scores/i, {
         id: 'cs10.checkoff.post-la-scores'
     }, function(msg) {
         if (!isValidRoom(msg)) {
@@ -536,7 +536,7 @@ module.exports = function(robot) {
     });
 
     // See the most recent checkoff for debugging
-    robot.respond(/summer see last checkoff/i, {
+    robot.respond(/see last checkoff/i, {
         id: 'cs10.checkoff.see-last-checkoff'
     }, function(msg) {
         if (!isValidRoom(msg)) {
