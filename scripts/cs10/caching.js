@@ -41,7 +41,6 @@
     - cs10Cache.studentGroups -> object: {bcourses_group_name: bcourses_group_object}
     - cs10Cahce.labAssignments(cb) -> array of lab assignment objects from bcourses
     - cs10Cahce.allAssignments(cb) -> object: {bcourses_assignment_id: bcourses_assignment_object}
-
     - cs10Cache.allBcoursesData(cb) -> combination of the above. need to provide:
          cb(err, staffIDs, allAssignments, studentGroups)
  *
