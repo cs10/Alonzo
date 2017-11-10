@@ -72,7 +72,7 @@ cs10.TA_EMAILS = {
     'Sam' : 'sam@cs10.org',
     'Schuyler' : 'schuyler@cs10.org',
     'Yifat' : 'yifat@cs10.org'
-}
+};
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
 cs10.LAB_ASSISTANT_MANAGER = "Lara";
@@ -101,13 +101,13 @@ cs10.HELP_LINKS = [
     'Student Billing Account Verification: http://bjc.link/fa17iclickeragreement',
     'iClicker Checkout: http://bjc.link/fa17iclickercheckout',
     'Register iClicker: http://bjc.link/fa17iclickerreg'
-]
+];
 
 // Links to backup sites for when things go to hell
 cs10.BACKUP_LINKS = [
     'Snap! Backup: http://cs10.org/snap',
     'Lab Backup (might be out of order): http://beautyjoy.github.io/bjc-r/'
-]
+];
 
 /** Mapping of extenstion student IDs to bCourses IDs
     If there are no extenstion students, leave this empty
@@ -169,7 +169,7 @@ cs10.lateAddAssignments = {
     [hw1_id]: {days: 4, name: 'Homework 1'},
     [hw2_id]: {days: 7, name: 'Homework 2'},
     [hw3_id]: {days: 12, name: 'Homework 3'}
-}
+};
 
 /**********************
  * SOME HIPCHAT STUFF *
