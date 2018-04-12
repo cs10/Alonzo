@@ -89,8 +89,8 @@ var hw1_id = 7860173,
 // Helpful link for TAs
 cs10.HELP_LINKS = [
     'LA Attendance: http://bjc.link/sp18LA',
-    'Late Add From: goo.gl/avz4S1',
-    'Late Assignments Form: https://goo.gl/UyvdrX',
+    // 'Late Add From: goo.gl/avz4S1',
+    'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
      //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
     `Grade book: ${cs10.gradebookURL}`,
