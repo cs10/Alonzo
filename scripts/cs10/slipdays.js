@@ -68,7 +68,7 @@ function getSlipDays(submissionTime, dueTime) {
 
 
 /** Iterate over all the assignments that slip days count towards:
-
+ 
  **/
 var STATE_GRADED = 'graded';
 
@@ -91,8 +91,7 @@ function calculateSlipDays(sid, callback) {
                 'include[]': ['submission_comments', 'assignment'],
                 'student_ids[]': cs10.normalizeSID(sid),
                 'assignment_ids[]': cs10.slipDayAssignmentIDs,
-                grouped: true,
-                'Authorization': 'Bearer 1072~3PeIF55Dhv3o43bD2aB7jtMruKVJkxxzkKXzzNo2cHd1jMdQhRJSoAC4ow13OWdw'
+                grouped: true
             };
 
         cs10.get(assignmentsURL, options, function(error, response, body) {
@@ -118,8 +117,8 @@ function calculateSlipDays(sid, callback) {
             // List of submissions contains only most recent submission
             var submissions = body[0].submissions;
             submissions.forEach(function(subm) {
-                var days,
-                    assignment,
+                var days, 
+                    assignment, 
                     displayDays,
                     state = subm.workflow_state,
                     submitted = subm.submitted_at !== null,
@@ -133,7 +132,7 @@ function calculateSlipDays(sid, callback) {
                 }
 
                 // Use time of submission if reader days can't be determined
-                if (!verified) {
+                if (!verified) { 
                     var dueDate = findAssignmentDueDate(subm.user_id, subm.assignment, cachedAssignments);
                     days = getSlipDays(subm.submitted_at, dueDate);
                     displayDays = days;
@@ -163,7 +162,7 @@ function calculateSlipDays(sid, callback) {
 /**
  * Given an assignment object associated with a submission, Returns
  * the true due date of the assignment for the particular student.
- *
+ * 
  * Why this?
  * Late add students have due dates that are not the same as everyone else
  */
@@ -173,12 +172,12 @@ function findAssignmentDueDate(userId, submittedAssignment, cachedAssignments) {
     // and also any override due dates
     var assignment = cachedAssignments[submittedAssignment.id];
     if (!assignment) {
-        robot.logger.debug(`Cache is potentially corrupted. Could not find cached
+        robot.logger.debug(`Cache is potentially corrupted. Could not find cached 
             assignment with id: ${submittedAssignment.id} in slip day tracker`);
         return submittedAssignment.due_at;
     }
 
-    // If the assignment has overrides parse through the id list and
+    // If the assignment has overrides parse through the id list and 
     // see if the student has a different date
     if (assignment.has_overrides && assignment.overrides) {
         assignment.overrides.forEach(function(override) {
@@ -189,7 +188,7 @@ function findAssignmentDueDate(userId, submittedAssignment, cachedAssignments) {
             });
         });
     }
-
+    
     return assignment.due_at;
 }
 
@@ -215,7 +214,7 @@ function getReaderDays(comments, staffIDs) {
     return days;
 }
 
-/**
+/** 
  * Make sure only staff can verify slip days
  */
 function commentIsAuthorized(staffIDs, comment) {
