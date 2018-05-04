@@ -28,7 +28,7 @@ module.exports = function(robot) {
         id: 'cs10.slip-days'
     }, function(msg) {
         var sid = msg.match[1];
-        msg.send(`http://cs10.org/fa17/slipdays/?${sid}`);
+        msg.send(`http://cs10.org/sp18/slipdays/?${sid}`);
         calculateSlipDays(sid, function(data) {
             msg.send(`/code\n${JSON.stringify(data)}`);
         });
