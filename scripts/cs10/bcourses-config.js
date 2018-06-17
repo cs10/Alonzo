@@ -23,7 +23,7 @@ cs10.test = TEST;
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
  ************************************************/
 
-// LAST UPDATED FOR: Spring 2018 - Lara
+// LAST UPDATED FOR: Summer 2018 - Jobel
 
 /**
  * COURSE AND ASSIGNMENT IDS
@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1469192;
+cs10.courseID = 1472250;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2066587;
+cs10.labsID = 2074182;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -52,52 +52,47 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('1/16/2018');
+cs10.START_DATE = new Date('6/18/2018');
 
 // The quest due date (this just needs to be a string)
 cs10.questDate = new Date('9/18/2018');
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
-    'Lara': 'lara@cs10.org',
-    'Mansi': 'mansi@cs10.org',
-    'Addison': 'addison@cs10.org',
-    'Angela': 'angela@cs10.org',
-    'Christian': 'christian@cs10.org',
-    'Julie': 'julie@cs10.org',
-    'Matthew': 'matthew@cs10.org',
     'Niket': 'niket@cs10.org',
-    'Sam' : 'sam@cs10.org',
-    'Schuyler' : 'schuyler@cs10.org',
+    'Jessica': 'jessica@cs10.org',
+    'Maxson': 'maxson@cs10.org',
 };
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
-cs10.LAB_ASSISTANT_MANAGER = "Lara";
+cs10.LAB_ASSISTANT_MANAGER = "MurtazaAli";
 
 // ASSIGNMENT IDS
 // Internal bCourses assignment IDs, as integers
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7860173,
-    hw2_id = 7860174,
-    hw3_id = 7860175,
-    midtermProj_id = 7860177,
-    explorePost_id = 5295013,
-    finalProj_id = 7860170;
+var hw1_id = 7893450,
+    hw2_id = 7893451,
+    hw3_id = 7893452,
+    midtermProj_id = 7893454,
+    //explorePost_id = 5295013,
+    siAssignment1_id = 7894014,
+    siAssignment2_id = 7894015,
+    finalProj_id = 7893448;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-    'LA Attendance: http://bjc.link/sp18LA',
+    'LA Attendance: http://bjc.link/su18LA',
     // 'Late Add From: goo.gl/avz4S1',
     'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
      //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     'Contacts Sheet: http://bjc.link/cs10contacts',
     `Grade book: ${cs10.gradebookURL}`,
     'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
-    'Student Billing Account Verification: http://bjc.link/sp18iclickeragreement',
-    'iClicker Checkout: http://bjc.link/sp18iclickercheckout',
-    'Register iClicker: http://bjc.link/sp18iclickerreg'
+    'Student Billing Account Verification: http://bjc.link/su18iclickeragreement',
+    'iClicker Checkout: http://bjc.link/su18iclickercheckout',
+    'Register iClicker: http://bjc.link/su18iclickerreg'
 ];
 
 // Links to backup sites for when things go to hell
@@ -137,7 +132,9 @@ cs10.slipDayAssignmentIDs = [
     hw3_id,
     midtermProj_id,
     //TODO: this is tricky to get if it's a discussion -- must use the API
-    explorePost_id,
+    //explorePost_id,
+    siAssignment1_id,
+    siAssignment2_id,
     finalProj_id
 ];
 
