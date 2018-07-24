@@ -30,6 +30,6 @@ module.exports = function (robot) {
         "I thought the Donner Party was a hockey team..."
     ];
     robot.respond(/kathleen quote/, {id: 'fun.kathleen-quote.kathleen'}, function(resp) {
-    	resp.send(`@${resp.match[1]} ${resp.random(kathleenQuotes)}`);
+    	resp.send(`${resp.random(kathleenQuotes)}`);
     });
 };
