@@ -25,5 +25,5 @@ show_octocats = (msg, count) ->
   msg.http('http://feeds.feedburner.com/Octocats')
     .query(format: 'xml')
     .get() (err, res, body) ->
-        octocats = res.match(/(?:<img src="http:\/\/octodex.github.com\/images\/)(.*)(?:" \/>)/gi).map(s => s.replace('<img src="', '').replace('" />', ''));
+        octocats = body.match(/(?:<img src="http:\/\/octodex.github.com\/images\/)(.*)(?:" \/>)/gi).map(s => s.replace('<img src="', '').replace('" />', ''));
         msg.send(msg.random(octocats)) for i in [1..count]
