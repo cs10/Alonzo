@@ -40,6 +40,7 @@
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
     "hubot-pusheen": "0.0.1",
     "hubot-redis-brain": "0.0.3",
+    "hubot-rules": "^0.1.2",
     "hubot-shipit": "^0.2.0",
     "hubot-thank-you": "git://github.com/hubot-scripts/hubot-thank-you.git",
     "hubot-whiteboardcleaner": "0.0.4",

@@ -9,6 +9,7 @@
     "hubot-pusheen",
     "hubot-plusplus",
     "hubot-redis-brain",
+    "hubot-rules",
     "hubot-shipit",
     "hubot-thank-you",
     "hubot-wikipedia",
