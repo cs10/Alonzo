@@ -1,7 +1,9 @@
 language: node_js
 node_js:
-- '5'
-- '4.2'
+- 'node' # latest
+- 'lts/*' # latest lts release
+- '8'
+- '4.2' # fallback.
 
 # Run on new infrastructure
 sudo: false
