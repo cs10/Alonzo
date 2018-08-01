@@ -31,6 +31,7 @@
     "hubot-google-auth": "git://github.com/aaaschmitt/hubot-google-auth.git",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-google-images": "^0.2.6",
+    "hubot-google-translate": "^0.2.1",
     "hubot-googledrive-search": "git://github.com/aaaschmitt/hubot-googledrive-search.git",
     "hubot-group-alias": "latest",
     "hubot-heroku-keepalive": "^1.0.0",
