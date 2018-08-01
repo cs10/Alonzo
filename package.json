@@ -53,8 +53,7 @@
     "node-native-zip": "^1.1.0",
     "nodemailer": "^2.1.0",
     "parse-link-header": "^0.4.1",
-    "request": "^2.67.0",
-    "xml2js": "^0.4.5"
+    "request": "^2.67.0"
   },
   "engines": {
     "node": "^8.x.x"
