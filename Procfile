@@ -1,1 +1,1 @@
-web: bin/hubot --adapter hipchat --name Alonzo --alias /
+web: bin/hubot --adapter slack --name Alonzo --alias /
