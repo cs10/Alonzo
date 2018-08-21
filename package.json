@@ -26,11 +26,12 @@
     "csv": "^0.4.6",
     "githubot": "^1.0.0",
     "googleapis": "^2.1.7",
-    "hubot": "latest",
+    "hubot": "^2.19.0",
     "hubot-auth": "1.2.0",
     "hubot-google-auth": "git://github.com/aaaschmitt/hubot-google-auth.git",
     "hubot-google-hangouts": "^0.7.1",
     "hubot-google-images": "^0.2.6",
+    "hubot-google-translate": "^0.2.1",
     "hubot-googledrive-search": "git://github.com/aaaschmitt/hubot-googledrive-search.git",
     "hubot-group-alias": "latest",
     "hubot-heroku-keepalive": "^1.0.0",
@@ -39,7 +40,8 @@
     "hubot-piazza": "^0.7.2",
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
     "hubot-pusheen": "0.0.1",
-    "hubot-redis-brain": "0.0.3",
+    "hubot-redis-brain": "0.0.4",
+    "hubot-rules": "^0.1.2",
     "hubot-shipit": "^0.2.0",
     "hubot-thank-you": "git://github.com/hubot-scripts/hubot-thank-you.git",
     "hubot-whiteboardcleaner": "0.0.4",
@@ -51,11 +53,10 @@
     "node-native-zip": "^1.1.0",
     "nodemailer": "^2.1.0",
     "parse-link-header": "^0.4.1",
-    "request": "^2.67.0",
-    "xml2js": "^0.4.5"
+    "request": "^2.67.0"
   },
   "engines": {
-    "node": "^4.2.x"
+    "node": "^8.x.x"
   },
   "devDependencies": {
     "bluebird": "^3.3.1",
