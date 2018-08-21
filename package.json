@@ -43,6 +43,7 @@
     "hubot-redis-brain": "0.0.4",
     "hubot-rules": "^0.1.2",
     "hubot-shipit": "^0.2.0",
+    "hubot-slack": "^4.5.3",
     "hubot-thank-you": "git://github.com/hubot-scripts/hubot-thank-you.git",
     "hubot-whiteboardcleaner": "0.0.4",
     "hubot-wikipedia": "0.0.2",
