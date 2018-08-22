@@ -83,17 +83,16 @@ var hw1_id = 7893450,
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-    'LA Attendance: http://bjc.link/su18LA',
+    'LA Attendance: bjc.link/fa18LA',
     // 'Late Add From: goo.gl/avz4S1',
-    'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
+    // 'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
      //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
-    'Contacts Sheet: http://bjc.link/cs10contacts',
-    `Grade book: ${cs10.gradebookURL}`,
-    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
-    'Student Billing Account Verification: http://bjc.link/su18iclickeragreement',
-    'iClicker Checkout: http://bjc.link/su18iclickercheckout',
-    'Register iClicker: http://bjc.link/su18iclickerreg'
-];
+    // 'Contacts Sheet: http://bjc.link/cs10contacts',
+    // `Grade book: ${cs10.gradebookURL}`,
+    // 'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
+    'Student Billing Account Verification: bjc.link/fa18iclickeragree',
+    'iClicker Checkout (TAs fill out): bjc.link/fa18iclickercheckout',
+    'Register iClicker: bjc.link/fa18iclickerreg'];
 
 // Links to backup sites for when things go to hell
 cs10.BACKUP_LINKS = [
