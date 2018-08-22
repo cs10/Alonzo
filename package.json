@@ -22,7 +22,7 @@
   "dependencies": {
     "canvas-grade-uploader": "^1.0.3",
     "canvas-lms": "git://github.com/cs10/node-canvas-lms.git#dev",
-    "coffeescript": "^1.10.0",
+    "coffeescript": "^1.x.x",
     "csv": "^0.4.6",
     "githubot": "^1.0.1",
     "googleapis": "^2.1.7",
@@ -35,7 +35,6 @@
     "hubot-googledrive-search": "git://github.com/aaaschmitt/hubot-googledrive-search.git",
     "hubot-group-alias": "latest",
     "hubot-heroku-keepalive": "^1.0.3",
-    "hubot-meme": "latest",
     "hubot-piazza": "^0.7.2",
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
     "hubot-pusheen": "0.0.1",
