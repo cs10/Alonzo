@@ -52,7 +52,7 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('6/18/2018');
+cs10.START_DATE = new Date('8/22/2018');
 
 // The quest due date (this just needs to be a string)
 cs10.questDate = new Date('9/18/2018');
@@ -65,7 +65,7 @@ cs10.TA_EMAILS = {
 };
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
-cs10.LAB_ASSISTANT_MANAGER = "MurtazaAli";
+cs10.LAB_ASSISTANT_MANAGER = "Mansi";
 
 // ASSIGNMENT IDS
 // Internal bCourses assignment IDs, as integers
@@ -83,16 +83,16 @@ var hw1_id = 7893450,
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-    'LA Attendance: http://bjc.link/su18LA',
+    'LA Attendance: bjc.link/fa18LA',
     // 'Late Add From: goo.gl/avz4S1',
-    'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
+    // 'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
      //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
-    'Contacts Sheet: http://bjc.link/cs10contacts',
-    `Grade book: ${cs10.gradebookURL}`,
-    'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
-    'Student Billing Account Verification: http://bjc.link/su18iclickeragreement',
-    'iClicker Checkout: http://bjc.link/su18iclickercheckout',
-    'Register iClicker: http://bjc.link/su18iclickerreg'
+    // 'Contacts Sheet: http://bjc.link/cs10contacts',
+    // `Grade book: ${cs10.gradebookURL}`,
+    // 'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
+    'Student Billing Account Verification: bjc.link/fa18iclickeragree',
+    'iClicker Checkout (TAs fill out): bjc.link/fa18iclickercheckout',
+    'Register iClicker: bjc.link/fa18iclickerreg'
 ];
 
 // Links to backup sites for when things go to hell
