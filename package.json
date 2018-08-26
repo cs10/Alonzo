@@ -8,7 +8,8 @@
     "hubot",
     "cs10",
     "bot",
-    "hipchat"
+    "slack",
+    "education"
   ],
   "description": "The friend and mascot of CS10.",
   "repository": {
@@ -35,7 +36,6 @@
     "hubot-googledrive-search": "git://github.com/aaaschmitt/hubot-googledrive-search.git",
     "hubot-group-alias": "latest",
     "hubot-heroku-keepalive": "^1.0.0",
-    "hubot-meme": "latest",
     "hubot-piazza": "^0.7.2",
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
     "hubot-pusheen": "0.0.1",
