@@ -18,7 +18,7 @@
   },
   "scripts": {
     "test": "npm run test-unit",
-    "test-unit": "mocha --require coffeescript/register tests"
+    "test-unit": "mocha --require coffeescript/register tests/*.coffee"
   },
   "dependencies": {
     "canvas-grade-uploader": "^1.0.3",
@@ -26,7 +26,7 @@
     "coffeescript": "^1.x.x",
     "csv": "^0.4.6",
     "githubot": "^1.0.1",
-    "googleapis": "^2.1.7",
+    "googleapis": "^33.0.0",
     "hubot": "^3.x.x",
     "hubot-auth": "1.2.0",
     "hubot-google-auth": "git://github.com/aaaschmitt/hubot-google-auth.git",
@@ -64,6 +64,6 @@
     "co": "^4.6.0",
     "dotenv": "^1.2.0",
     "hubot-test-helper": "^1.9.0",
-    "mocha": "^2.4.5"
+    "mocha": "^5.2.0"
   }
 }
