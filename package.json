@@ -18,7 +18,7 @@
   },
   "scripts": {
     "test": "npm run test-unit",
-    "test-unit": "mocha --compilers coffee:coffee-script/register tests"
+    "test-unit": "mocha --require coffeescript/register tests"
   },
   "dependencies": {
     "canvas-grade-uploader": "^1.0.3",
