@@ -9,6 +9,7 @@
 #
 # Commands:
 #   hubot calendar (me) - Display the current month's calendar
+#   hubout room name - Display the current room name
 #
 
 
@@ -24,7 +25,5 @@ module.exports = (robot) ->
   robot.respond /room name/i, (msg) ->
     msg.send msg.message.room
 
-  robot.hear /@all/i, (msg) ->
-    room = msg.message.room
-    # TODO: Get users in a room.
-    msg.reply('Please be careful when using `@ all`.')
+  robot.hear /@channel/i, (msg) ->
+    msg.reply('Please be careful when using `@ channel`.')
