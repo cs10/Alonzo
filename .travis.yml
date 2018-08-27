@@ -3,7 +3,6 @@ node_js:
 - 'node' # latest
 - 'lts/*' # latest lts release
 - '8'
-- '4.2' # fallback.
 
 # Run on new infrastructure
 sudo: false
