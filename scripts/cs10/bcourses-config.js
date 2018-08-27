@@ -23,7 +23,7 @@ cs10.test = TEST;
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
  ************************************************/
 
-// LAST UPDATED FOR: Summer 2018 - Jobel
+// LAST UPDATED FOR: Fall 2018- Mansi
 
 /**
  * COURSE AND ASSIGNMENT IDS
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2074182;
+cs10.labsID = 1474574;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -59,34 +59,39 @@ cs10.questDate = new Date('9/18/2018');
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
+    'Mansi': 'mansi@cs10.org',
+    'Aaron': 'aaron@cs10.org',
+    'Angela': 'angela@cs10.org',
+    'Bhumika': 'bhumika@cs10.org',
+    'Brendan': 'brendan@cs10.org',
     'Niket': 'niket@cs10.org',
-    'Jessica': 'jessica@cs10.org',
+    'Niki': 'niki@cs10.org',
+    'Matthew': 'matthew@cs10.org',
     'Maxson': 'maxson@cs10.org',
+    'Schuyler': 'schuyler@cs10.org',
+    'Varda': 'varda@cs10.org'
 };
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
-cs10.LAB_ASSISTANT_MANAGER = "Mansi";
+cs10.LAB_ASSISTANT_MANAGER = "emansishah";
 
 // ASSIGNMENT IDS
 // Internal bCourses assignment IDs, as integers
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7893450,
-    hw2_id = 7893451,
-    hw3_id = 7893452,
-    midtermProj_id = 7893454,
-    //explorePost_id = 5295013,
-    siAssignment1_id = 7894014,
-    siAssignment2_id = 7894015,
-    finalProj_id = 7893448;
+var hw1_id = 7914866,
+    hw2_id = 7914867,
+    hw3_id = 7914868,
+    midtermProj_id = 7914869,
+    explorePost_id = 7914861,
+    finalProj_id = 7914863;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
     'LA Attendance: http://bjc.link/fa18LA',
-    // 'Late Add From: goo.gl/avz4S1',
+    'Late Add From: bjc.link/fa18lateadds',
     // 'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
-     //`Late Add Form Password: ${process.env.LATE_ADD_FORM_PW}`,
     // 'Contacts Sheet: http://bjc.link/cs10contacts',
     // `Grade book: ${cs10.gradebookURL}`,
     // 'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
@@ -132,9 +137,7 @@ cs10.slipDayAssignmentIDs = [
     hw3_id,
     midtermProj_id,
     //TODO: this is tricky to get if it's a discussion -- must use the API
-    //explorePost_id,
-    siAssignment1_id,
-    siAssignment2_id,
+    explorePost_id,
     finalProj_id
 ];
 
@@ -170,8 +173,9 @@ cs10.lateAddAssignments = {
  **********************/
 
 // These are room names that are particularly useful
-cs10.LA_ROOM = 'lab_assistant_check-offs';
-cs10.TA_ROOM = 'lab_check-off_room';
+cs10.LA_ROOM = 'GC8MPM36X';
+cs10.TA_ROOM = 'GC8RMMVBL';
+cs10.STAFF_ROOM = 'GC90CNUGM';
 
 
 /**********************************
