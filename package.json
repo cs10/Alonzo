@@ -39,7 +39,7 @@
     "hubot-piazza": "^0.7.2",
     "hubot-plusplus": "git://github.com/cycomachead/hubot-plusplus.git",
     "hubot-pusheen": "0.0.1",
-    "hubot-redis-brain": "0.0.4",
+    "hubot-redis-brain": "^1.0.0",
     "hubot-rules": "^0.1.2",
     "hubot-shipit": "^0.2.1",
     "hubot-slack": "^4.5.4",
