@@ -90,11 +90,8 @@ var hw1_id = 7914866,
 // Helpful link for TAs
 cs10.HELP_LINKS = [
     'LA Attendance: http://bjc.link/fa18LA',
-    'Late Add Form: http://bjc.link/fa18lateadds',
-    // 'Late Assignments Form: https://goo.gl/forms/w9LuTSPgMOEL4dus1',
-    // 'Contacts Sheet: http://bjc.link/cs10contacts',
-    // `Grade book: ${cs10.gradebookURL}`,
-    // 'Get Snap! Project: https://alonzo.herokuapp.com/snap-proj.html',
+    'Late Add Deadlines Form: http://bjc.link/fa18lateadds',
+    'Late Assignments Form: https://goo.gl/forms/ZwxClCQTpyvDKAz42',
     'Student Billing Account Verification: http://bjc.link/fa18iclickeragree',
     'iClicker Checkout (TAs fill out): http://bjc.link/fa18iclickercheckout',
     'Register iClicker: http://bjc.link/fa18iclickerreg'
