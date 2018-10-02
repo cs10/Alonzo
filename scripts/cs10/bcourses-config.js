@@ -173,6 +173,7 @@ cs10.lateAddAssignments = {
 cs10.LA_ROOM = 'GC8MPM36X';
 cs10.TA_ROOM = 'GC8RMMVBL';
 cs10.STAFF_ROOM = 'GC90CNUGM';
+cs10.RQ_ROOM = 'GD5HXUE84';
 
 
 /**********************************
