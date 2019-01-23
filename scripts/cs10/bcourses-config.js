@@ -94,12 +94,11 @@ var hw1_id = 7949968,
 // Helpful link for TAs
 // double check @ niki
 cs10.HELP_LINKS = [
-    'LA Attendance: http://bjc.link/fa18LA',
-    'Late Add Deadlines Form: http://bjc.link/fa18lateadds',
-    'Late Assignments Form: https://goo.gl/forms/ZwxClCQTpyvDKAz42',
-    'Student Billing Account Verification: http://bjc.link/fa18iclickeragree',
-    'iClicker Checkout (TAs fill out): http://bjc.link/fa18iclickercheckout',
-    'Register iClicker: http://bjc.link/fa18iclickerreg'
+  'LA Attendance: http://bjc.link/sp19LA',
+  'iClicker Checkout (TAs fill out): http://bjc.link/sp19iclickercheckout',
+  'Student Register iClicker: http://bjc.link/sp19iclickerreg',
+  'Late Add Deadlines Form: http://bjc.link/fa18lateadds',
+  'Late Assignments Form: https://goo.gl/forms/ZwxClCQTpyvDKAz42'
 ];
 
 // Links to backup sites for when things go to hell
