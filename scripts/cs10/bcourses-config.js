@@ -85,7 +85,7 @@ cs10.HELP_LINKS = [
   'AI Attendance: http://bjc.link/su19AI',
   'iClicker Checkout (TAs fill out): http://bjc.link/su19iclickercheckout',
   'Student Register iClicker: http://bjc.link/su19iclickerreg',
-  'Late Assignment Grading Request: bjc.link/su19lategrade'
+  'Late Assignment Grading Request: http://bjc.link/su19lategrade'
 ];
 
 // Links to backup sites for when things go to hell
