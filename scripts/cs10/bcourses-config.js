@@ -130,13 +130,13 @@ cs10.slipDayAssignmentIDs = [
 ];
 
 // LABS
-cs10.labCheckOffPoints = 2;
-cs10.labCheckOffLatePts = 1;
+cs10.labCheckOffPoints = 3;
+cs10.labCheckOffLatePts = 1.5;
 //var oneWeek = 1000 * 60 * 60 * 24 * 7;
 //cs10.labSecsAllowedLate = oneWeek;
 cs10.labsSecsAllowedLate = 0;
 cs10.firstLab = 2;
-cs10.lastLab = 19;
+cs10.lastLab = 18;
 
 // Add special labs to the array below such as [1,2,3,4]
 // For summer there was special extra credit lab 42
