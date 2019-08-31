@@ -83,11 +83,9 @@ var hw1_id = 7949968,
 // Helpful link for TAs
 // double check @ niki
 cs10.HELP_LINKS = [
-  'AI Attendance: http://bjc.link/su19AI',
-  'iClicker Checkout (TAs fill out): http://bjc.link/su19iclickercheckout',
-  'Student Register iClicker: http://bjc.link/su19iclickerreg',
-  'Late Assignment Grading Request: http://bjc.link/su19lategrade',
-  'Discussion Attendance: http://bjc.link/su19disc'
+  'AI Attendance: https://bjc.link/Fa19AIAttendance',
+  'iClicker Registration: https://bjc.link/Fa19iClickerReg',
+  'Discussion Attendance: https://bjc.link/Fa19DiscAttendance'
 ];
 
 // Links to backup sites for when things go to hell
