@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1485842;
+cs10.courseID = 1489549;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2105824;
+cs10.labsID = 2115628;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -52,14 +52,13 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('8/26/2019');
+cs10.START_DATE = new Date('1/21/2020');
 
 
 // The quest due date (this just needs to be a string)
-cs10.questDate = new Date('2/11/2019');
+cs10.questDate = new Date('2/10/2020');
 
 // TA Emails taken from the website
-// double check @niki
 cs10.TA_EMAILS = {
     'Andrew': 'andrew@cs10.org',
     'Maxson': 'maxson@cs10.org'
@@ -73,18 +72,16 @@ cs10.LAB_ASSISTANT_MANAGER = "shannonhearnberkeleyedu";
 // They need to be updated every semester.
 // To get these just click on the assignmnet in bcourses. The url will be formatted as:
 // https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 7949968,
-    hw2_id = 7949969,
-    hw3_id = 7949970,
-    midtermProj_id = 7949972,
-    explorePost_id = 7949961,
-    finalProj_id = 7949963;
+var hw1_id = 8054982,
+    hw2_id = 8055006,
+    hw3_id = 8055018,
+    midtermProj_id = 8055066,
+    explorePost_id = 8055061,
+    finalProj_id = 8055068;
 
 // Helpful link for TAs
-// double check @ niki
 cs10.HELP_LINKS = [
   'AI Attendance: https://bjc.link/Fa19AIAttendance',
-  'iClicker Registration: https://bjc.link/Fa19iClickerReg',
   'Discussion Attendance: https://bjc.link/Fa19DiscAttendance'
 ];
 
