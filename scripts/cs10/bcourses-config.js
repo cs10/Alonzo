@@ -23,7 +23,7 @@ cs10.test = TEST;
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
  ************************************************/
 
-// LAST UPDATED FOR: Spring 2019 - Niki
+// LAST UPDATED FOR: Fall 2020 - Murtz
 
 /**
  * COURSE AND ASSIGNMENT IDS
