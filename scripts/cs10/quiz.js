@@ -19,7 +19,7 @@ var crypto = require('crypto');
 var cs10 = require('./bcourses-config.js');
 
 // Resetting a password can only be done in the TA room
-var TA_ROOM = 'cs10_staff_room_(private)',
+var RQ_ROOM = cs10.RQ_ROOM,
     RQ_GROUP_NAME = 'Reading Quizzes',
     RESET_MINS = 30,
     TIMEOUT = 1000 * 60 * RESET_MINS,
@@ -102,7 +102,7 @@ function simpleResetCallback(quizID, password, msg) {
 
 
 function processQuizMessage(resp) {
-    if (resp.message.room !== TA_ROOM && resp.message.room !== 'Shell') {
+    if (resp.message.room !== RQ_ROOM && resp.message.room !== 'Shell') {
         resp.send('You\'re not allowed to set quiz passwords in this room.');
         return;
     }
