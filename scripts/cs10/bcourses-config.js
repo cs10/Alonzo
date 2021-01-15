@@ -81,8 +81,9 @@ var hw1_id = 8054982,
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-  'AI Attendance: https://forms.gle/mExDKHZE5PV5Hejd7',
-  'Discussion Attendance: https://forms.gle/GQjn8zXWoQYbNECH9'
+  'AI Attendance: http://bjc.link/sp21ai',
+  'Discussion Attendance: http://bjc.link/sp21disc',
+  'Zoom Room: http://bjc.link/sp21zoom'
 ];
 
 // Links to backup sites for when things go to hell
