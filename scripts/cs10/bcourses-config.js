@@ -23,7 +23,7 @@ cs10.test = TEST;
  * STUFF THAT NEEDS TO BE UPDATED EACH SEMESTER *
  ************************************************/
 
-// LAST UPDATED FOR: Fall 2020 - Murtz
+// LAST UPDATED FOR: Spring 2021 - Yolanda
 
 /**
  * COURSE AND ASSIGNMENT IDS
@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1493756;
+cs10.courseID = 1502093;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2135026;
+cs10.labsID = 2150432;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -52,16 +52,16 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('8/26/2020');
+cs10.START_DATE = new Date('1/19/2021');
 
 
 // The quest due date (this just needs to be a string)
-cs10.questDate = new Date('2/10/2020');
+cs10.questDate = '2/7/2021';
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
-    'Isaac': 'isaac@cs10.org',
-    'Murtz': 'murtz@cs10.org'
+    'Yolanda': 'yashen@berkeley.edu',
+    'Shannon': 'shannon_hearn@berkeley.edu'
 };
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
@@ -81,8 +81,9 @@ var hw1_id = 8054982,
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
-  'AI Attendance: https://bjc.link/fa20ai',
-  'Discussion Attendance: https://bjc.link/sp20disc'
+  'AI Attendance: http://bjc.link/sp21ai',
+  'Discussion Attendance: http://bjc.link/sp21disc',
+  'Zoom Room: http://bjc.link/sp21zoom'
 ];
 
 // Links to backup sites for when things go to hell
