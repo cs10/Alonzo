@@ -83,7 +83,7 @@ var hw1_id = 8054982,
 cs10.HELP_LINKS = [
   'AI Attendance: http://bjc.link/sp21ai',
   'Discussion Attendance: http://bjc.link/sp21disc',
-  'Zoom Room: http://bjc.link/sp21zoom'
+  'Zoom Room: http://bjc.link/zoomroomsp21'
 ];
 
 // Links to backup sites for when things go to hell
