@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2150432;
+cs10.labsID = 2151567;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
