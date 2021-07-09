@@ -25,5 +25,3 @@ module.exports = (robot) ->
   robot.respond /room name/i, (msg) ->
     msg.send msg.message.room
 
-  robot.hear /@channel/i, (msg) ->
-    msg.reply('Please be careful when using `@ channel`.')
