@@ -9,6 +9,7 @@
 #
 # Author:
 #  Andrew Schmitt
+
 Helper = require('hubot-test-helper')
 helper = new Helper('../scripts');
 
