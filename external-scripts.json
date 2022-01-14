@@ -2,17 +2,6 @@
     "hubot-auth",
     "hubot-group-alias",
     "hubot-googledrive-search",
-    "hubot-google-hangouts",
-    "hubot-google-images",
-    "hubot-google-translate",
-    "hubot-piazza",
-    "hubot-pusheen",
-    "hubot-plusplus",
     "hubot-redis-brain",
-    "hubot-rules",
-    "hubot-shipit",
-    "hubot-thank-you",
-    "hubot-wikipedia",
-    "hubot-whiteboardcleaner",
     "hubot-xkcd"
 ]
