@@ -1,17 +1,8 @@
 {
-  "name": "Alonzo",
+  "name": "alonzo",
   "version": "1.0.1",
   "private": true,
   "author": "Michael Ball",
-  "keywords": [
-    "github",
-    "hubot",
-    "cs10",
-    "bot",
-    "slack",
-    "education"
-  ],
-  "description": "The friend and mascot of CS10.",
   "repository": {
     "type": "git",
     "url": "https://github.com/cs10/alonzo.git"
