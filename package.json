@@ -25,10 +25,10 @@
     "hubot-group-alias": "latest",
     "hubot-heroku-keepalive": "^1.0.0",
     "hubot-redis-brain": "0.0.4",
-    "hubot-slack": "^4.5.3",
+    "hubot-slack": "^4.10.0",
     "hubot-xkcd": "0.0.3",
-    "lodash": "^4.17.10",
-    "mime": "^1.3.4",
+    "lodash": "^4.17.21",
+    "mime": "^1.6.0",
     "natural": "^0.2.1",
     "node-native-zip": "^1.1.0",
     "nodemailer": "^2.1.0",
@@ -43,7 +43,7 @@
     "chai": "^3.5.0",
     "co": "^4.6.0",
     "dotenv": "^1.2.0",
-    "hubot-test-helper": "^1.4.4",
+    "hubot-test-helper": "^1.9.0",
     "mocha": "^2.4.5"
   }
 }
