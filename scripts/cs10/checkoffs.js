@@ -1,7 +1,7 @@
 // Description:
 //   Handle lab check offs in hipchat. No more paper needed! :D
 //
-//   If you're just getting started with this file take a look at 
+//   If you're just getting started with this file take a look at
 //   the MAIN CHECKOFF CODE section near the bottom of this file
 //
 // Dependencies:
@@ -88,9 +88,9 @@ function getSIDCount(labs) {
     };
 }
 
-/** 
+/**
  * Verify and Group all the LA data for easy assignment posting
- * Each set of checkoffs creates: 
+ * Each set of checkoffs creates:
  *      <num>: { ontime: [], late: [] }
  * There is one object for safe check-offs and one for sketchy checkoffs
  */
@@ -143,7 +143,7 @@ function reviewLAData(data) {
  * SKETCHY TESTS *
  *****************/
 
-/** 
+/**
  * Determine whether an LA checkoff is sketchy.
  *  "Sketchy" means that something about the check off isn't normal.
  *  The conditions are defined below in sketchyTests.
@@ -163,7 +163,7 @@ function isSketchy(co, assignments) {
     return results;
 };
 
-/** 
+/**
  * A way of building a function and a corresponding error message.
  *  If test fails → error is shown
  *  The tests are a map of name: {test-object}
@@ -265,7 +265,7 @@ function processCheckOff(msg) {
 }
 
 /**
- * Proccess the regex match into a common formatted object 
+ * Proccess the regex match into a common formatted object
  */
 function extractMessage(text) {
     // Parse the following components out of a message.
@@ -378,7 +378,7 @@ function sendSketchyWarning(msg, errors) {
 }
 
 /**
- * Send the appropriate error message based on whether 
+ * Send the appropriate error message based on whether
  * the checkoff was done by an LA or TA
  */
 function sendErrorMsg(sid, body, msg, isTA) {
@@ -544,7 +544,7 @@ module.exports = function(robot) {
         }
         var data = cs10Cache.getLaData(),
             last = data[data.length - 1];
-        msg.send('/code', JSON.stringify(last));
+        msg.send(`\`\`\`${JSON.stringify(last)}\`\`\``);
     });
 
 };
