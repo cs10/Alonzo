@@ -32,7 +32,7 @@ cs10.test = TEST;
 // This is the bcourses course ID
 // https://bcourses.berkeley.edu/courses/<course-id>
 // Michael Sandbox: 1268501
-cs10.courseID = 1502093;
+cs10.courseID = 1513042;
 
 // DOES NOT CHANGE: all endpoints are based of the course, at least for our usage
 cs10.baseURL = `/courses/${cs10.courseID}/`;
@@ -44,7 +44,7 @@ cs10.gradebookURL = `${bCoursesURL+cs10.baseURL}gradebook`;
 // Get the id from this URL:
 // https://bcourses.berkeley.edu/api/v1/courses/<course-id>/assignment_groups
 // Michael Sandbox: 1593713
-cs10.labsID = 2151567;
+cs10.labsID = 2182850;
 
 // The google drive id of the file for the late add form data. Open the file and look at the url:
 // For example --> https://docs.google.com/spreadsheets/d/<file-id-we-want>/edit#gid=1772779228
@@ -52,11 +52,12 @@ cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1tvWvV_PPL3C9Y5UqMzwWnJpUox1KC1lNDFVvOMs-4zE
 // cs10.LATE_ADD_RESPONSES_DRIVE_ID = '1-5RZESFvsQ02JNSR3hWXX11qpFoFkmWrnQDoFdZWZ5c'; // A COPY OF THE ACTUAL FORM TO USE FOR TESTING
 
 // The start date of the course (this needs to be a date object)
-cs10.START_DATE = new Date('1/19/2021');
+// Monday of the first week of classes.
+cs10.START_DATE = new Date('1/17/2022');
 
 
 // The quest due date (this just needs to be a string)
-cs10.questDate = '2/7/2021';
+cs10.questDate = '2/8/2022';
 
 // TA Emails taken from the website
 cs10.TA_EMAILS = {
@@ -66,18 +67,6 @@ cs10.TA_EMAILS = {
 
 // Use the name that you would use in hipchat for example @Steven --> "Steven"
 cs10.LAB_ASSISTANT_MANAGER = "shannonhearnberkeleyedu";
-
-// ASSIGNMENT IDS
-// Internal bCourses assignment IDs, as integers
-// They need to be updated every semester.
-// To get these just click on the assignmnet in bcourses. The url will be formatted as:
-// https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
-var hw1_id = 8054982,
-    hw2_id = 8055006,
-    hw3_id = 8055018,
-    midtermProj_id = 8055066,
-    explorePost_id = 8055061,
-    finalProj_id = 8055068;
 
 // Helpful link for TAs
 cs10.HELP_LINKS = [
@@ -114,6 +103,18 @@ cs10.SWAP_IDS = {};
 // This is the email that is linked to alonzo (used by the late add emailer)
 cs10.ADMIN_EMAIL = 'alonzo-bot@berkeley.edu';
 
+// ASSIGNMENT IDS -- Used for Slip Day Calculation
+// Internal bCourses assignment IDs, as integers
+// They need to be updated every semester.
+// To get these just click on the assignmnet in bcourses. The url will be formatted as:
+// https://bcourses.berkeley.edu/courses/<course-id>/assignments/<assignment-id>
+var hw1_id = 8054982,
+    hw2_id = 8055006,
+    hw3_id = 8055018,
+    midtermProj_id = 8055066,
+    explorePost_id = 8055061,
+    finalProj_id = 8055068;
+
 // SLIP DAY ASSIGNMENTS
 cs10.gracePeriodMinutes = 15;
 cs10.allowedSlipDays = 3;
@@ -128,11 +129,11 @@ cs10.slipDayAssignmentIDs = [
 ];
 
 // LABS
-cs10.labCheckOffPoints = 2;
-cs10.labCheckOffLatePts = 1;
-//var oneWeek = 1000 * 60 * 60 * 24 * 7;
-//cs10.labSecsAllowedLate = oneWeek;
-cs10.labsSecsAllowedLate = 0;
+cs10.labCheckOffPoints = 2.5;
+cs10.labCheckOffLatePts = 2.5;
+var threeDays = 1000 * 60 * 60 * 24 * 3;
+cs10.labSecsAllowedLate = threeDays;
+// cs10.labsSecsAllowedLate = 0;
 cs10.firstLab = 2;
 cs10.lastLab = 19;
 
@@ -155,14 +156,15 @@ cs10.lateAddAssignments = {
 };
 
 /**********************
- * SOME HIPCHAT STUFF *
+ * SOME SLACK STUFF *
  **********************/
 
 // These are room names that are particularly useful
-cs10.LA_ROOM = 'GC8MPM36X';
-cs10.TA_ROOM = 'GC8RMMVBL';
-cs10.STAFF_ROOM = 'GC90CNUGM';
-cs10.RQ_ROOM = 'GD5HXUE84';
+// LA_ROOM is use for Lab Checkoffs
+cs10.LA_ROOM = 'C02UFNRRHS8';
+cs10.TA_ROOM = 'C02TYS09P3J';
+cs10.STAFF_ROOM = 'C02TYS09P3J';
+cs10.RQ_ROOM = 'C02TYS09P3J';
 
 
 /**********************************
