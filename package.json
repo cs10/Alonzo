@@ -16,11 +16,11 @@
     "canvas-lms": "git://github.com/cs10/node-canvas-lms.git#dev",
     "coffeescript": "^1.10.0",
     "githubot": "^1.0.0",
-    "hubot": "^2.19.0",
+    "hubot": "^3.3.2",
     "hubot-auth": "latest",
-    "hubot-group-alias": "latest",
+    "hubot-group-alias": "^1.7.0",
     "hubot-heroku-keepalive": "^1.0.0",
-    "hubot-redis-brain": "latest",
+    "hubot-redis-brain": "git://github.com/hubotio/hubot-redis-brain.git",
     "hubot-slack": "^4.10.0"
   },
   "engines": {
@@ -32,6 +32,6 @@
     "co": "^4.6.0",
     "dotenv": "^1.2.0",
     "hubot-test-helper": "^1.9.0",
-    "mocha": "^2.4.5"
+    "mocha": "^9.1.4"
   }
 }
