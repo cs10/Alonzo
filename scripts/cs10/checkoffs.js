@@ -31,11 +31,6 @@ var MIN_LAB = cs10.firstLab;
 var MAX_LAB = cs10.lastLab;
 var SPECIAL_LABS = cs10.specialLabs;
 
-// A long regex to parse a lot of different check off commands.
-var checkOffRegExp = /(late\s*)?(?:lab[- ])?check(?:ing)?(?:[-\s])?off\s+(\d+)\s*(late)?\s*((?:\d+\s*)*)\s*/i;
-// A generic expression that matches all messages
-var containsSIDExp = /.*x?\d{5,}/gi;
-
 // Global-ish stuff for successful lab checkoff submissions.
 var successes,
     failures,
@@ -545,6 +540,20 @@ module.exports = function(robot) {
         var data = cs10Cache.getLaData(),
             last = data[data.length - 1];
         msg.send(`\`\`\`${JSON.stringify(last)}\`\`\``);
+    });
+
+    robot.respond(/RESET CHECKOFF DATA/,
+        { id: 'cs10.checkoff.reset-data' },
+        (msg) => {
+        user = robot.brain.userForName(msg.message.user.name)
+
+        if (robot.auth.hasRole(user, 'admin')) {
+            msg.reply('Only Admins can reset lab check off data.')
+            msg.send(`User Info: ${JSON.stringify(user)}`)
+            return;
+        }
+        cs10Cache.setLaData({});
+        msg.reply('Lab Checkoff Data was reset.');
     });
 
 };
