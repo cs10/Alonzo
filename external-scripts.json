@@ -1,7 +1,5 @@
 [
     "hubot-auth",
     "hubot-group-alias",
-    "hubot-googledrive-search",
-    "hubot-redis-brain",
-    "hubot-xkcd"
+    "hubot-redis-brain"
 ]
