@@ -24,7 +24,7 @@
     "hubot-googledrive-search": "git://github.com/aaaschmitt/hubot-googledrive-search.git",
     "hubot-group-alias": "latest",
     "hubot-heroku-keepalive": "^1.0.0",
-    "hubot-redis-brain": "0.0.4",
+    "hubot-redis-brain": "latest",
     "hubot-slack": "^4.10.0",
     "hubot-xkcd": "0.0.3",
     "lodash": "^4.17.21",
