@@ -18,7 +18,7 @@
     "githubot": "^1.0.0",
     "hubot": "^3.3.2",
     "hubot-auth": "latest",
-    "hubot-group-alias": "^1.7.0",
+    "hubot-group-alias": "^2.2.0",
     "hubot-heroku-keepalive": "^1.0.0",
     "hubot-redis-brain": "git://github.com/hubotio/hubot-redis-brain.git",
     "hubot-slack": "^4.10.0"
