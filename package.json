@@ -17,7 +17,7 @@
     "coffeescript": "^1.10.0",
     "csv": "^0.4.6",
     "githubot": "^1.0.0",
-    "googleapis": "^2.1.7",
+    "googleapis": "^39.1.0",
     "hubot": "^2.19.0",
     "hubot-auth": "1.2.0",
     "hubot-google-auth": "git://github.com/aaaschmitt/hubot-google-auth.git",
