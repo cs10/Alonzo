@@ -49,7 +49,6 @@
     - cs10Cache.disable() -> enable autocaching for cache objects
  */
 
-var link_parse = require('parse-link-header');
 var fs = require('fs');
 var util = require('util');
 var cs10 = require('./bcourses-config.js');
@@ -72,8 +71,7 @@ var STAFF_CACHE_KEY = 'STAFF_IDS',
     LA_DATA_KEY = 'LA_DATA',
     LATE_ADD_DATA_KEY = 'LATE_ADD_DATA',
     LATE_ADD_POLICY_KEY = 'LATE_ADD_POLICIES',
-    ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS',
-    STUDENT_CACHE_KEY = 'ALL_STUDENTS';
+    ALL_ASSIGNMENTS_KEY = 'ALL_ASSIGNMENTS';
 
 /**
  * Expects two objects (error, resp) which will each have a msg attribute
@@ -249,77 +247,6 @@ var cacheAllAssignments = function(cb) {
     robot.logger.info('Attempting to cache all assignments');
     cacheObject(url, params, key, allAssignmentsProcessor, errMsg, sucMsg, cacheLength, cb);
 };
-
-/**
- * Caches information for all students
- * Current cached fields: name, short_name, email, enrollments
- * Needs to deal with pagination so this function does not use the cacheObject function
- *
- * DATA ORGANIZATION {student_id : student_obj,....}
- *
- * ERROR: IT APPEARS THAT REDIS BRAIN CANNOT HANDLE THE AMOUNT OF MEMORY THIS TAKES
- */
-// var cacheAllStudents = function(cb) {
-//     var url = `${cs10.baseURL}users`,
-//         params = {
-//             'per_page': '100',
-//             'enrollment_type[]': ['student']
-//         },
-//         errMsg = 'There was a problem caching individual student data :(',
-//         sucMsg = 'Successfully cached individual student data! :)',
-//         key = STUDENT_CACHE_KEY,
-//         cacheLength = DEFAULT_CACHE_HOURS;
-
-//     var students = [],
-//         sdi;
-
-//     var linkCb = function(err, resp, body) {
-//         if (err || !body || resp.statusCode >= 400) {
-//             if (cb) {
-//                 resp = resp || {};
-//                 cb({
-//                     msg: `${errMsg}\nAPI status: ${resp.statusCode}, ${resp.statusMessage}`
-//                 }, null);
-//             }
-//             return;
-//         }
-
-//         body.forEach(function(student) {
-//             sid = student.sis_user_id;
-//             students[sid] = student.name;
-//         });
-
-//         var headers = resp.headers || {},
-//             link_header = headers['Link'] || headers['link'] || 'none',
-//             parsed_link_header = link_parse(link_header) || {},
-//             next_link = parsed_link_header['next'];
-
-//         if (next_link && next_link['url']) {
-//             var endpoint = removeBaseURL(next_link['url']);
-//             console.log('fetching page from:', endpoint);
-//             cs10.get(endpoint, '', linkCb);
-//             return;
-//         }
-
-//         var cacheObj = createCacheObj(students, cacheLength);
-//         robot.brain.set(key, cacheObj);
-
-//         if (cb) {
-//             cb(null, {
-//                 msg: sucMsg
-//             });
-//         }
-//     };
-
-//     cs10.get(url, params, linkCb);
-// }
-
-var removeBaseURL = function(url) {
-    var res = url.replace(cs10.host, '');
-    res = res.replace('/api/' + cs10.apiVersion, '');
-    return res;
-}
-
 
 /**
  * Checks if a cacheObj is valid

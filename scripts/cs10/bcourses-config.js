@@ -163,7 +163,6 @@ cs10.lateAddAssignments = {
 // LA_ROOM is use for Lab Checkoffs
 cs10.LA_ROOM = 'C02UFNRRHS8';
 cs10.TA_ROOM = 'C02TYS09P3J';
-cs10.STAFF_ROOM = 'C02TYS09P3J';
 cs10.RQ_ROOM = 'C02TYS09P3J';
 
 

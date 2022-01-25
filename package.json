@@ -15,25 +15,13 @@
     "canvas-grade-uploader": "^1.0.3",
     "canvas-lms": "git://github.com/cs10/node-canvas-lms.git#dev",
     "coffeescript": "^1.10.0",
-    "csv": "^0.4.6",
     "githubot": "^1.0.0",
-    "googleapis": "^2.1.7",
     "hubot": "^2.19.0",
-    "hubot-auth": "1.2.0",
-    "hubot-google-auth": "git://github.com/aaaschmitt/hubot-google-auth.git",
-    "hubot-googledrive-search": "git://github.com/aaaschmitt/hubot-googledrive-search.git",
+    "hubot-auth": "latest",
     "hubot-group-alias": "latest",
     "hubot-heroku-keepalive": "^1.0.0",
-    "hubot-redis-brain": "0.0.4",
-    "hubot-slack": "^4.10.0",
-    "hubot-xkcd": "0.0.3",
-    "lodash": "^4.17.21",
-    "mime": "^1.6.0",
-    "natural": "^0.2.1",
-    "node-native-zip": "^1.1.0",
-    "nodemailer": "^2.1.0",
-    "parse-link-header": "^0.4.1",
-    "request": "^2.67.0"
+    "hubot-redis-brain": "latest",
+    "hubot-slack": "^4.10.0"
   },
   "engines": {
     "node": "^8.x.x"
