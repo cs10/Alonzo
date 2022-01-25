@@ -348,7 +348,7 @@ function doLACheckoff(assignments, data, msg) {
 
     checkoff.sketchy = wasSketchy;
 
-    //save LA checkoffs to robot brain
+    // save LA checkoffs to robot brain
     var laData = cs10Cache.getLaData() || [];
     laData.push(checkoff);
     cs10Cache.setLaData(laData);

@@ -14,7 +14,7 @@
   "dependencies": {
     "canvas-grade-uploader": "^1.0.3",
     "canvas-lms": "git://github.com/cs10/node-canvas-lms.git#dev",
-    "coffeescript": "^2.0.0",
+    "coffeescript": "< 2.0.0",
     "githubot": "^1.0.0",
     "hubot": "^3.3.2",
     "hubot-auth": "latest",
