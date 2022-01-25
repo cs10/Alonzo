@@ -20,11 +20,11 @@
     "hubot-auth": "latest",
     "hubot-group-alias": "^2.2.0",
     "hubot-heroku-keepalive": "^1.0.0",
-    "hubot-redis-brain": "git://github.com/hubotio/hubot-redis-brain.git",
+    "hubot-redis-brain": "git://github.com/hubotio/hubot-redis-brain.git#master",
     "hubot-slack": "^4.10.0"
   },
   "engines": {
-    "node": "^8.x.x"
+    "node": ">=12.0.0"
   },
   "devDependencies": {
     "bluebird": "^3.3.1",
